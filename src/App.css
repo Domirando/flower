@@ -1,7 +1,8 @@
+
 .app-wrapper{
   grid-template-areas: 'header header'
                         'nav content';
-  @apply grid grid-rows-[70px_1fr] gap-3 grid-cols-[2fr_10fr];
+  @apply h-screen grid grid-rows-[70px_1fr] gap-3 grid-cols-[2fr_10fr];
 }
 .header{
   grid-area: header;
@@ -22,4 +23,13 @@
 }
 .content .content-text{
   @apply p-6;
+}
+a{
+  @apply cursor-pointer;
+}
+.content-main-card > img{
+  @apply h-[150px] object-contain;
+}
+.content-main-card{
+  @apply flex gap-5;
 }
