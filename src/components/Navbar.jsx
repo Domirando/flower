@@ -13,6 +13,7 @@ const Navbar = () => {
             <div>
                 <a> Settings </a>
             </div>
+
         </nav>
     )
 }
