@@ -1,0 +1,19 @@
+.content{
+    grid-area: content;
+    @apply  bg-slate-200;
+}
+.content > img{
+    @apply w-full h-2/6 object-cover;
+}
+.content .content_text{
+    @apply p-6;
+}
+.content_main_card > img{
+    @apply h-[150px] object-contain;
+}
+.content_main_card{
+    @apply flex gap-5 p-4;
+}
+.item{
+    @apply text-green-800;
+}

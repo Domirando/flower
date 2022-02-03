@@ -1,24 +1,16 @@
-import './Profile.css'
+import './MyPosts.css'
 
-const Profile = () => {
+const MyPosts = () => {
 	return (
-		<div className="content bg-red-400">
-            <img src='https://images.unsplash.com/photo-1469474968028-56623f02e42e?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=874&q=80' alt=''/>
-            <div className="content-main">
-                <div className="content-main-card">
-                    <img src='https://www.collinsdictionary.com/images/full/dog_230497594.jpg'/>
-                    <div className="card-text">
-                        <div>ava+description</div>
-                        <div>my posts</div>
-                        <div>new posts</div>
-                        <div className='posts'>
-                            <div className='item'>post 1</div>
-                            <div className='item'>post 2</div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
+		<div className='my_posts'>
+			<h4>My posts</h4>
+			<div className='new_posts'>
+				<h5>New Posts</h5>
+				<div className='posts'>
+
+				</div>
+			</div>
+		</div>
 	)
 }
-export default Profile;
+export default MyPosts;
