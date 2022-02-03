@@ -1,6 +1,6 @@
 .content{
     grid-area: content;
-    @apply  bg-slate-300;
+    @apply  bg-slate-200;
 }
 .content > img{
     @apply w-full h-2/6 object-cover;
@@ -13,4 +13,7 @@
 }
 .content-main-card{
     @apply flex gap-5 p-4;
+}
+.item{
+    @apply text-green-800;
 }
