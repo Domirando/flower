@@ -1,16 +1,18 @@
+import styles from '../styles/Navbar.module.css'
+
 const Navbar = () => {
     return (
-        <nav className='nav'>
-            <div>
+        <nav className={styles.nav}>
+            <div className={`${styles.item} ${styles.active}`}>
                 <a> Profile </a>
             </div>
-            <div>
+            <div className={styles.item}>
                 <a> News </a>
             </div>
-            <div>
+            <div className={styles.item}>
                 <a> Messages </a>
             </div>
-            <div>
+            <div className={styles.item}>
                 <a> Settings </a>
             </div>
 

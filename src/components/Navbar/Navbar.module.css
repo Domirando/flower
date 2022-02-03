@@ -5,3 +5,6 @@
 .item{
   @apply text-red-600
 }
+.item.active{
+  @apply text-amber-400;
+}
