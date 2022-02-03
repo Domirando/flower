@@ -1,0 +1,5 @@
+
+.nav {
+  grid-area: nav;
+  @apply bg-blue-200 p-5;
+}

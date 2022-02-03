@@ -1,0 +1,16 @@
+.content{
+    grid-area: content;
+    @apply  bg-slate-300;
+}
+.content > img{
+    @apply w-full h-2/6 object-cover;
+}
+.content .content-text{
+    @apply p-6;
+}
+.content-main-card > img{
+    @apply h-[150px] object-contain;
+}
+.content-main-card{
+    @apply flex gap-5 p-4;
+}
