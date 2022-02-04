@@ -3,8 +3,11 @@ import Navbar from './components/Navbar/Navbar'
 import Profile from './components/Profile/Profile'
 import './App.css';
 import Dialogs from './components/Dialogs/Dialogs.jsx'
-import {BrowserRouter, Route} from 'react-router-dom'
-import { Routes } from 'react-router'
+import {
+    BrowserRouter,
+    Routes,
+    Route
+} from "react-router-dom";
 
 function App() {
   return (
@@ -13,9 +16,11 @@ function App() {
                 <Header />
                 <Navbar />
                 <div className="app-wrapper-content">
-                    <Route element={<Dialogs />} path='/dialogs'/>
-                    {/*<Route element={<Profile />} path='/'/>*/}
+                    <Routes>
+                        <Route element={<Dialogs />} path='/dialogs'/>
+                        <Route element={<Profile />} path='/'/>
                     {/*<Profile/>*/}
+                    </Routes>
                 </div>
             </div>
       </BrowserRouter>
