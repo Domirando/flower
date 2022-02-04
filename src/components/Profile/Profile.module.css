@@ -2,6 +2,9 @@
     grid-area: content;
     @apply  bg-slate-200;
 }
+.main_content{
+    @apply p-3.5;
+}
 .content > img{
     @apply w-full h-2/6 object-cover;
 }
@@ -12,7 +15,7 @@
     @apply h-[150px] object-contain;
 }
 .content_main_card{
-    @apply flex gap-5 p-4;
+    @apply flex gap-5;
 }
 .item{
     @apply text-green-800;
