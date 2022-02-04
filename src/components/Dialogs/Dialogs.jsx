@@ -2,7 +2,9 @@ import styles from './Dialogs.module.css'
 
 const Dialogs = (props) => {
     return (
-        <div><p>hi there</p></div>
+        <div>
+            <p>hi there</p>
+        </div>
     )
 }
 

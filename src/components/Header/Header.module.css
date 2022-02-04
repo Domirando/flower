@@ -1,7 +1,10 @@
 .header{
   grid-area: header;
+  @apply fixed w-screen;
+}
+.header_content{
   @apply bg-blue-200 p-1;
 }
-.header > img{
+.header_content > img{
   max-width: 65px;
 }

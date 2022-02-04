@@ -4,7 +4,9 @@ import styles from './Header.module.css'
 const Header = () => {
     return (
         <header className={styles.header}>
-            <img src={logo} alt=''/>
+            <div className={styles.header_content}>
+                <img src={logo} alt=''/>
+            </div>
         </header>
     )
 }
