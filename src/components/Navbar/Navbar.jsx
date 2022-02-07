@@ -10,7 +10,7 @@ const Navbar = () => {
     return (
         <nav className={styles.nav} >
             <div className={styles.item}>
-                <NavLink className={({ isActive }) => isActive ? styles.active : undefined} exact to='' > Profile </NavLink>
+                <NavLink className={({ isActive }) => isActive ? styles.active : undefined} to='/' > Profile </NavLink>
             </div>
             <div className={styles.item}>
                 <NavLink className={({ isActive }) => isActive ? styles.active : undefined} to='news'> News </NavLink>

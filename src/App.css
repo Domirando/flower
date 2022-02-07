@@ -9,4 +9,5 @@ a{
 }
 .app-wrapper-content{
     grid-area: content;
+    @apply bg-slate-100
 }
