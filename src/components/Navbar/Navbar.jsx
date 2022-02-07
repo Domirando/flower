@@ -5,7 +5,7 @@ const Navbar = () => {
     return (
         <nav className={styles.nav}>
             <div className={`${styles.item} ${styles.active}`}>
-                <Link to='profile'> Profile </Link>
+                <Link to='/'> Profile </Link>
             </div>
             <div className={styles.item}>
                 <Link to='news'> News </Link>
