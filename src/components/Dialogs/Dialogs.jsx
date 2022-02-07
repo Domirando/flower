@@ -7,6 +7,7 @@ import {
 } from "react-router-dom";
 import Messages from "./Messages";
 import Wallpaper from "./Wallpaper";
+import DialogItem from "./DialogItem";
 
 
 const Dialogs = (props) => {
@@ -14,38 +15,12 @@ const Dialogs = (props) => {
         <BrowserRouter>
             <div className={styles.dialogs}>
                 <div className={styles.dialogsItems}>
-                    <div className={styles.dialog}>
-                        <NavLink to="/dialogs/1"
-                                 className={({isActive}) => isActive ? styles.active : undefined}>Tommy</NavLink>
-                    </div>
-                    <div className={styles.dialog}>
-                        <NavLink to="/dialogs/2"
-                                 className={({isActive}) => isActive ? styles.active : undefined}>Peter</NavLink>
-                    </div>
-                    <div className={styles.dialog}>
-                        <NavLink to="/dialogs/3"
-                                 className={({isActive}) => isActive ? styles.active : undefined}>Rose</NavLink>
-                    </div>
-                    <div className={styles.dialog}>
-                        <NavLink to="/dialogs/4"
-                                 className={({isActive}) => isActive ? styles.active : undefined}>Ann</NavLink>
-                    </div>
-                    <div className={styles.dialog}>
-                        <NavLink to="/dialogs/5"
-                                 className={({isActive}) => isActive ? styles.active : undefined}>Maisie</NavLink>
-                    </div>
-                    <div className={styles.dialog}>
-                        <NavLink to="/dialogs/6"
-                                 className={({isActive}) => isActive ? styles.active : undefined}>Harry</NavLink>
-                    </div>
-                    <div className={styles.dialog}>
-                        <NavLink to="/dialogs/7"
-                                 className={({isActive}) => isActive ? styles.active : undefined}>Ron</NavLink>
-                    </div>
+                    <DialogItem name='Tommy' id='1'/>
+                    <DialogItem name='Sara' id='2'/>
+                    <DialogItem name='Maisie' id='3'/>
                 </div>
                 <Routes>
-                    <Route exact element={<Messages/>} path='/dialogs/'/>
-                    <Route element={<Wallpaper/>} path='/dialogs/1'/>
+                    <Route element={<Wallpaper/>}/>
                 </Routes>
             </div>
         </BrowserRouter>
