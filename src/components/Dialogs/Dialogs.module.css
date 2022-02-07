@@ -8,5 +8,5 @@
 
 }
 .active{
-
+    @apply text-amber-400
 }

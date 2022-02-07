@@ -2,9 +2,9 @@
   grid-area: nav;
   @apply bg-blue-200 p-5;
 }
-.item{
-  @apply text-red-600
+.item {
+  @apply text-red-600;
 }
-.item.active{
+.active{
   @apply text-amber-400;
 }

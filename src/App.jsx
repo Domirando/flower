@@ -17,9 +17,8 @@ function App() {
                 <Navbar />
                 <div className="app-wrapper-content">
                     <Routes>
-                        <Route element={<Dialogs />} path='/dialogs'/>
+                        <Route exact element={<Dialogs />} path='/dialogs'/>
                         <Route element={<Profile />} path='/'/>
-                    {/*<Profile/>*/}
                     </Routes>
                 </div>
             </div>
