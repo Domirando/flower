@@ -4,10 +4,10 @@
 .dialogsItems{
     @apply  bg-slate-200 min-h-screen p-7;
 }
-.dialogsItems.dialog a{
-    @apply bg-blue-800;
+.dialog{
+    @apply flex flex-col mb-3 text-pink-900 font-bold text-[1.2rem] hover:text-amber-400 items-start;
 }
-.active{
+.dialog.active{
     @apply text-red-400
 }
 .messages{
