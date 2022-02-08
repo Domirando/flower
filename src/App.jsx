@@ -4,26 +4,26 @@ import Profile from './components/Profile/Profile'
 import './App.css';
 import Dialogs from './components/Dialogs/Dialogs.jsx'
 import {
-    BrowserRouter,
+    BrowserRouter as Router,
     Routes,
     Route
 } from "react-router-dom";
 
-function App() {
-  return (
-      <BrowserRouter>
+function App({ messages, posts, dialogs }) {
+    return (
+        <Router>
             <div className="app-wrapper">
-                <Header />
-                <Navbar />
+                <Header/>
+                <Navbar/>
                 <div className="app-wrapper-content">
                     <Routes>
-                        <Route exact element={<Dialogs />} path='/dialogs'/>
-                        <Route element={<Profile />} path='/'/>
+                        <Route element={<Dialogs dialogs={dialogs} messages = {messages}/>} path='/dialogs'/>
+                        <Route element={<Profile posts = {posts}/>} path='/'/>
                     </Routes>
                 </div>
             </div>
-      </BrowserRouter>
-  );
+        </Router>
+    );
 }
 
 export default App;

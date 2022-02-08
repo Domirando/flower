@@ -1,7 +1,14 @@
 import './MyPosts.css'
 import Post from './Post/Post'
 
-const MyPosts = () => {
+const MyPosts = ({ posts }) => {
+	// let posts = [
+	// 	{id: 1, title: 'Organizator?!, Web Hackathon', likesCount: 5, dislikesCount: 0},
+	// 	{id: 2, title: 'Hello!, Global Digits!!!',  likesCount: 8, dislikesCount: 1},
+	// 	{id: 3, title: 'Hello!, Digital Panda!!!',  likesCount: 16, dislikesCount: 0},
+	// 	{id: 4, title: 'Hello!, Digital Panda!!!',  likesCount: 16, dislikesCount: 0},
+	// ]
+
 	return (
 		<div className='my_posts'>
 			<h4>My posts</h4>
@@ -10,9 +17,11 @@ const MyPosts = () => {
 				<button>Add post</button>
 			</div>
 			<div className='posts'>
-				<Post title='Web Hackathon' description='some descriptions...'/>
-				<Post title='Global Digits' description='some descriptions....'/>
-				<Post title='Digital Panda' description='some descriptions....'/>
+				{posts.map(post =>
+					<Post title={post.title}
+						  likeCount={post.likesCount}
+						  dislikeCount={post.dislikesCount}/>
+				)}
 			</div>
 		</div>
 	)
