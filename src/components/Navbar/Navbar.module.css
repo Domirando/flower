@@ -1,9 +1,9 @@
 .nav {
   grid-area: nav;
-  @apply bg-blue-200 p-5;
+  @apply bg-blue-200 p-5 flex-col flex gap-3;
 }
 .item {
-  @apply text-red-600 hover:text-amber-400;
+  @apply text-red-600 hover:text-amber-400 text-2xl;
 }
 .active{
   @apply text-amber-400;
