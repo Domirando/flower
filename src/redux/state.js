@@ -17,18 +17,20 @@ let state = {
             {id: 4, message: 'Yo!'}
         ],
         dialogs: [
-            {id: 1, name: 'Tommy'},
-            {id: 2, name: 'Sara'},
-            {id: 2, name: 'Maisie'},
-            {id: 3, name: 'Sam'},
-            {id: 4, name: 'Andrew'},
-            {id: 5, name: 'Thomas'},
-            {id: 6, name: 'Simon'},
-            {id: 7, name: 'Tina'},
-            {id: 8, name: 'Simpson'}
+            {id: 1, name: 'Tommy', avatar: 'https://static.vecteezy.com/system/resources/thumbnails/001/503/756/small/boy-face-avatar-cartoon-free-vector.jpg'},
+            {id: 2, name: 'Sara', avatar: 'https://image.freepik.com/free-vector/smiling-girl-avatar_102172-32.jpg'},
+            {id: 2, name: 'Maisie', avatar: 'https://t4.ftcdn.net/jpg/02/78/70/99/360_F_278709964_PhS3MsOE9udVYb5VCin1xCQJlm3HFb9V.jpg'},
+            {id: 3, name: 'Sam', avatar: 'https://thumbs.dreamstime.com/b/cute-boy-face-cartoon-cute-boy-face-cartoon-vector-illustration-graphic-design-110656271.jpg'},
+            {id: 4, name: 'Andrew', avatar: 'https://png.pngtree.com/png-clipart/20201225/ourlarge/pngtree-q-version-hand-drawn-cute-boy-handsome-avatar-png-image_2617578.jpg'},
+            {id: 5, name: 'Thomas', avatar: 'https://png.pngtree.com/element_our/20190530/ourlarge/pngtree-cute-boy-couple-avatar-image_1235465.jpg'},
+            {id: 6, name: 'Simon', avatar: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRzgozLYV5Z9shkmpzedP9XU7klTHMKiq8tXA&usqp=CAU'},
+            {id: 7, name: 'Tina', avatar: 'https://cdn.dribbble.com/users/1040983/screenshots/5578298/media/9386c308d2817a9721dec7bb1b4617d8.png?compress=1&resize=400x300'},
+            {id: 8, name: 'Simpson', avatar: 'https://static1.cbrimages.com/wordpress/wp-content/uploads/2021/06/bart.jpg?q=50&fit=crop&w=963&h=481&dpr=1.5'}
         ]
-    }
+    },
+    sidebar: {
 
+    }
 }
 
 export default state;

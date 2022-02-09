@@ -1,5 +1,4 @@
 import styles from './Dialogs.module.css'
-import {NavLink} from "react-router-dom";
 import stylesMessages from "./Messages/Messages.module.css";
 
 import {
@@ -13,7 +12,7 @@ import Message from "./Messages/Message";
 
 const Dialogs = ({ state }) => {
     let dialogsElements = state.dialogs.map(dialog =>
-        <DialogItem name={dialog.name} id={dialog.id}/>
+        <DialogItem name={dialog.name} avatar={dialog.avatar} id={dialog.id}/>
     )
     let messagesElements = state.messages.map(message => <Message message={message.message}/>)
     return (
