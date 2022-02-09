@@ -9,7 +9,7 @@ import {
     Route
 } from "react-router-dom";
 
-function App({ state, addPost }) {
+function App({ state, addPost, updateNewPosText }) {
     return (
         <Router>
             <div className="app-wrapper">
@@ -18,7 +18,7 @@ function App({ state, addPost }) {
                 <div className="app-wrapper-content">
                     <Routes>
                         <Route element={<Dialogs state={state.messagesPage} />} path='/dialogs'/>
-                        <Route element={<Profile state = {state.profilePage} addPost={addPost}/>} path='/'/>
+                        <Route element={<Profile updateNewPosText={updateNewPosText} profilePage = {state.profilePage} addPost={addPost}/>} path='/'/>
                     </Routes>
                 </div>
             </div>

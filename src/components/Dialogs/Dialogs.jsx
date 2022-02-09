@@ -21,6 +21,7 @@ const Dialogs = ({state}) => {
     let messageSender = () => {
         let text = message.current.value;
         alert(text)
+        message.current.value = ''
     }
     return (
         <div className={styles.dialogs}>
