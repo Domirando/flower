@@ -17,8 +17,8 @@ function App({ state }) {
                 <Navbar/>
                 <div className="app-wrapper-content">
                     <Routes>
-                        <Route element={<Dialogs dialogs={state.profilePage.dialogs} messages = {state.messagesPage.messages}/>} path='/dialogs'/>
-                        <Route element={<Profile posts = {state.profilePage.posts}/>} path='/'/>
+                        <Route element={<Dialogs state={state.messagesPage} />} path='/dialogs'/>
+                        <Route element={<Profile state = {state.profilePage}/>} path='/'/>
                     </Routes>
                 </div>
             </div>

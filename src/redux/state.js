@@ -6,6 +6,16 @@ let state = {
             {id: 3, title: 'Hello!, Digital Panda!!!',  likesCount: 16, dislikesCount: 0},
             {id: 4, title: 'Hello!, Digital Panda!!!',  likesCount: 16, dislikesCount: 0},
         ],
+    },
+    messagesPage: {
+        messages: [
+            {id: 1, message: 'hi there!'},
+            {id: 2, message: 'how are you?!'},
+            {id: 2, message: 'what are you doing?'},
+            {id: 3, message: 'what about education?'},
+            {id: 4, message: 'happy to listen!'},
+            {id: 4, message: 'Yo!'}
+        ],
         dialogs: [
             {id: 1, name: 'Tommy'},
             {id: 2, name: 'Sara'},
@@ -16,16 +26,6 @@ let state = {
             {id: 6, name: 'Simon'},
             {id: 7, name: 'Tina'},
             {id: 8, name: 'Simpson'}
-        ]
-    },
-    messagesPage: {
-        messages: [
-            {id: 1, message: 'hi there!'},
-            {id: 2, message: 'how are you?!'},
-            {id: 2, message: 'what are you doing?'},
-            {id: 3, message: 'what about education?'},
-            {id: 4, message: 'happy to listen!'},
-            {id: 4, message: 'Yo!'}
         ]
     }
 
