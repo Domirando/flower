@@ -40,11 +40,11 @@ export let addPost = () => {
         dislikesCount: 1
     }
     state.profilePage.posts.push(newPost)
+    state.profilePage.newPostText = '';
     rerenderEntireTree(state)
 }
 export let updateNewPosText=(newText)=>{
     state.profilePage.newPostText = newText;
-    state.profilePage.newPostText = '';
     rerenderEntireTree(state)
 }
 
