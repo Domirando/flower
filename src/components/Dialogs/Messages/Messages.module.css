@@ -1,5 +1,5 @@
 .sender{
-    @apply overflow-scroll
+    @apply overflow-scroll h-screen
 }
 .messages{
     @apply p-7 flex flex-col justify-center items-end
@@ -14,7 +14,7 @@
     @apply self-start rounded-br-3xl
 }
 .messages_container{
-    @apply w-full h-14 fixed bottom-0 box-border;
+    @apply w-full h-14 justify-center flex items-center box-border;
 }
 .newMessageCreator{
     @apply h-full w-[90%];

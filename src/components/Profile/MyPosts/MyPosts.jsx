@@ -2,18 +2,19 @@ import './MyPosts.css'
 import Post from './Post/Post'
 import React from "react";
 
-const MyPosts = ({ posts }) => {
+const MyPosts = ({ posts, addPost }) => {
 	let newPostElement = React.createRef()
-	let addPost = () => {
+	let addPosts = (e) => {
 		let text = newPostElement.current.value;
-		alert(text)
+		addPost(text);
+
 	}
 	return (
 		<div className='my_posts'>
 			<h4>My posts</h4>
 			<div className='new_posts'>
 				<textarea ref={newPostElement} />
-				<button onClick={ addPost }>Add post</button>
+				<button onClick={ addPosts }>Add post</button>
 			</div>
 			<div className='posts'>
 				{posts.map(post =>

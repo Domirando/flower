@@ -1,10 +1,11 @@
+import {rerenderEntireTree} from "../render";
+
 let state = {
     profilePage: {
         posts: [
             {id: 1, title: 'Organizator?!, Web Hackathon', likesCount: 5, dislikesCount: 0},
             {id: 2, title: 'Hello!, Global Digits!!!',  likesCount: 8, dislikesCount: 1},
             {id: 3, title: 'Hello!, Digital Panda!!!',  likesCount: 16, dislikesCount: 0},
-            {id: 4, title: 'Hello!, Digital Panda!!!',  likesCount: 16, dislikesCount: 0},
         ],
     },
     messagesPage: {
@@ -25,12 +26,20 @@ let state = {
             {id: 5, name: 'Thomas', avatar: 'https://png.pngtree.com/element_our/20190530/ourlarge/pngtree-cute-boy-couple-avatar-image_1235465.jpg'},
             {id: 6, name: 'Simon', avatar: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRzgozLYV5Z9shkmpzedP9XU7klTHMKiq8tXA&usqp=CAU'},
             {id: 7, name: 'Tina', avatar: 'https://cdn.dribbble.com/users/1040983/screenshots/5578298/media/9386c308d2817a9721dec7bb1b4617d8.png?compress=1&resize=400x300'},
-            {id: 8, name: 'Simpson', avatar: 'https://static1.cbrimages.com/wordpress/wp-content/uploads/2021/06/bart.jpg?q=50&fit=crop&w=963&h=481&dpr=1.5'}
+            {id: 8, name: 'Simpson', avatar: 'https://static1.cbrimages.com/wordpress/wp-content/uploads/2021/06/bart.jpg?q=50&fit=crop&w=963&h=481&dpr=1.5'},
+            {id: 2, name: 'Maisie', avatar: 'https://t4.ftcdn.net/jpg/02/78/70/99/360_F_278709964_PhS3MsOE9udVYb5VCin1xCQJlm3HFb9V.jpg'},
         ]
     },
-    sidebar: {
-
+}
+export let addPost = (postMessage) => {
+    let newPost = {
+        id: 5,
+        title: postMessage,
+        likesCount: 5,
+        dislikesCount: 1
     }
+    state.profilePage.posts.push(newPost)
+    rerenderEntireTree(state)
 }
 
 export default state;
