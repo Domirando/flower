@@ -1,5 +1,6 @@
 import styles from './Navbar.module.css'
 import {NavLink} from "react-router-dom";
+import NavbarItem from "./NavbarItem";
 
 const Navbar = () => {
     const style = {
@@ -9,18 +10,11 @@ const Navbar = () => {
 
     return (
         <nav className={styles.nav} >
-            <div className={styles.item}>
-                <NavLink className={({ isActive }) => isActive ? styles.active : undefined} to='/' > Profile </NavLink>
-            </div>
-            <div className={styles.item}>
-                <NavLink className={({ isActive }) => isActive ? styles.active : undefined} to='news'> News </NavLink>
-            </div>
-            <div className={styles.item}>
-                <NavLink className={({ isActive }) => isActive ? styles.active : undefined} to='dialogs'> Messages </NavLink>
-            </div>
-            <div className={styles.item}>
-                <NavLink className={({ isActive }) => isActive ? styles.active : undefined} to='settings' > Settings </NavLink>
-            </div>
+            <NavbarItem name='Profile' link='/'/>
+            <NavbarItem name='Messenger' link='dialogs'/>
+            <NavbarItem name='Music' link='music'/>
+            <NavbarItem name='Books' link='books'/>
+            <NavbarItem name='News' link='news'/>
         </nav>
     )
 }

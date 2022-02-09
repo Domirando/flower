@@ -2,7 +2,7 @@
     @apply grid xl:grid-cols-[2fr_10fr] md:grid-cols-[4fr_8fr] grid-cols-[200px_auto];
 }
 .dialogsItems{
-    @apply  bg-slate-200 min-h-screen p-7 flex flex-col gap-4;
+    @apply h-screen bg-slate-200 min-h-screen p-7 flex flex-col gap-4;
 }
 .dialog{
     @apply flex flex-row gap-2 mb-3 items-center text-pink-900 font-bold text-[1.2rem] hover:text-amber-400 items-start;

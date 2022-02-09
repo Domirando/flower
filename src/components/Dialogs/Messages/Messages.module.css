@@ -1,12 +1,24 @@
+.sender{
+    @apply overflow-scroll
+}
 .messages{
     @apply p-7 flex flex-col justify-center items-end
 }
 .message{
-    @apply border-blue-700 rounded-t-3xl mb-16 bg-white border-2 p-5
+    @apply border-blue-700 rounded-t-3xl  mb-16 bg-white border-2 p-5
 }
 .message:nth-child(2n){
     @apply self-end rounded-bl-3xl
 }
 .message:nth-child(2n+1){
     @apply self-start rounded-br-3xl
+}
+.messages_container{
+    @apply w-full h-14 fixed bottom-0 box-border;
+}
+.newMessageCreator{
+    @apply h-full w-[90%];
+}
+.messages_container>button{
+    @apply bg-blue-300 w-[10%] h-full
 }
