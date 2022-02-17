@@ -12,7 +12,7 @@ import Wallpaper from "./Wallpaper";
 import DialogItem from "./DialogItem/DialogItem";
 import Message from "./Messages/Message";
 
-const Dialogs = ({state}) => {
+const Dialogs = ({state, updateNewMessage, addMessage, messages}) => {
     let dialogsElements = state.dialogs.map(dialog =>
         <DialogItem name={dialog.name} avatar={dialog.avatar} id={dialog.id}/>
     )
@@ -20,8 +20,12 @@ const Dialogs = ({state}) => {
     let message = React.createRef();
     let messageSender = () => {
         let text = message.current.value;
-        alert(text)
-        message.current.value = ''
+        addMessage();
+    }
+    let onMessageChange = () => {
+        let text = message.current.value;
+        updateNewMessage(text)
+        console.log(text)
     }
     return (
         <div className={styles.dialogs}>
@@ -31,7 +35,7 @@ const Dialogs = ({state}) => {
             <div className={stylesMessages.sender}>
                 <div className={stylesMessages.messages}>{messagesElements}</div>
                 <div className={stylesMessages.messages_container}>
-                    <textarea ref={message} className={stylesMessages.newMessageCreator}/>
+                    <textarea ref={message} onChange={onMessageChange} value={messages.newDialogMessage} className={stylesMessages.newMessageCreator}/>
                     <button onClick={messageSender}><Send/></button>
                 </div>
             </div>

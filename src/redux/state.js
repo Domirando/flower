@@ -29,7 +29,8 @@ let state = {
             {id: 7, name: 'Tina', avatar: 'https://cdn.dribbble.com/users/1040983/screenshots/5578298/media/9386c308d2817a9721dec7bb1b4617d8.png?compress=1&resize=400x300'},
             {id: 8, name: 'Simpson', avatar: 'https://static1.cbrimages.com/wordpress/wp-content/uploads/2021/06/bart.jpg?q=50&fit=crop&w=963&h=481&dpr=1.5'},
             {id: 2, name: 'Maisie', avatar: 'https://t4.ftcdn.net/jpg/02/78/70/99/360_F_278709964_PhS3MsOE9udVYb5VCin1xCQJlm3HFb9V.jpg'},
-        ]
+        ],
+        newDialogMessage: 'domirandos message'
     },
 }
 export let addPost = () => {
@@ -43,8 +44,22 @@ export let addPost = () => {
     state.profilePage.newPostText = '';
     rerenderEntireTree(state)
 }
+export let addMessage = () => {
+    let newMessage = {
+        id: 5,
+        message: state.messagesPage.newDialogMessage
+    }
+    state.messagesPage.messages.push(newMessage)
+    state.messagesPage.newDialogMessage = '';
+    rerenderEntireTree(state)
+}
 export let updateNewPosText=(newText)=>{
     state.profilePage.newPostText = newText;
+    rerenderEntireTree(state)
+}
+
+export let updateNewMessage=(newText)=>{
+    state.messagesPage.newDialogMessage = newText;
     rerenderEntireTree(state)
 }
 
