@@ -9,12 +9,11 @@ const Navbar = () => {
         background: 'green',
         fontWeight: 800
     }
-    let [wrap, unWrap] = useState(false);
-
+    let [wrap, unWrap] = useState('flex');
 
     return (
         <nav className={styles.nav}>
-            <div className={({ wrap }) => wrap ? styles.hidden : styles.flex}>
+            <div className={'wrap'}>
                 <NavbarItem name='Profile' link='/'/>
                 <NavbarItem name='Messenger' link='dialogs'/>
                 <NavbarItem name='Music' link='music'/>
@@ -23,7 +22,10 @@ const Navbar = () => {
             </div>
 
             <div>
-                <FaAngleLeft onClick={() => unWrap(!wrap)}/>
+                <FaAngleLeft onClick={() => {
+                    unWrap(wrap=='flex'?'hidden':'flex')
+                    console.log(wrap)
+                }}/>
             </div>
         </nav>
     )

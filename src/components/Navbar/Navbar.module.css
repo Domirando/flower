@@ -12,10 +12,10 @@
   @apply text-amber-400;
 }
 
-.hidden{
+.hide{
   @apply hidden;
 }
 
-.hidden{
+.show{
   @apply flex;
 }
