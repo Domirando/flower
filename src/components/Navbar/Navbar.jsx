@@ -8,17 +8,17 @@
 
         return (
             <nav className={styles.nav}>
-                <div className={ wrap ? styles.hide : styles.show}>
+                <span className={ wrap ? styles.hide : styles.show}>
                     <NavbarItem name='Profile' link='/'/>
                     <NavbarItem name='Messenger' link='dialogs'/>
                     <NavbarItem name='Music' link='music'/>
                     <NavbarItem name='Books' link='books'/>
                     <NavbarItem name='News' link='news'/>
-                </div>
+                </span>
 
-                <div>
+                <span>
                     <FaAngleLeft onClick={() => unWrap(!wrap)}/>
-                </div>
+                </span>
             </nav>
         )
     }
