@@ -1,6 +1,6 @@
 .header{
   grid-area: header;
-  @apply fixed w-screen;
+  @apply fixed w-screen z-50;
 }
 .header_content{
   @apply bg-blue-200 p-1;

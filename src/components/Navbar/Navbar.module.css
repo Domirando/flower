@@ -1,18 +1,31 @@
-.nav {
-  grid-area: nav;
-  @apply bg-blue-200 p-5 flex-row flex;
+/* Navbar.module.css */
+
+.navbar {
+  @apply fixed left-0 bg-white shadow h-[calc(100vh-64px)] transition-all duration-300;
+  top: 64px; /* height of your header */
+}
+
+.expanded {
+  @apply w-[150px];
+}
+
+.collapsed {
+  @apply w-[30px];
+}
+
+.toggleButton {
+  @apply flex items-center justify-center h-10 cursor-pointer border-b;
+}
+
+.items {
+  @apply flex flex-col mt-2;
 }
 
 .item {
-  @apply text-red-600 hover:text-amber-400 text-2xl;
-}
-.active{
-  @apply text-amber-400;
+  @apply px-3 py-2 text-sm hover:bg-gray-100 cursor-pointer whitespace-nowrap;
 }
 
-.hide{
-  @apply hidden;
-}
-.show{
-  @apply flex flex-col flex gap-3;;
+/* hide items when collapsed */
+.hiddenItems {
+  display: none;
 }

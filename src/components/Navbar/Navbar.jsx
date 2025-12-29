@@ -1,25 +1,37 @@
-    import styles from './Navbar.module.css'
-    import NavbarItem from "./NavbarItem";
-    import { FaAngleLeft } from "react-icons/fa6";
-    import {useState} from 'react';
+import { useState } from "react";
+import styles from "./Navbar.module.css";
+import { HiChevronLeft, HiChevronRight } from "react-icons/hi";
 
-    const Navbar = () => {
-        let [wrap, unWrap] = useState(false);
+export default function Navbar() {
+    const [expanded, setExpanded] = useState(true);
 
-        return (
-            <nav className={styles.nav}>
-                <span className={ wrap ? styles.hide : styles.show}>
-                    <NavbarItem name='Profile' link='/'/>
-                    <NavbarItem name='Messenger' link='dialogs'/>
-                    <NavbarItem name='Music' link='music'/>
-                    <NavbarItem name='Books' link='books'/>
-                    <NavbarItem name='News' link='news'/>
-                </span>
+    return (
+        <aside
+            className={`${styles.navbar} ${
+                expanded ? styles.expanded : styles.collapsed
+            }`}
+        >
+            <div
+                className={styles.toggleButton}
+                onClick={() => setExpanded(!expanded)}
+            >
+                {expanded ? (
+                    <HiChevronLeft size={20} />
+                ) : (
+                    <HiChevronRight size={20} />
+                )}
+            </div>
 
-                <span>
-                    <FaAngleLeft onClick={() => unWrap(!wrap)}/>
-                </span>
-            </nav>
-        )
-    }
-    export default Navbar
+            <div
+                className={`${styles.items} ${
+                    !expanded ? styles.hiddenItems : ""
+                }`}
+            >
+                <div className={styles.item}>Dashboard</div>
+                <div className={styles.item}>Messages</div>
+                <div className={styles.item}>Profile</div>
+                <div className={styles.item}>Settings</div>
+            </div>
+        </aside>
+    );
+}
