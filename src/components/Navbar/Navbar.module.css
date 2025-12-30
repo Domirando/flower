@@ -1,6 +1,8 @@
+/* Navbar.module.css */
+
 .navbar {
   @apply fixed left-0 bg-white shadow transition-all duration-300;
-  top: 64px;
+  top: 64px; /* header height */
   height: calc(100vh - 64px);
 }
 
@@ -13,7 +15,7 @@
 }
 
 .toggleButton {
-  @apply flex items-center justify-center h-10 cursor-pointer border-b;
+  @apply h-10 flex items-center justify-center cursor-pointer border-b;
 }
 
 .items {
