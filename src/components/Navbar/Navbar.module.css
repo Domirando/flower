@@ -1,8 +1,7 @@
-/* Navbar.module.css */
-
 .navbar {
-  @apply fixed left-0 bg-white shadow h-[calc(100vh-64px)] transition-all duration-300;
-  top: 64px; /* height of your header */
+  @apply fixed left-0 bg-white shadow transition-all duration-300;
+  top: 64px;
+  height: calc(100vh - 64px);
 }
 
 .expanded {
@@ -19,13 +18,4 @@
 
 .items {
   @apply flex flex-col mt-2;
-}
-
-.item {
-  @apply px-3 py-2 text-sm hover:bg-gray-100 cursor-pointer whitespace-nowrap;
-}
-
-/* hide items when collapsed */
-.hiddenItems {
-  display: none;
 }

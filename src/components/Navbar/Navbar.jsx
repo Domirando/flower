@@ -1,10 +1,8 @@
-import { useState } from "react";
 import styles from "./Navbar.module.css";
 import { HiChevronLeft, HiChevronRight } from "react-icons/hi";
+import NavbarItem from "./NavbarItem";
 
-export default function Navbar() {
-    const [expanded, setExpanded] = useState(true);
-
+export default function Navbar({ expanded, setExpanded }) {
     return (
         <aside
             className={`${styles.navbar} ${
@@ -15,23 +13,18 @@ export default function Navbar() {
                 className={styles.toggleButton}
                 onClick={() => setExpanded(!expanded)}
             >
-                {expanded ? (
-                    <HiChevronLeft size={20} />
-                ) : (
-                    <HiChevronRight size={20} />
-                )}
+                {expanded ? <HiChevronLeft size={20} /> : <HiChevronRight size={20} />}
             </div>
 
-            <div
-                className={`${styles.items} ${
-                    !expanded ? styles.hiddenItems : ""
-                }`}
-            >
-                <div className={styles.item}>Dashboard</div>
-                <div className={styles.item}>Messages</div>
-                <div className={styles.item}>Profile</div>
-                <div className={styles.item}>Settings</div>
-            </div>
+            {expanded && (
+                <div className={styles.items}>
+                    <NavbarItem name="Profile" link="/" />
+                    <NavbarItem name="Messenger" link="dialogs" />
+                    <NavbarItem name="Music" link="music" />
+                    <NavbarItem name="Books" link="books" />
+                    <NavbarItem name="News" link="news" />
+                </div>
+            )}
         </aside>
     );
 }
