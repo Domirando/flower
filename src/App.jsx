@@ -6,6 +6,7 @@ import Music from './components/Music/Music'
 import Books from './components/Books/Books'
 import './App.css';
 import Dialogs from './components/Dialogs/Dialogs.jsx'
+import News from './components/News/News.jsx'
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 
 function App({ state, addPost, updateNewPosText, updateNewMessage, addMessage }) {
@@ -60,6 +61,12 @@ function App({ state, addPost, updateNewPosText, updateNewMessage, addMessage })
                                 path="/music"
                                 element={
                                     <Music/>
+                                }
+                            />
+                            <Route
+                                path="/news"
+                                element={
+                                    <News/>
                                 }
                             />
                         </Routes>
