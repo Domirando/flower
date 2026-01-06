@@ -17,7 +17,7 @@
     @apply w-full h-14 justify-center flex items-center box-border;
 }
 .newMessageCreator{
-    @apply h-full w-[90%];
+    @apply h-full w-[90%] border-solid border-2 border-blue-700 rounded-tl-md shadow-md;
 }
 .messages_container>button{
     @apply bg-blue-300 w-[10%] h-full
