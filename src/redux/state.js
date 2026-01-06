@@ -4,9 +4,17 @@ let rerenderEntireTree = () => {
 let state = {
     profilePage: {
         posts: [
-            {id: 1, title: 'Organizatooor?!, Web Hackathon', likesCount: 5, dislikesCount: 0},
+            {id: 1, title: 'I am an organizator now! Winter Web Hackathon?!<3', likesCount: 5, dislikesCount: 0},
             {id: 2, title: 'Hello!, Global Digits!!!',  likesCount: 8, dislikesCount: 1},
-            {id: 3, title: 'Hello!, Digital Panda!!!',  likesCount: 16, dislikesCount: 0},
+            {id: 3, title: 'My first tech internship! Digital Panda!!!',  likesCount: 16, dislikesCount: 0},
+            {id: 3, title: 'I am a programmer! Front-End Programmer! USOFT!!!',  likesCount: 16, dislikesCount: 0},
+            {id: 3, title: 'Speaker to 300 people?! Quantum computers? New era of computers?',  likesCount: 16, dislikesCount: 0},
+            {id: 3, title: 'My first article related to...? Quantum Computers?!',  likesCount: 16, dislikesCount: 0},
+            {id: 3, title: 'I got into CUHK with a scholarship?! Reject them???',  likesCount: 16, dislikesCount: 0},
+            {id: 3, title: 'BirQadam? A speech to Presidents main assistant?!',  likesCount: 16, dislikesCount: 0},
+            {id: 3, title: 'Am I really gonna travel abroad??! UAE??? !!!',  likesCount: 16, dislikesCount: 0},
+            {id: 3, title: 'Uzinfocom? I am really gonna be in one team and work with Genemator?! Dope!!!',  likesCount: 16, dislikesCount: 0},
+            {id: 3, title: 'China?! Finally!',  likesCount: 16, dislikesCount: 0},
         ],
         newPostText: 'new post text'
     },
