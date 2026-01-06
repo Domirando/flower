@@ -22,10 +22,10 @@ let state = {
         messages: [
             {id: 1, message: 'hi there!'},
             {id: 2, message: 'how are you?!'},
-            {id: 2, message: 'what are you doing?'},
-            {id: 3, message: 'what about education?'},
-            {id: 4, message: 'happy to listen!'},
-            {id: 4, message: 'Yo!'}
+            {id: 2, message: 'great thanks!'},
+            {id: 3, message: 'how about education?'},
+            {id: 4, message: 'surviving:) what about yours?'},
+            {id: 4, message: 'also good!'}
         ],
         dialogs: [
             {id: 1, name: 'Tommy', avatar: 'https://static.vecteezy.com/system/resources/thumbnails/001/503/756/small/boy-face-avatar-cartoon-free-vector.jpg'},
@@ -39,7 +39,7 @@ let state = {
             {id: 8, name: 'Simpson', avatar: 'https://static1.cbrimages.com/wordpress/wp-content/uploads/2021/06/bart.jpg?q=50&fit=crop&w=963&h=481&dpr=1.5'},
             {id: 2, name: 'Maisie', avatar: 'https://t4.ftcdn.net/jpg/02/78/70/99/360_F_278709964_PhS3MsOE9udVYb5VCin1xCQJlm3HFb9V.jpg'},
         ],
-        newDialogMessage: 'domirandos message'
+        newDialogMessage: 'type...'
     },
 }
 export const addPost = () => {
