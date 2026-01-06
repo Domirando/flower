@@ -8,7 +8,7 @@ let state = {
             {id: 2, title: 'Hello!, Global Digits!!!',  likesCount: 8, dislikesCount: 1},
             {id: 3, title: 'Hello!, Digital Panda!!!',  likesCount: 16, dislikesCount: 0},
         ],
-        newPostText: 'domirando'
+        newPostText: 'new post text'
     },
     messagesPage: {
         messages: [
