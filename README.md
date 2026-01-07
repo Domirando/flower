@@ -11,5 +11,5 @@ This platform exists thankfully for those who contributed this project and they 
 - [Domirando](https://github.com/domirando) - The actual creator
     of the project and active contributor
 
-<i>STATUS: Project is still ongoing</i>
+<i><a href="https://github.com/Domirando/flower/blob/master/TODO">STATUS</a>: Project is still ongoing</i>
 
