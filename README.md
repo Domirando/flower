@@ -12,3 +12,4 @@ This platform exists thankfully for those who contributed this project and they 
     of the project and active contributor
 
 <i>STATUS: Project is still ongoing</i>
+
