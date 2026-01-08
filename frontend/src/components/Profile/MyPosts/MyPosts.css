@@ -1,0 +1,15 @@
+.my_posts{
+    @apply flex flex-col gap-4
+}
+.my_posts > h4{
+    @apply text-2xl text-center;
+}
+.posts{
+    @apply flex flex-col gap-6;
+}
+.new_posts{
+    @apply flex items-center gap-3;
+}
+.new_posts > button{
+    @apply border-blue-800 p-1.5 border-2;
+}

@@ -1,0 +1,27 @@
+.content {
+    @apply bg-slate-200 min-h-screen overflow-scroll;
+}
+
+.main_content {
+    @apply p-3.5;
+}
+
+.content > img {
+    @apply w-full h-[320px] object-cover;
+}
+
+.content .content_text {
+    @apply p-6;
+}
+
+.content_main_card > img {
+    @apply h-[150px] object-contain;
+}
+
+.content_main_card {
+    @apply flex gap-5;
+}
+
+.item {
+    @apply text-green-800;
+}
