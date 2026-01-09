@@ -2,32 +2,20 @@ import { useEffect } from "react";
 
 const TelegramLogin = () => {
     useEffect(() => {
-        window.onTelegramAuth = async (user) => {
-            const backendUrl = process.env.REACT_APP_BACKEND_URL;
-
-            const res = await fetch(`${backendUrl}/api/auth/telegram`, {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify(user),
-            });
-
-            const data = await res.json();
-            if (data.token) {
-                localStorage.setItem("token", data.token);
-                alert("Logged in successfully 🌸");
-            }
-
-        };
+        const backendUrl = process.env.REACT_APP_BACKEND_URL; // Make sure this is set in .env
 
         const script = document.createElement("script");
         script.src = "https://telegram.org/js/telegram-widget.js?22";
-        script.setAttribute("data-telegram-login", "flower_auth_bot");
+        script.async = true;
+        script.setAttribute("data-telegram-login", "DomiFlowerBot"); // your bot username
         script.setAttribute("data-size", "large");
         script.setAttribute("data-userpic", "true");
         script.setAttribute("data-request-access", "write");
-        script.setAttribute("data-onauth", "onTelegramAuth(user)");
+        script.setAttribute("data-auth-url", `${backendUrl}/api/auth/telegram`); // Telegram will POST user data here
 
-        document.getElementById("telegram-login")?.appendChild(script);
+        const container = document.getElementById("telegram-login");
+        container.innerHTML = ""; // clear any previous script
+        container.appendChild(script);
     }, []);
 
     return (
