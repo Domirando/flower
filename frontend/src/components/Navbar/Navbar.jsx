@@ -1,6 +1,7 @@
 import styles from "./Navbar.module.css";
 import { HiChevronLeft, HiChevronRight } from "react-icons/hi";
 import NavbarItem from "./NavbarItem";
+import TelegramTest from "../../test/TelegramTest";
 
 export default function Navbar({ expanded, setExpanded }) {
     return (
