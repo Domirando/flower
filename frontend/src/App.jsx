@@ -8,6 +8,7 @@ import './App.css';
 import Dialogs from './components/Dialogs/Dialogs.jsx'
 import News from './components/News/News.jsx'
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import TelegramLogin from "./components/Auth/TelegramLogin";
 
 function App({ state, addPost, updateNewPosText, updateNewMessage, addMessage }) {
 
@@ -30,6 +31,10 @@ function App({ state, addPost, updateNewPosText, updateNewMessage, addMessage })
                         }`}
                     >
                         <Routes>
+                            <Route
+                                path="/login"
+                                element={<TelegramLogin />}
+                            />
                             <Route
                                 path="/dialogs"
                                 element={

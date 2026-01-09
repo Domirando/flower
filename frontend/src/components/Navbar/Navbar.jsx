@@ -24,6 +24,7 @@ export default function Navbar({ expanded, setExpanded }) {
                     <NavbarItem name="Music" link="music" />
                     <NavbarItem name="Books" link="books" />
                     <NavbarItem name="News" link="news" />
+                    <NavbarItem name="Login" link="login" />
                 </div>
             )}
         </aside>
