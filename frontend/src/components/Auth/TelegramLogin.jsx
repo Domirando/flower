@@ -3,19 +3,20 @@ import { useEffect } from "react";
 const TelegramLogin = () => {
     useEffect(() => {
         window.onTelegramAuth = async (user) => {
-            const res = await fetch(`${process.env.REACT_APP_BACKEND_URL}/api/auth/telegram`, {
+            const backendUrl = process.env.REACT_APP_BACKEND_URL;
+
+            const res = await fetch(`${backendUrl}/api/auth/telegram`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify(user),
             });
 
             const data = await res.json();
-            console.log("Telegram auth response:", data);
-
             if (data.token) {
                 localStorage.setItem("token", data.token);
                 alert("Logged in successfully 🌸");
             }
+
         };
 
         const script = document.createElement("script");
