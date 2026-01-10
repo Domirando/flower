@@ -14,7 +14,7 @@ const TelegramLogin = () => {
         script.setAttribute("data-auth-url", `${backendUrl}/api/auth/telegram`); // Telegram will POST user data here
 
         const container = document.getElementById("telegram-login");
-        container.innerHTML = ""; // clear any previous script
+        container.innerHTML = "";
         container.appendChild(script);
     }, []);
 

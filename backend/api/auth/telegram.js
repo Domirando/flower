@@ -4,6 +4,7 @@ import jwt from "jsonwebtoken";
 // Vercel serverless uses default export
 export default async function handler(req, res) {
     if (req.method !== "POST") {
+        console.log("req:", req)
         return res.status(405).json({ error: "Method not alloweddd" });
     }
 
