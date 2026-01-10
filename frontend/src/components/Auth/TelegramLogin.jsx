@@ -7,7 +7,7 @@ const TelegramLogin = () => {
         const script = document.createElement("script");
         script.src = "https://telegram.org/js/telegram-widget.js?22";
         script.async = true;
-        script.setAttribute("data-telegram-login", "DomiFlowerBot"); // your bot username
+        script.setAttribute("data-telegram-login", "DomiFlowerBot");
         script.setAttribute("data-size", "large");
         script.setAttribute("data-userpic", "true");
         script.setAttribute("data-request-access", "write");
