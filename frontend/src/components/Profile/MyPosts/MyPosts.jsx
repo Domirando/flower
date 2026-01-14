@@ -1,55 +1,103 @@
-import './MyPosts.css'
-import Post from './Post/Post'
-import React, {useState} from "react";
+import "./MyPosts.css";
+import Post from "./Post/Post";
+import React, { useEffect, useState } from "react";
+import { supabase } from "../../../helper/supabaseClient";
 
-const MyPosts = ({ posts, addPost, newPostText, updateNewPosText }) => {
-	const [text, setText] = useState("");
+const MyPosts = () => {
+	console.log("sup:", supabase)
 
-	let onPostChange = (text) => {
-		setText(text.target.value)
-		updateNewPosText(text.target.value)
-		console.log(text.target.value)
-	}
+	const [posts, setPosts] = useState([]);
+	const [newPostText, setNewPostText] = useState("");
+	const [loading, setLoading] = useState(false);
 
-	const addPosts = async () => {
-		addPost();
+	/* 🔹 READ POSTS FROM SUPABASE */
+	const fetchPosts = async () => {
+		const { data, error } = await supabase
+			.from("posts")
+			.select("*")
+			.order("created_at", { ascending: false });
 
-		const res = await fetch(`${process.env.REACT_APP_BACKEND_URL}/api/post-to-telegram`, {
-			method: "POST",
-			headers: { "Content-Type": "application/json" },
-			body: JSON.stringify({ text }),
-		});
-
-		if (!res.ok) {
-			alert("Failed to post");
-		} else {
-			alert("Posted to Telegram ✅");
+		if (error) {
+			console.error("Fetch posts error:", error);
+			return;
 		}
 
+		setPosts(data);
+	};
+
+	useEffect(() => {
+		fetchPosts();
+	}, []);
+
+	/* 🔹 CREATE POST (Telegram + DB) */
+	const addPosts = async () => {
+		if (!newPostText.trim()) return;
+
+		setLoading(true);
+
+		try {
+			const { data, error } = await supabase.auth.getSession();
+			if (error || !data.session) {
+				throw new Error("Not authenticated");
+			}
+
+			const token = data.session.access_token;
+
+			const res = await fetch(
+				`${process.env.REACT_APP_BACKEND_URL}/api/post-to-telegram`,
+				{
+					method: "POST",
+					headers: {
+						"Content-Type": "application/json",
+						Authorization: `Bearer ${token}`,
+					},
+					body: JSON.stringify({ text: newPostText }),
+				}
+			);
+
+			if (!res.ok) {
+				throw new Error("Failed to post");
+			}
+
+			setNewPostText("");
+			await fetchPosts(); // 🔥 refresh posts from DB
+		} catch (err) {
+			console.error(err);
+			alert(err.message);
+		} finally {
+			setLoading(false);
+		}
 	};
 
 	return (
 		<div>
-			<div className='my_posts'>
+			<div className="my_posts">
 				<h4>My posts</h4>
+
 				<textarea
 					value={newPostText}
-					onChange={(e) => onPostChange(e)}
+					onChange={(e) => setNewPostText(e.target.value)}
 					placeholder="Write your post…"
+					disabled={loading}
 				/>
-				<button onClick={addPosts}>
-				Post
-			</button>
+
+				<button onClick={addPosts} disabled={loading}>
+					{loading ? "Posting..." : "Post"}
+				</button>
 			</div>
 
-			<div className='posts'>
-				{posts.map(post =>
-					<Post title={post.title}
-						  likeCount={post.likesCount}
-						  dislikeCount={post.dislikesCount}/>
-				)}
+			<div className="posts">
+				{posts.map((post) => (
+					<Post
+						key={post.id}
+						title={post.content}
+						likeCount={0}
+						dislikeCount={0}
+					/>
+				))}
 			</div>
 		</div>
-	)
-}
+	);
+};
+
 export default MyPosts;
