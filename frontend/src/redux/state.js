@@ -16,7 +16,7 @@ let state = {
             {id: 3, title: 'Uzinfocom? I am really gonna be in one team and work with Genemator?! Dope!!!',  likesCount: 16, dislikesCount: 0},
             {id: 3, title: 'China?! Finally!',  likesCount: 16, dislikesCount: 0},
         ],
-        newPostText: 'new post text'
+        newPostText: 'Hi from Flower!'
     },
     messagesPage: {
         messages: [

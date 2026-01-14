@@ -5,14 +5,15 @@ import React, {useState} from "react";
 const MyPosts = ({ posts, addPost, newPostText, updateNewPosText }) => {
 	const [text, setText] = useState("");
 
-	let newPostElement = React.createRef()
-	let onPostChange = () => {
-		let text = newPostElement.current.value;
-		updateNewPosText(text)
-		console.log(text)
+	let onPostChange = (text) => {
+		setText(text.target.value)
+		updateNewPosText(text.target.value)
+		console.log(text.target.value)
 	}
 
 	const addPosts = async () => {
+		addPost();
+
 		const res = await fetch(`${process.env.REACT_APP_BACKEND_URL}/api/post-to-telegram`, {
 			method: "POST",
 			headers: { "Content-Type": "application/json" },
@@ -22,7 +23,6 @@ const MyPosts = ({ posts, addPost, newPostText, updateNewPosText }) => {
 		if (!res.ok) {
 			alert("Failed to post");
 		} else {
-			addPost();
 			alert("Posted to Telegram ✅");
 		}
 
@@ -32,20 +32,13 @@ const MyPosts = ({ posts, addPost, newPostText, updateNewPosText }) => {
 		<div>
 			<div className='my_posts'>
 				<h4>My posts</h4>
-				<div className='new_posts'>
-					<textarea ref={newPostElement} onChange={ onPostChange } value={newPostText} />
-					<button onClick={ addPosts }>Post</button>
-				</div>
-			</div>
-
-			<div>
 				<textarea
-					value={text}
-					onChange={(e) => setText(e.target.value)}
+					value={newPostText}
+					onChange={(e) => onPostChange(e)}
 					placeholder="Write your post…"
 				/>
 				<button onClick={addPosts}>
-				Post to Telegram
+				Post
 			</button>
 			</div>
 
