@@ -8,17 +8,25 @@ const Profile = ({ user }) => {
     const [channelId, setChannelId] = useState('');
     const [loading, setLoading] = useState(true);
 
-    // Load existing profile data
     useEffect(() => {
-        const fetchProfile = async () => {
+        const initProfile = async () => {
+            const { data: authUser } = await supabase.auth.getUser();
+            if (!authUser?.user?.id) return;
+
+            const userId = authUser.user.id;
+
+            // Ensure row exists
+            await supabase.from("users").upsert({ id: userId });
+
+            // Fetch saved Telegram channel
             const { data, error } = await supabase
-                .from('users')
-                .select('telegram_channel')
-                .eq('id', user.id)
+                .from("users")
+                .select("telegram_channel")
+                .eq("id", userId)
                 .single();
 
             if (error) {
-                console.error('Failed to fetch profile:', error.message);
+                console.error("Failed to fetch profile:", error.message);
             } else if (data?.telegram_channel) {
                 setChannelId(data.telegram_channel);
             }
@@ -26,8 +34,8 @@ const Profile = ({ user }) => {
             setLoading(false);
         };
 
-        fetchProfile();
-    }, [user.id]);
+        initProfile();
+    }, []);
 
     const saveChannel = async () => {
         const { error } = await supabase
