@@ -1,29 +1,73 @@
-import styles from './Profile.module.css'
+import styles from './Profile.module.css';
 import MyPosts from "./MyPosts/MyPosts";
 import ProfileInfo from "./ProfileInfo";
-import TelegramAuth from "../Auth/TelegramAuth";
-import {useState} from "react";
+import { useEffect, useState } from "react";
+import { supabase } from "../../helper/supabaseClient";
 
-const Profile = ( { profilePage, addPost, updateNewPosText }) => {
-    const [telegramUser, setTelegramUser] = useState(null);
+const Profile = ({ user }) => {
+    const [channelId, setChannelId] = useState('');
+    const [loading, setLoading] = useState(true);
+
+    // Load existing profile data
+    useEffect(() => {
+        const fetchProfile = async () => {
+            const { data, error } = await supabase
+                .from('users')
+                .select('telegram_channel')
+                .eq('id', user.id)
+                .single();
+
+            if (error) {
+                console.error('Failed to fetch profile:', error.message);
+            } else if (data?.telegram_channel) {
+                setChannelId(data.telegram_channel);
+            }
+
+            setLoading(false);
+        };
+
+        fetchProfile();
+    }, [user.id]);
+
+    const saveChannel = async () => {
+        const { error } = await supabase
+            .from('users')
+            .update({ telegram_channel: channelId })
+            .eq('id', user.id);
+
+        if (error) alert(error.message);
+        else alert('Telegram channel saved!');
+    };
+
+    if (loading) return <p>Loading profile...</p>;
+
     return (
         <div className={styles.content}>
-            <img src='https://images.unsplash.com/photo-1469474968028-56623f02e42e?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=874&q=80' alt=''/>
+            <img
+                src="https://images.unsplash.com/photo-1469474968028-56623f02e42e"
+                alt=""
+            />
+
             <div className={styles.main_content}>
-                <ProfileInfo />
+                <ProfileInfo user={user} />
+
                 <div>
-                    {!telegramUser ? (
-                        <TelegramAuth onAuth={setTelegramUser} />
-                    ) : (
-                        <>
-                            <p>Logged in as: {telegramUser.first_name}</p>
-                            <MyPosts telegramUser={telegramUser} />
-                        </>
-                    )}
+                    <h3>Telegram Channel</h3>
+                    <input
+                        type="text"
+                        value={channelId}
+                        onChange={(e) => setChannelId(e.target.value)}
+                        placeholder="e.g. -1001234567890"
+                    />
+                    <button onClick={saveChannel}>
+                        Save Channel
+                    </button>
                 </div>
+
                 <MyPosts />
             </div>
         </div>
-    )
-}
+    );
+};
+
 export default Profile;

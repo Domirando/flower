@@ -27,7 +27,7 @@ app.post("/api/post", async (req, res) => {
         // Prevent replay attack (optional but recommended)
         const now = Math.floor(Date.now() / 1000);
         if (now - telegramUser.auth_date > 60) {
-            return res.status(401).json({ error: "Auth expired" });
+            return res.status(401).json({ error: "Login expired" });
         }
 
         // 1️⃣ Upsert user

@@ -1,51 +1,75 @@
-import React, { useState, useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import Post from "./Post/Post";
 import { supabase } from "../../../helper/supabaseClient";
 
-const MyPosts = ({ telegramUser }) => {
+const MyPosts = () => {
 	const [posts, setPosts] = useState([]);
 	const [newPostText, setNewPostText] = useState("");
 	const [loading, setLoading] = useState(false);
+	const [user, setUser] = useState(null);
 
-	// Fetch posts from Supabase
+	// 🔹 Get logged-in Supabase user
+	useEffect(() => {
+		const getUser = async () => {
+			const { data: { user } } = await supabase.auth.getUser();
+			console.log(user.id);
+			setUser(user || null);
+		};
+		getUser();
+	}, []);
+
+	// 🔹 Fetch posts from Supabase
 	const fetchPosts = async () => {
 		const { data, error } = await supabase
 			.from("posts")
-			.select("*, users(username)")
+			.select("*, users(full_name)")
 			.order("created_at", { ascending: false });
 
-		if (error) {
-			console.error(error);
-			return;
-		}
-		setPosts(data);
+		if (!error) setPosts(data);
 	};
 
 	useEffect(() => {
 		fetchPosts();
 	}, []);
 
+	// 🔹 Add post (Supabase + Telegram)
 	const addPost = async () => {
-		if (!telegramUser) {
-			alert("Please log in via Telegram first!");
+		if (!user) {
+			alert("Please log in first");
 			return;
 		}
 		if (!newPostText.trim()) return;
 
 		setLoading(true);
+
 		try {
-			const res = await fetch("https://flower-backend-six.vercel.app/api/post", {
+			// Use full backend URL for production
+			const res = await fetch(`${process.env.REACT_APP_BACKEND_URL}/api/post-to-telegram`, {
 				method: "POST",
 				headers: { "Content-Type": "application/json" },
-				body: JSON.stringify({ telegramUser, content: newPostText })
+				body: JSON.stringify({
+					userId: user.id,
+					text: newPostText
+				})
 			});
 
-			const data = await res.json();
-			if (!res.ok) throw new Error(data.error || "Failed to post");
+			// Handle non-JSON responses (like HTML 404/500 pages)
+			if (!res.ok) {
+				const text = await res.text();
+				throw new Error(`Server error: ${text}`);
+			}
 
+			const data = await res.json();
+
+			if (!data.success) {
+				throw new Error(data.error || "Failed to post");
+			}
+
+			// Clear input and refresh posts
 			setNewPostText("");
 			fetchPosts();
 		} catch (err) {
+			console.error(err);
 			alert(err.message);
 		} finally {
 			setLoading(false);
@@ -60,13 +84,18 @@ const MyPosts = ({ telegramUser }) => {
 		  placeholder="Write your post…"
 		  disabled={loading}
 	  />
+
 			<button onClick={addPost} disabled={loading}>
 				{loading ? "Posting..." : "Post"}
 			</button>
 
-			<div className="posts">
+			<div>
 				{posts.map((post) => (
-					<Post key={post.id} title={post.content} likeCount={0} dislikeCount={0} />
+					<Post
+						key={post.id}
+						title={post.content}
+						author={post.users?.full_name || "Anonymous"}
+					/>
 				))}
 			</div>
 		</div>
