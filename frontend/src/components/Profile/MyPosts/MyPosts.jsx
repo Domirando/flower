@@ -8,7 +8,6 @@ const MyPosts = () => {
 	const [loading, setLoading] = useState(false);
 	const [user, setUser] = useState(null);
 
-	// 🔹 Get logged-in Supabase user
 	useEffect(() => {
 		const getUser = async () => {
 			const { data: { user } } = await supabase.auth.getUser();
@@ -18,7 +17,6 @@ const MyPosts = () => {
 		getUser();
 	}, []);
 
-	// 🔹 Fetch posts from Supabase
 	const fetchPosts = async () => {
 		const { data, error } = await supabase
 			.from("posts")
@@ -32,7 +30,6 @@ const MyPosts = () => {
 		fetchPosts();
 	}, []);
 
-	// 🔹 Add post (Supabase + Telegram)
 	const addPost = async () => {
 		if (!user) {
 			alert("Please log in first");
@@ -43,7 +40,6 @@ const MyPosts = () => {
 		setLoading(true);
 
 		try {
-			// Use full backend URL for production
 			const res = await fetch(`${process.env.REACT_APP_BACKEND_URL}/api/post-to-telegram`, {
 				method: "POST",
 				headers: { "Content-Type": "application/json" },
@@ -53,7 +49,6 @@ const MyPosts = () => {
 				})
 			});
 
-			// Handle non-JSON responses (like HTML 404/500 pages)
 			if (!res.ok) {
 				const text = await res.text();
 				throw new Error(`Server error: ${text}`);
@@ -65,7 +60,6 @@ const MyPosts = () => {
 				throw new Error(data.error || "Failed to post");
 			}
 
-			// Clear input and refresh posts
 			setNewPostText("");
 			fetchPosts();
 		} catch (err) {

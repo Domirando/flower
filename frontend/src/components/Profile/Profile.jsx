@@ -15,10 +15,8 @@ const Profile = ({ user }) => {
 
             const userId = authUser.user.id;
 
-            // Ensure row exists
             await supabase.from("users").upsert({ id: userId });
 
-            // Fetch saved Telegram channel
             const { data, error } = await supabase
                 .from("users")
                 .select("telegram_channel")

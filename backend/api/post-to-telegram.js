@@ -27,7 +27,6 @@ export default async function handler(req, res) {
 
     if (!userId || !text?.trim()) return res.status(400).json({ error: 'User ID and text are required' });
 
-    // Get user's Telegram channel
     const { data: user, error } = await supabase
         .from('users')
         .select('telegram_channel')
@@ -40,7 +39,6 @@ export default async function handler(req, res) {
         return res.status(400).json({ error: 'No Telegram channel connected' });
     }
 
-    // Post to Telegram
     let telegramResp;
     try {
         const r = await fetch(`https://api.telegram.org/bot${process.env.TELEGRAM_BOT_TOKEN}/sendMessage`, {
@@ -60,7 +58,6 @@ export default async function handler(req, res) {
         return res.status(500).json({ error: 'Telegram post failed', telegramResp });
     }
 
-    // Save post in Supabase
     const { error: postError } = await supabase.from('posts').insert({
         user_id: userId,
         content: text

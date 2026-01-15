@@ -1,11 +1,9 @@
 import { useState } from "react";
 import { supabase } from "../../helper/supabaseClient";
-import { useNavigate } from "react-router-dom";
 
 const Login = () => {
     const [email, setEmail] = useState("");
     const [loading, setLoading] = useState(false);
-    const navigate = useNavigate();
 
     const handleLogin = async () => {
         if (!email) {
