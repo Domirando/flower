@@ -1,22 +1,24 @@
-import React from "react";
+import React, { useEffect } from "react";
 
 const TelegramAuth = ({ onAuth }) => {
-    // Create a global handler
-    window.handleTelegramAuth = function(user) {
-        alert("Logged in as: " + user.first_name);
-        console.log("Telegram user object:", user);
-        if (onAuth) onAuth(user);
-    };
+    useEffect(() => {
+        // Create global handler for Telegram auth
+        window.handleTelegramAuth = function(user) {
+            console.log("Telegram user object:", user);
+            alert("Logged in as: " + user.first_name);
+            if (onAuth) onAuth(user);
+        };
+    }, [onAuth]);
 
     return (
         <div>
+            {/* Telegram login widget */}
             <script
                 async
                 src="https://telegram.org/js/telegram-widget.js?15"
-                data-telegram-login="DomiFlowerBot" // your bot username
+                data-telegram-login="DomiFlowerBot"  // your bot username without @
                 data-size="large"
                 data-onauth="handleTelegramAuth(user)"
-                // Remove data-request-access for testing login only
             ></script>
         </div>
     );
