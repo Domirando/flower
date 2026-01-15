@@ -1,6 +1,6 @@
 import jwt from "jsonwebtoken";
 import { supabase } from "./supabase.js";
-import { verifyTelegramLogin } from "./telegram.verify.js";
+import { verifyTelegramLogin } from "./telegramAuth.js";
 
 export async function telegramLogin(req, res) {
     const isValid = verifyTelegramLogin(req.body);

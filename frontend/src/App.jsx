@@ -8,7 +8,7 @@ import './App.css';
 import Dialogs from './components/Dialogs/Dialogs.jsx'
 import News from './components/News/News.jsx'
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-import TelegramLogin from "./components/Auth/TelegramLogin";
+import TelegramLogin from "./components/Auth/TelegramAuth";
 
 function App({ state, addPost, updateNewPosText, updateNewMessage, addMessage }) {
 
