@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from "react";
 import Post from "./Post/Post";
-import styles from "./MyPosts.module.css";
 import { supabase } from "../../../helper/supabaseClient";
 
 const MyPosts = () => {
@@ -16,6 +15,7 @@ const MyPosts = () => {
 		getUser();
 	}, []);
 
+	console.log(user)
 
 	const fetchPosts = async () => {
 		const { data, error } = await supabase
