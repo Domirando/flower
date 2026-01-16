@@ -4,7 +4,6 @@ import {Send} from '@material-ui/icons';
 import React from 'react'
 
 import {
-    BrowserRouter,
     Routes,
     Route
 } from "react-router-dom";
@@ -19,7 +18,7 @@ const Dialogs = ({state, updateNewMessage, addMessage, messages}) => {
     let messagesElements = state.messages.map(message => <Message message={message.message}/>)
     let message = React.createRef();
     let messageSender = () => {
-        let text = message.current.value;
+        // let text = message.current.value;
         addMessage();
     }
     let onMessageChange = () => {
