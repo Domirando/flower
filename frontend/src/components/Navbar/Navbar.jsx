@@ -22,7 +22,7 @@ export default function Navbar({ expanded, setExpanded }) {
                     <NavbarItem name="Messenger" link="dialogs" />
                     <NavbarItem name="Music" link="music" />
                     <NavbarItem name="Books" link="books" />
-                    <NavbarItem name="News" link="news" />
+                    <NavbarItem name="New Post" link="posting" />
                     <NavbarItem name="Login" link="login" />
                 </div>
             )}

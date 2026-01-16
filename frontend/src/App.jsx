@@ -6,7 +6,7 @@ import Music from './components/Music/Music';
 import Books from './components/Books/Books';
 import './App.css';
 import Dialogs from './components/Dialogs/Dialogs.jsx';
-import News from './components/News/News.jsx';
+import NewPost from './components/NewPost/NewPost.jsx';
 import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
 import Login from "./components/Login/Login";
 import { supabase } from "./helper/supabaseClient";
@@ -89,7 +89,7 @@ function App({ state, updateNewMessage, addMessage }) {
 
                             <Route path="/books" element={<Books />} />
                             <Route path="/music" element={<Music />} />
-                            <Route path="/news" element={<News />} />
+                            <Route path="/posting" element={<NewPost />} />
 
                         </Routes>
                     </div>
