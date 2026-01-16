@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import Post from "./Post/Post";
+import styles from "./MyPosts.module.css";
 import { supabase } from "../../../helper/supabaseClient";
 
 const MyPosts = () => {
@@ -77,6 +78,7 @@ const MyPosts = () => {
 		  onChange={(e) => setNewPostText(e.target.value)}
 		  placeholder="Write your post…"
 		  disabled={loading}
+		  className={styles.textarea}
 	  />
 
 			<button onClick={addPost} disabled={loading}>

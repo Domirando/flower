@@ -13,3 +13,7 @@
 .new_posts > button{
     @apply border-blue-800 p-1.5 border-2;
 }
+
+.textarea {
+    @apply border-gray-200 rounded-md h-56 w-5/6 my-3;
+}
