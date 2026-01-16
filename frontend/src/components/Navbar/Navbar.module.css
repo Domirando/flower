@@ -1,5 +1,3 @@
-/* Navbar.module.css */
-
 .navbar {
   @apply fixed left-0 bg-white shadow transition-all duration-300;
   top: 64px; /* header height */

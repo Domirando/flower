@@ -12,11 +12,10 @@ import Login from "./components/Login/Login";
 import { supabase } from "./helper/supabaseClient";
 
 function App({ state, updateNewMessage, addMessage }) {
+    const [loading, setLoading] = useState(true);
     const [navbarExpanded, setNavbarExpanded] = useState(true);
     const [user, setUser] = useState(null);
-    const [loading, setLoading] = useState(true);
 
-    // Get authenticated user
     useEffect(() => {
         const getUser = async () => {
             const { data: { user } } = await supabase.auth.getUser();
@@ -56,13 +55,11 @@ function App({ state, updateNewMessage, addMessage }) {
                     >
                         <Routes>
 
-                            {/* Login */}
                             <Route
                                 path="/login"
                                 element={user ? <Navigate to="/" /> : <Login />}
                             />
 
-                            {/* Protected Profile */}
                             <Route
                                 path="/"
                                 element={
@@ -74,7 +71,6 @@ function App({ state, updateNewMessage, addMessage }) {
                                 }
                             />
 
-                            {/* Other routes (optional protection) */}
                             <Route
                                 path="/dialogs"
                                 element={

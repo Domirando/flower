@@ -1,4 +1,5 @@
 import { useState } from "react";
+import styles from "./Login.module.css";
 import { supabase } from "../../helper/supabaseClient";
 
 const Login = () => {
@@ -30,15 +31,15 @@ const Login = () => {
     };
 
     return (
-        <div style={{ maxWidth: 400, margin: "60px auto" }}>
-            <h2>Login</h2>
+        <div className={styles.container}>
+            <h2 className={styles.header}>Login</h2>
 
             <input
+                className={styles.email_input}
                 type="email"
                 placeholder="Your email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                style={{ width: "100%", padding: "10px", marginBottom: "10px" }}
             />
 
             <button
@@ -46,7 +47,7 @@ const Login = () => {
                 disabled={loading}
                 style={{ width: "100%", padding: "10px" }}
             >
-                {loading ? "Sending link..." : "Send magic link"}
+                {loading ? "Sending link..." : "Send a verification link"}
             </button>
         </div>
     );
