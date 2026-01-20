@@ -4,7 +4,7 @@ import ProfileInfo from "./ProfileInfo";
 import { useEffect, useState } from "react";
 import { supabase } from "../../helper/supabaseClient";
 
-const Profile = ({ user }) => {
+const Profile = ({ user, state }) => {
     const [channelId, setChannelId] = useState('');
     const [loading, setLoading] = useState(true);
 
@@ -44,6 +44,7 @@ const Profile = ({ user }) => {
         if (error) alert(error.message);
         else alert('Telegram channel saved!');
     };
+    console.log("state:", user)
 
     if (loading) return <p>Loading profile...</p>;
 
