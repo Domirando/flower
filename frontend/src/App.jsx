@@ -4,19 +4,29 @@ import Navbar from './components/Navbar/Navbar';
 import Profile from './components/Profile/Profile';
 import Music from './components/Music/Music';
 import Books from './components/Books/Books';
-import React from 'react'
-import './App.css';
 import Dialogs from './components/Dialogs/Dialogs.jsx';
 import NewPost from './components/NewPost/NewPost.jsx';
-import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
 import Auth from "./components/Auth/Auth";
+import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
 import { supabase } from "./helper/supabaseClient";
+import React from "react";
+import './App.css';
 
 function App({ state, updateNewMessage, addMessage }) {
     const [loading, setLoading] = useState(true);
-    const [navbarExpanded, setNavbarExpanded] = useState(true);
+    const [navbarExpanded, setNavbarExpanded] = useState(() => {
+        // Optional: persist navbar state across refresh
+        const saved = localStorage.getItem("navbarExpanded");
+        return saved ? JSON.parse(saved) : true;
+    });
     const [user, setUser] = useState(null);
 
+    // Persist navbar state
+    useEffect(() => {
+        localStorage.setItem("navbarExpanded", JSON.stringify(navbarExpanded));
+    }, [navbarExpanded]);
+
+    // Get current user + listen for auth changes
     useEffect(() => {
         const getUser = async () => {
             const { data: { user } } = await supabase.auth.getUser();
@@ -26,7 +36,6 @@ function App({ state, updateNewMessage, addMessage }) {
 
         getUser();
 
-        // Listen for auth changes (login / logout)
         const { data: authListener } = supabase.auth.onAuthStateChange(
             (_event, session) => {
                 setUser(session?.user ?? null);
@@ -55,11 +64,7 @@ function App({ state, updateNewMessage, addMessage }) {
                         }`}
                     >
                         <Routes>
-
-                            <Route
-                                path="/login"
-                                element={ <Auth />}
-                            />
+                            <Route path="/login" element={<Auth />} />
 
                             <Route
                                 path="/"
@@ -91,7 +96,6 @@ function App({ state, updateNewMessage, addMessage }) {
                             <Route path="/books" element={<Books />} />
                             <Route path="/music" element={<Music />} />
                             <Route path="/posting" element={<NewPost />} />
-
                         </Routes>
                     </div>
                 </div>
