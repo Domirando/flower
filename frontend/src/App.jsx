@@ -4,6 +4,7 @@ import Navbar from './components/Navbar/Navbar';
 import Profile from './components/Profile/Profile';
 import Music from './components/Music/Music';
 import Books from './components/Books/Books';
+import React from 'react'
 import './App.css';
 import Dialogs from './components/Dialogs/Dialogs.jsx';
 import NewPost from './components/NewPost/NewPost.jsx';
@@ -64,7 +65,7 @@ function App({ state, updateNewMessage, addMessage }) {
                                 path="/"
                                 element={
                                     user ? (
-                                        <Profile user={user} />
+                                        <Profile user={user} state={state} />
                                     ) : (
                                         <Navigate to="/login" />
                                     )
