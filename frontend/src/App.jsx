@@ -58,7 +58,7 @@ function App({ state, updateNewMessage, addMessage }) {
 
                             <Route
                                 path="/login"
-                                element={user ? <Navigate to="/" /> : <Auth />}
+                                element={ <Auth />}
                             />
 
                             <Route
