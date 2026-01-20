@@ -16,7 +16,7 @@ export default function NewPost() {
         getUser();
     }, []);
 
-    const addPost = async () => {
+    const addPost = async () => {  
         if (!user) {
             alert("Please log in first");
             return;
