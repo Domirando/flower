@@ -11,13 +11,14 @@ const Auth = () => {
     });
 
     const [loading, setLoading] = useState(false);
+    const [mode, setMode] = useState("signup"); // signup | login
 
     const handleChange = (e) => {
         const { name, value } = e.target;
         setForm((prev) => ({ ...prev, [name]: value }));
     };
 
-    // -------- SIGNUP --------
+    // -------- SIGN UP --------
     const handleSignUp = async () => {
         const { fullName, telegramChannel, email, password } = form;
 
@@ -62,11 +63,11 @@ const Auth = () => {
 
         setLoading(true);
 
-        const { data, error } = await supabase.auth.signInWithPassword({
+        const { error } = await supabase.auth.signInWithPassword({
             email,
             password
         });
-        console.log(data);
+
         setLoading(false);
 
         if (error) alert(error.message);
@@ -76,9 +77,7 @@ const Auth = () => {
     // -------- LOGOUT --------
     const handleLogout = async () => {
         setLoading(true);
-
         const { error } = await supabase.auth.signOut();
-
         setLoading(false);
 
         if (error) alert(error.message);
@@ -87,71 +86,88 @@ const Auth = () => {
 
     return (
         <div className={styles.container}>
-            <h2 className={styles.header}>Auth</h2>
+            <h2 className={styles.header}>
+                {mode === "signup" ? "Sign Up" : "Login"}
+            </h2>
 
-            {/* Full Name */}
-            <input
-                type="text"
-                name="fullName"
-                placeholder="Your full name"
-                value={form.fullName}
-                onChange={handleChange}
-                className={styles.email_input}
-            />
+            {/* Signup-only fields */}
+            {mode === "signup" && (
+                <>
+                    <input
+                        type="text"
+                        name="fullName"
+                        placeholder="Your full name"
+                        value={form.fullName}
+                        onChange={handleChange}
+                        className={styles.input}
+                    />
 
-            {/* Telegram Channel */}
-            <input
-                type="text"
-                name="telegramChannel"
-                placeholder="Your Telegram channel"
-                value={form.telegramChannel}
-                onChange={handleChange}
-                className={styles.email_input}
-            />
+                    <input
+                        type="text"
+                        name="telegramChannel"
+                        placeholder="Your Telegram channel"
+                        value={form.telegramChannel}
+                        onChange={handleChange}
+                        className={styles.input}
+                    />
+                </>
+            )}
 
-            {/* Email */}
+            {/* Always visible */}
             <input
                 type="email"
                 name="email"
                 placeholder="Your email"
                 value={form.email}
                 onChange={handleChange}
-                className={styles.email_input}
+                className={styles.input}
             />
 
-            {/* Password */}
             <input
                 type="password"
                 name="password"
-                placeholder="Set a password"
+                placeholder="Password"
                 value={form.password}
                 onChange={handleChange}
-                className={styles.email_input}
+                className={styles.input}
             />
 
-            {/* Buttons */}
+            {/* Action button */}
+            {mode === "signup" ? (
+                <button
+                    onClick={handleSignUp}
+                    disabled={loading}
+                    className={styles.primaryButton}
+                >
+                    {loading ? "Creating account..." : "Sign Up"}
+                </button>
+            ) : (
+                <button
+                    onClick={handleLogin}
+                    disabled={loading}
+                    className={styles.primaryButton}
+                >
+                    {loading ? "Logging in..." : "Login"}
+                </button>
+            )}
+
+            {/* Mode switch */}
             <button
-                onClick={handleSignUp}
-                disabled={loading}
-                style={{ width: "100%", padding: "10px" }}
+                onClick={() => setMode(mode === "signup" ? "login" : "signup")}
+                className={styles.linkButton}
             >
-                {loading ? "Creating account..." : "Sign Up"}
+                {mode === "signup"
+                    ? "Already have an account? Login"
+                    : "New user? Sign Up"}
             </button>
 
-            <button
-                onClick={handleLogin}
-                disabled={loading}
-                style={{ width: "100%", padding: "10px", marginTop: "10px" }}
-            >
-                {loading ? "Logging in..." : "Auth"}
-            </button>
-
+            {/* Logout */}
             <button
                 onClick={handleLogout}
                 disabled={loading}
-                style={{ width: "100%", padding: "10px", marginTop: "10px" }}
+                className={styles.logoutButton}
             >
-                {loading ? "Logging out..." : "Logout"}
+                Logout
             </button>
         </div>
     );
