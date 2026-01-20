@@ -6,7 +6,8 @@
     @apply font-extrabold leading-tight text-2xl;
 }
 
-.input {
+.email_input {
+    width: 100%;
     @apply w-full h-12 border-sky-50 border-2 py-2 px-3 rounded text-base font-medium leading-tight;
 }
 
