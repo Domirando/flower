@@ -2,7 +2,6 @@ import styles from './Dialogs.module.css'
 import stylesMessages from "./Messages/Messages.module.css";
 import {Send} from '@material-ui/icons';
 import React from 'react'
-
 import {
     Routes,
     Route
