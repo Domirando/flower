@@ -66,7 +66,7 @@ const Auth = () => {
             email,
             password
         });
-
+        console.log(data);
         setLoading(false);
 
         if (error) alert(error.message);
