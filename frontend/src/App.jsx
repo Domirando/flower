@@ -15,18 +15,15 @@ import './App.css';
 function App({ state, updateNewMessage, addMessage }) {
     const [loading, setLoading] = useState(true);
     const [navbarExpanded, setNavbarExpanded] = useState(() => {
-        // Optional: persist navbar state across refresh
         const saved = localStorage.getItem("navbarExpanded");
         return saved ? JSON.parse(saved) : true;
     });
     const [user, setUser] = useState(null);
 
-    // Persist navbar state
     useEffect(() => {
         localStorage.setItem("navbarExpanded", JSON.stringify(navbarExpanded));
     }, [navbarExpanded]);
 
-    // Get current user + listen for auth changes
     useEffect(() => {
         const getUser = async () => {
             const { data: { user } } = await supabase.auth.getUser();
