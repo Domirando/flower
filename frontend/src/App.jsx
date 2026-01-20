@@ -9,7 +9,7 @@ import './App.css';
 import Dialogs from './components/Dialogs/Dialogs.jsx';
 import NewPost from './components/NewPost/NewPost.jsx';
 import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
-import Login from "./components/Login/Login";
+import Auth from "./components/Auth/Auth";
 import { supabase } from "./helper/supabaseClient";
 
 function App({ state, updateNewMessage, addMessage }) {
@@ -58,7 +58,7 @@ function App({ state, updateNewMessage, addMessage }) {
 
                             <Route
                                 path="/login"
-                                element={user ? <Navigate to="/" /> : <Login />}
+                                element={user ? <Navigate to="/" /> : <Auth />}
                             />
 
                             <Route
