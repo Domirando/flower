@@ -1,16 +1,24 @@
-import React from 'react';
-import './index.css';
-import state, {subscriber} from './redux/state'
+import React from "react";
 import ReactDOM from "react-dom";
+import "./index.css";
 import App from "./App";
-import {addPost, updateNewPosText, addMessage, updateNewMessage} from "./redux/state";
+import state, {
+    subscriber,
+} from "./redux/state";
+import { initAuth } from "./helper/initAuth";
 
-let rerenderEntireTree = (state) => ReactDOM.render(
-    <React.StrictMode>
-        <App state={state} addMessage={addMessage} addPost={addPost} updateNewPosText={updateNewPosText} updateNewMessage={updateNewMessage}  />
-    </React.StrictMode>,
-    document.getElementById('root')
-);
-rerenderEntireTree(state)
+const rerenderEntireTree = (state) => {
+    ReactDOM.render(
+        <React.StrictMode>
+            <App
+                state={state}
+            />
+        </React.StrictMode>,
+        document.getElementById("root")
+    );
+};
 
-subscriber(rerenderEntireTree)
+rerenderEntireTree(state);
+subscriber(rerenderEntireTree);
+
+initAuth();
