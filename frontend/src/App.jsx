@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import {useEffect, useState} from "react";
 import Header from "./components/Header/Header";
 import Navbar from "./components/Navbar/Navbar";
 import Profile from "./components/Profile/Profile";
@@ -7,12 +7,12 @@ import Books from "./components/Books/Books";
 import Dialogs from "./components/Dialogs/Dialogs.jsx";
 import NewPost from "./components/NewPost/NewPost.jsx";
 import Auth from "./components/Auth/Auth";
-import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
-import { supabase } from "./helper/supabaseClient";
-import { setUser } from "./redux/state";
+import {BrowserRouter as Router, Routes, Route, Navigate} from "react-router-dom";
+import {supabase} from "./helper/supabaseClient";
+import {setUser} from "./redux/state";
 import "./App.css";
 
-function App({ state, updateNewMessage, addMessage }) {
+function App({state, updateNewMessage, addMessage}) {
     const [loading, setLoading] = useState(true);
     const [navbarExpanded, setNavbarExpanded] = useState(() => {
         const saved = localStorage.getItem("navbarExpanded");
@@ -27,7 +27,7 @@ function App({ state, updateNewMessage, addMessage }) {
 
     useEffect(() => {
         const syncUser = async () => {
-            const { data: { user } } = await supabase.auth.getUser();
+            const {data: {user}} = await supabase.auth.getUser();
 
             if (user) {
                 const mappedUser = {
@@ -52,7 +52,7 @@ function App({ state, updateNewMessage, addMessage }) {
 
         syncUser();
 
-        const { data: authListener } = supabase.auth.onAuthStateChange(
+        const {data: authListener} = supabase.auth.onAuthStateChange(
             (_event, session) => {
                 const user = session?.user ?? null;
 
@@ -84,8 +84,7 @@ function App({ state, updateNewMessage, addMessage }) {
     return (
         <Router>
             <div className="app-wrapper">
-                <Header state={state} />
-
+                <Header state={state}/>
                 <div className="app-body">
                     <Navbar
                         expanded={navbarExpanded}
@@ -98,15 +97,15 @@ function App({ state, updateNewMessage, addMessage }) {
                         }`}
                     >
                         <Routes>
-                            <Route path="/login" element={<Auth />} />
+                            <Route path="/login" element={<Auth/>}/>
 
                             <Route
                                 path="/"
                                 element={
                                     user ? (
-                                        <Profile state={state} />
+                                        <Profile state={state}/>
                                     ) : (
-                                        <Navigate to="/login" />
+                                        <Navigate to="/login"/>
                                     )
                                 }
                             />
@@ -122,14 +121,14 @@ function App({ state, updateNewMessage, addMessage }) {
                                             state={state.messagesPage}
                                         />
                                     ) : (
-                                        <Navigate to="/login" />
+                                        <Navigate to="/login"/>
                                     )
                                 }
                             />
 
-                            <Route path="/books" element={<Books />} />
-                            <Route path="/music" element={<Music />} />
-                            <Route path="/posting" element={<NewPost />} />
+                            <Route path="/books" element={<Books/>}/>
+                            <Route path="/music" element={<Music/>}/>
+                            <Route path="/posting" element={<NewPost/>}/>
                         </Routes>
                     </div>
                 </div>
