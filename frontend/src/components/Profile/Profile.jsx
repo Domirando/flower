@@ -1,19 +1,19 @@
 import styles from './Profile.module.css';
 import MyPosts from "./MyPosts/MyPosts";
-import { useEffect, useState } from "react";
-import { supabase } from "../../helper/supabaseClient";
+import {useEffect, useState} from "react";
+import {supabase} from "../../helper/supabaseClient";
 
-const Profile = ({ user }) => {
+const Profile = () => {
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
         const initProfile = async () => {
-            const { data: authUser } = await supabase.auth.getUser();
+            const {data: authUser} = await supabase.auth.getUser();
             if (!authUser?.user?.id) return;
 
             const userId = authUser.user.id;
 
-            await supabase.from("users").upsert({ id: userId });
+            await supabase.from("users").upsert({id: userId});
 
             setLoading(false);
         };
@@ -25,15 +25,13 @@ const Profile = ({ user }) => {
 
     return (
         <div className={styles.content}>
-            <img
-                src="https://images.unsplash.com/photo-1469474968028-56623f02e42e"
-                alt=""
-            />
-
-            <div className={styles.main_content}>
-
-                <MyPosts />
+            <div className={styles.title}>
+                <h1>
+                    Profile: Posts & Articles
+                </h1>
             </div>
+
+            <MyPosts/>
         </div>
     );
 };
