@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import Post from "./Post/Post";
 import { supabase } from "../../../helper/supabaseClient";
+import styles from "../Profile.module.css";
 
 const MyPosts = () => {
 	const [posts, setPosts] = useState([]);
@@ -31,7 +32,7 @@ const MyPosts = () => {
 	}, []);
 
 	return (
-		<div>
+		<div className={styles.main_content}>
 			{posts.map((post) => (
 				<Post
 					key={post.id}
