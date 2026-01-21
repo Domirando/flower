@@ -3,7 +3,7 @@
   @apply fixed w-screen z-50;
 }
 .header_content{
-  @apply bg-blue-200 p-1;
+  @apply bg-blue-200 p-3.5 flex items-center justify-between w-full;
 }
 .header_content > img{
   max-width: 65px;

@@ -10,18 +10,18 @@
     @apply w-full h-[320px] object-cover;
 }
 
-.content .content_text {
-    @apply p-6;
-}
-
 .content_main_card > img {
-    @apply h-[150px] object-contain;
+    max-width: 65px;
+    @apply object-contain rounded-full;
 }
 
 .content_main_card {
-    @apply flex gap-5;
+    @apply flex gap-3 justify-end items-center w-full;
 }
 
-.item {
-    @apply text-green-800;
+.content_main_card > .content_text{
+    @apply text-right;
+}
+p{
+    font-size: 14px;
 }

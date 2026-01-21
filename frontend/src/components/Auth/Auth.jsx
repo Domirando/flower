@@ -15,7 +15,10 @@ const Auth = () => {
 
     const handleChange = (e) => {
         const { name, value } = e.target;
-        setForm((prev) => ({ ...prev, [name]: value }));
+        setForm((prev) => ({
+            ...prev,
+            [name]: value
+        }));
     };
 
     const handleSignUp = async () => {
@@ -47,8 +50,12 @@ const Auth = () => {
 
         setLoading(false);
 
-        if (error) alert(error.message);
-        else alert("Check your email to confirm your account");
+        if (error) {
+            alert(error.message);
+        } else {
+            alert("Check your email to confirm your account");
+            setMode("login"); // ✅ UX fix
+        }
     };
 
     const handleLogin = async () => {
@@ -68,12 +75,16 @@ const Auth = () => {
 
         setLoading(false);
 
-        if (error) alert(error.message);
+        if (error) {
+            alert(error.message);
+        }
     };
 
     const handleLogout = async () => {
         setLoading(true);
+
         const { error } = await supabase.auth.signOut();
+
         setLoading(false);
 
         if (error) alert(error.message);
@@ -139,6 +150,7 @@ const Auth = () => {
             </button>
 
             <button
+                type="button"
                 onClick={() =>
                     setMode(mode === "signup" ? "login" : "signup")
                 }

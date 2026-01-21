@@ -56,7 +56,7 @@ export default function NewPost() {
     };
     return (
         <div className={styles.container}>
-            <h1 className={styles.header}>News</h1>
+            <h1 className={styles.header}>New Post</h1>
             <textarea
                 value={newPostText}
                 onChange={(e) => setNewPostText(e.target.value)}

@@ -4,12 +4,15 @@ let rerenderEntireTree = () => {
 
 let state = {
     auth: {
-        isAuthenticated: false,
-        user: null
+        isAuthenticated: false
     },
 
     profilePage: {
-        newPostText: "Hi from Flower!"
+        user: {
+            email: "",
+            full_name: "",
+            channel_id: ""
+        }
     },
 
     messagesPage: {
@@ -24,21 +27,27 @@ let state = {
 
 export const setUser = (user) => {
     state.auth.isAuthenticated = true;
-    state.auth.user = {
-        id: user.id,
+
+    state.profilePage.user = {
         email: user.email,
-        full_name: user.user_metadata?.full_name ?? "",
-        telegram_channel: user.user_metadata?.telegram_channel ?? ""
+        full_name: user.full_name,
+        channel_id: user.channel_id
     };
+
     rerenderEntireTree(state);
 };
 
 export const clearUser = () => {
     state.auth.isAuthenticated = false;
-    state.auth.user = null;
+
+    state.profilePage.user = {
+        email: "",
+        full_name: "",
+        channel_id: ""
+    };
+
     rerenderEntireTree(state);
 };
-
 
 export const subscriber = (observer) => {
     rerenderEntireTree = observer;

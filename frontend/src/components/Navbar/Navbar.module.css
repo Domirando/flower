@@ -1,6 +1,6 @@
 .navbar {
   @apply fixed left-0 bg-white shadow transition-all duration-300;
-  top: 64px; /* header height */
+  top: 64px;
   height: calc(100vh - 64px);
 }
 

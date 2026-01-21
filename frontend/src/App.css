@@ -1,3 +1,6 @@
+.app_wrapper {
+    @apply flex flex-col items-center justify-center w-full;
+}
 .app-body {
     @apply flex;
 }

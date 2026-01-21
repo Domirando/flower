@@ -34,16 +34,6 @@ const Profile = ({ user, state }) => {
 
         initProfile();
     }, []);
-
-    const saveChannel = async () => {
-        const { error } = await supabase
-            .from('users')
-            .update({ telegram_channel: channelId })
-            .eq('id', user.id);
-
-        if (error) alert(error.message);
-        else alert('Telegram channel saved!');
-    };
     console.log("state:", user)
 
     if (loading) return <p>Loading profile...</p>;
@@ -56,20 +46,6 @@ const Profile = ({ user, state }) => {
             />
 
             <div className={styles.main_content}>
-                <ProfileInfo user={user} />
-
-                <div>
-                    <h3>Telegram Channel</h3>
-                    <input
-                        type="text"
-                        value={channelId}
-                        onChange={(e) => setChannelId(e.target.value)}
-                        placeholder="e.g. -1001234567890"
-                    />
-                    <button onClick={saveChannel}>
-                        Save Channel
-                    </button>
-                </div>
 
                 <MyPosts />
             </div>
