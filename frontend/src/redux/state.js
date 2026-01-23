@@ -11,7 +11,8 @@ let state = {
         user: {
             email: "",
             full_name: "",
-            channel_id: ""
+            channel_id: "",
+            bio: ""
         }
     },
 
@@ -43,7 +44,8 @@ export const clearUser = () => {
     state.profilePage.user = {
         email: "",
         full_name: "",
-        channel_id: ""
+        channel_id: "",
+        bio: ""
     };
 
     rerenderEntireTree(state);

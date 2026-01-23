@@ -6,6 +6,7 @@ const Auth = () => {
     const [form, setForm] = useState({
         fullName: "",
         telegramChannel: "",
+        bio: "",
         email: "",
         password: ""
     });
@@ -22,7 +23,7 @@ const Auth = () => {
     };
 
     const handleSignUp = async () => {
-        const { fullName, telegramChannel, email, password } = form;
+        const { fullName, telegramChannel, bio, email, password } = form;
 
         if (!fullName || !telegramChannel || !email || !password) {
             alert("Please fill in all fields");
@@ -42,7 +43,8 @@ const Auth = () => {
             options: {
                 data: {
                     full_name: fullName,
-                    telegram_channel: telegramChannel
+                    telegram_channel: telegramChannel,
+                    bio: bio
                 },
                 emailRedirectTo: window.location.origin
             }
@@ -104,6 +106,15 @@ const Auth = () => {
                         name="fullName"
                         placeholder="Your full name"
                         value={form.fullName}
+                        onChange={handleChange}
+                        className={styles.email_input}
+                    />
+
+                    <input
+                        type="text"
+                        name="bio"
+                        placeholder="A little desciption about yourself"
+                        value={form.bio}
                         onChange={handleChange}
                         className={styles.email_input}
                     />
