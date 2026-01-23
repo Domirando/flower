@@ -28,7 +28,7 @@ function App({state, updateNewMessage, addMessage}) {
     useEffect(() => {
         const syncUser = async () => {
             const {data: {user}} = await supabase.auth.getUser();
-
+            console.log("uuser", user);
             if (user) {
                 const mappedUser = {
                     email: user.email,
@@ -51,6 +51,7 @@ function App({state, updateNewMessage, addMessage}) {
         };
 
         syncUser();
+        console.log("user in app", user)
 
         const {data: authListener} = supabase.auth.onAuthStateChange(
             (_event, session) => {
