@@ -27,13 +27,18 @@ function App({state, updateNewMessage, addMessage}) {
 
     useEffect(() => {
         const syncUser = async () => {
-            const {data: {user}} = await supabase.auth.getUser();
+            const { data, error } = await supabase.auth.getUser();
+            error?console.log(error):console.log(data);
+            const user = data?.user ?? null;
+            console.log("metadata", user?.user_metadata);
+
             console.log("uuser", user);
             if (user) {
                 const mappedUser = {
                     email: user.email,
                     full_name: user.user_metadata?.full_name || "",
-                    channel_id: user.user_metadata?.telegram_channel || ""
+                    channel_id: user.user_metadata?.telegram_channel || "",
+                    bio: user.user_metadata?.bio || ""
                 };
 
                 setLocalUser(user);      // local (routing)
@@ -43,7 +48,8 @@ function App({state, updateNewMessage, addMessage}) {
                 setUser({
                     email: "",
                     full_name: "",
-                    channel_id: ""
+                    channel_id: "",
+                    bio: ""
                 });
             }
 
@@ -60,7 +66,8 @@ function App({state, updateNewMessage, addMessage}) {
                     const mappedUser = {
                         email: user.email,
                         full_name: user.user_metadata?.full_name || "",
-                        channel_id: user.user_metadata?.telegram_channel || ""
+                        channel_id: user.user_metadata?.telegram_channel || "",
+                        bio: user.user_metadata?.bio || ""
                     };
 
                     setLocalUser(user);
@@ -70,7 +77,8 @@ function App({state, updateNewMessage, addMessage}) {
                     setUser({
                         email: "",
                         full_name: "",
-                        channel_id: ""
+                        channel_id: "",
+                        bio: ""
                     });
                 }
             }
