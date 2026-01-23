@@ -1,8 +1,10 @@
 import { useState } from "react";
 import { supabase } from "../../helper/supabaseClient";
 import styles from "./Auth.module.css";
+import {useNavigate} from "react-router-dom";
 
 const Auth = () => {
+    const navigate = useNavigate();
     const [form, setForm] = useState({
         fullName: "",
         telegramChannel: "",
@@ -70,17 +72,26 @@ const Auth = () => {
 
         setLoading(true);
 
-        const { error } = await supabase.auth.signInWithPassword({
+        const { data, error } = await supabase.auth.signInWithPassword({
             email,
             password
         });
 
-        setLoading(false);
-
         if (error) {
+            setLoading(false);
             alert(error.message);
+            return;
+        } else{
+            console.log(data);
         }
+
+        // 🔥 FORCE REFRESH USER DATA
+        await supabase.auth.getUser();
+
+        setLoading(false);
+        navigate("/");
     };
+
 
     const handleLogout = async () => {
         setLoading(true);
