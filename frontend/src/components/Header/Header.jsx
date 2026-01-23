@@ -2,12 +2,12 @@ import logo from '../../assets/logo.png';
 import styles from './Header.module.css'
 import ProfileInfo from "../Profile/ProfileInfo";
 
-const Header = () => {
+const Header = ({state}) => {
     return (
         <header className={styles.header}>
             <div className={styles.header_content}>
                 <img src={logo} alt=''/>
-                <ProfileInfo  />
+                <ProfileInfo  user = {state.profilePage.user} />
             </div>
 
         </header>
