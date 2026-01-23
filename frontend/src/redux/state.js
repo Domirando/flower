@@ -32,7 +32,8 @@ export const setUser = (user) => {
     state.profilePage.user = {
         email: user.email,
         full_name: user.full_name,
-        channel_id: user.channel_id
+        channel_id: user.channel_id,
+        bio: user.bio || "",
     };
 
     rerenderEntireTree(state);
