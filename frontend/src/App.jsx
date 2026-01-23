@@ -51,7 +51,6 @@ function App({state, updateNewMessage, addMessage}) {
         };
 
         syncUser();
-        console.log("user in app", user)
 
         const {data: authListener} = supabase.auth.onAuthStateChange(
             (_event, session) => {
@@ -81,6 +80,7 @@ function App({state, updateNewMessage, addMessage}) {
     }, []);
 
     if (loading) return <p>Loading...</p>;
+    console.log("user in app", user);
 
     return (
         <Router>
