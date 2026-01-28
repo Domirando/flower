@@ -12,7 +12,8 @@ let state = {
             email: "",
             full_name: "",
             channel_id: "",
-            bio: ""
+            bio: "",
+            ava: "https://static.vecteezy.com/system/resources/previews/002/608/327/non_2x/mobile-application-avatar-web-button-menu-digital-silhouette-style-icon-free-vector.jpg"
         }
     },
 
@@ -34,6 +35,7 @@ export const setUser = (user) => {
         full_name: user.full_name,
         channel_id: user.channel_id,
         bio: user.bio || "",
+        ava: user.ava || "https://static.vecteezy.com/system/resources/previews/002/608/327/non_2x/mobile-application-avatar-web-button-menu-digital-silhouette-style-icon-free-vector.jpg"
     };
 
     rerenderEntireTree(state);
