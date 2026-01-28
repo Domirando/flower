@@ -2,7 +2,7 @@
     @apply flex items-center gap-6;
 }
 .post > img{
-    max-width: 60px;
+    max-width: 50px;
     @apply rounded-full object-contain;
 }
 .isLiked{

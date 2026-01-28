@@ -14,7 +14,7 @@
 }
 
 .content_main_card > img {
-    max-width: 65px;
+    max-width: 50px;
     @apply object-contain rounded-full;
 }
 
