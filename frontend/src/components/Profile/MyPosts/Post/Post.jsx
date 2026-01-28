@@ -1,10 +1,11 @@
 import {ThumbDown, ThumbUp} from '@material-ui/icons';
 import styles from './Post.module.css'
+import state from "../../../../redux/state";
 
 const Post = ({ title, description, likeCount, dislikeCount }) => {
     return (
         <div  className={styles.post}>
-            <img src='https://pbs.twimg.com/profile_images/1954804795828785152/Vmx_KtOP_400x400.jpg' alt='' />
+            <img src={state.profilePage.user.ava} alt='' />
             <div className="post_text">
                 <h2>{ title }</h2>
                 <h5>{ description }</h5>
