@@ -2,9 +2,11 @@ import { useState } from "react";
 import { supabase } from "../../helper/supabaseClient";
 import styles from "./Auth.module.css";
 import {useNavigate} from "react-router-dom";
+import {setUser} from "../../redux/state";
 
 const Auth = () => {
     const navigate = useNavigate();
+    const [avatar, setAvatar] = useState(null);
     const [form, setForm] = useState({
         fullName: "",
         telegramChannel: "",
@@ -32,34 +34,46 @@ const Auth = () => {
             return;
         }
 
-        if (password.length < 8 || password.length > 16) {
-            alert("Password must be 8–16 characters long");
-            return;
-        }
-
         setLoading(true);
 
-        const { error } = await supabase.auth.signUp({
+        const { data, error } = await supabase.auth.signUp({
             email,
             password,
             options: {
                 data: {
                     full_name: fullName,
                     telegram_channel: telegramChannel,
-                    bio: bio
-                },
-                emailRedirectTo: window.location.origin
+                    bio
+                }
             }
         });
 
-        setLoading(false);
-
         if (error) {
+            setLoading(false);
             alert(error.message);
-        } else {
-            alert("Check your email to confirm your account");
-            setMode("login"); // ✅ UX fix
+            return;
         }
+
+        const userId = data.user.id;
+
+        try {
+            const avatarUrl = avatar ? await uploadAvatar(avatar) : null;
+
+            if (avatarUrl) {
+                await supabase
+                    .from("users")
+                    .update({ avatar_url: avatarUrl })
+                    .eq("id", userId);
+            }
+
+            alert("Check your email to confirm your account");
+            setMode("login");
+
+        } catch (err) {
+            alert("Avatar upload failed");
+        }
+
+        setLoading(false);
     };
 
     const handleLogin = async () => {
@@ -82,7 +96,14 @@ const Auth = () => {
             alert(error.message);
             return;
         } else{
-            console.log(data);
+            console.log("data", data);
+            setUser({
+                email: data?.user.email,
+                full_name: data?.user.user_metadata.full_name,
+                channel_id: data?.user.user_metadata.channel_id,
+                bio: data?.user.user_metadata.bio,
+                avatar_url: data?.user.user_metadata.avatar_url,
+            });
         }
 
         // 🔥 FORCE REFRESH USER DATA
@@ -92,6 +113,34 @@ const Auth = () => {
         navigate("/");
     };
 
+    const uploadAvatar = async (file) => {
+        const user = (await supabase.auth.getUser()).data.user;
+        if (!user || !file) return;
+
+        const fileExt = file.name.split(".").pop();
+        const fileName = `${user.id}.${fileExt}`;
+        const filePath = `avatars/${fileName}`;
+
+        const { error } = await supabase.storage
+            .from("avatars")
+            .upload(filePath, file, {
+                cacheControl: "3600",
+                upsert: true,
+                contentType: file.type
+            });
+
+        if (error) {
+            console.error("Upload error:", error.message);
+            alert(error.message);
+            return;
+        }
+
+        const { data } = supabase.storage
+            .from("avatars")
+            .getPublicUrl(filePath);
+
+        return data.publicUrl;
+    };
 
     const handleLogout = async () => {
         setLoading(true);
@@ -136,6 +185,13 @@ const Auth = () => {
                         placeholder="Your Telegram channel"
                         value={form.telegramChannel}
                         onChange={handleChange}
+                        className={styles.email_input}
+                    />
+
+                    <input
+                        type="file"
+                        accept="image/*"
+                        onChange={(e) => setAvatar(e.target.files[0])}
                         className={styles.email_input}
                     />
                 </>
