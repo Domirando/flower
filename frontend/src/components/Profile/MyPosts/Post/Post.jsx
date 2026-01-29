@@ -5,7 +5,7 @@ import state from "../../../../redux/state";
 const Post = ({ title, description, likeCount, dislikeCount }) => {
     return (
         <div  className={styles.post}>
-            <img src={state.profilePage.user.ava} alt='' />
+            <img src={state.profilePage.user.avatar_url} alt='' />
             <div className="post_text">
                 <h2>{ title }</h2>
                 <h5>{ description }</h5>
