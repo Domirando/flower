@@ -2,6 +2,9 @@ let rerenderEntireTree = () => {
     console.log("state changed");
 };
 
+const DEFAULT_AVATAR =
+    "https://static.vecteezy.com/system/resources/previews/002/608/327/non_2x/mobile-application-avatar-web-button-menu-digital-silhouette-style-icon-free-vector.jpg";
+
 let state = {
     auth: {
         isAuthenticated: false
@@ -13,7 +16,7 @@ let state = {
             full_name: "",
             channel_id: "",
             bio: "",
-            ava: "https://static.vecteezy.com/system/resources/previews/002/608/327/non_2x/mobile-application-avatar-web-button-menu-digital-silhouette-style-icon-free-vector.jpg"
+            avatar_url: DEFAULT_AVATAR
         }
     },
 
@@ -31,11 +34,11 @@ export const setUser = (user) => {
     state.auth.isAuthenticated = true;
 
     state.profilePage.user = {
-        email: user.email,
-        full_name: user.full_name,
-        channel_id: user.channel_id,
+        email: user.email || "",
+        full_name: user.full_name || "",
+        channel_id: user.channel_id || "",
         bio: user.bio || "",
-        ava: user.ava || "https://static.vecteezy.com/system/resources/previews/002/608/327/non_2x/mobile-application-avatar-web-button-menu-digital-silhouette-style-icon-free-vector.jpg"
+        avatar_url: user.avatar_url || DEFAULT_AVATAR
     };
 
     rerenderEntireTree(state);
@@ -48,7 +51,8 @@ export const clearUser = () => {
         email: "",
         full_name: "",
         channel_id: "",
-        bio: ""
+        bio: "",
+        avatar_url: DEFAULT_AVATAR
     };
 
     rerenderEntireTree(state);
