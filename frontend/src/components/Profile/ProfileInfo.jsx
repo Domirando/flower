@@ -6,9 +6,9 @@ const ProfileInfo = ({user}) => {
         <div className={styles.content_main_card}>
             <div className={styles.content_text}>
                 <b>{user.full_name}</b>
-                <p>{user.channel_id}</p>
+                <p>{user.bio}</p>
             </div>
-            <img src={user.ava} alt={"avatar"}/>
+            <img src={user.avatar_url} alt={"avatar"}/>
         </div>
     )
 }
