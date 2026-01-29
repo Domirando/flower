@@ -67,7 +67,8 @@ function App({state, updateNewMessage, addMessage}) {
                         email: user.email,
                         full_name: user.user_metadata?.full_name || "",
                         channel_id: user.user_metadata?.telegram_channel || "",
-                        bio: user.user_metadata?.bio || ""
+                        bio: user.user_metadata?.bio || "",
+                        avatar_url: user.user_metadata.avatar_url || "",
                     };
 
                     setLocalUser(user);
