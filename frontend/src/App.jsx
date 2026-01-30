@@ -28,7 +28,7 @@ function App({state, updateNewMessage, addMessage}) {
     useEffect(() => {
         const syncUser = async () => {
             const { data, error } = await supabase.auth.getUser();
-            error?console.log(error):console.log(data);
+            error?console.log(error):console.log("sync user", data);
             const user = data?.user ?? null;
             console.log("metadata", user?.user_metadata);
 
@@ -89,7 +89,6 @@ function App({state, updateNewMessage, addMessage}) {
     }, []);
 
     if (loading) return <p>Loading...</p>;
-    console.log("user in app", user);
 
     return (
         <Router>

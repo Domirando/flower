@@ -1,7 +1,6 @@
 import styles from './Profile.module.css'
 
 const ProfileInfo = ({user}) => {
-    console.log("pf", user);
     return (
         <div className={styles.content_main_card}>
             <div className={styles.content_text}>

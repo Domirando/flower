@@ -23,7 +23,6 @@ const Dialogs = ({state, updateNewMessage, addMessage, messages}) => {
     let onMessageChange = () => {
         let text = message.current.value;
         updateNewMessage(text)
-        console.log(text)
     }
     return (
         <div className={styles.dialogs}>

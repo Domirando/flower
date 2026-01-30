@@ -10,7 +10,6 @@ const MyPosts = () => {
 	useEffect(() => {
 		const getUser = async () => {
 			const { data: { user } } = await supabase.auth.getUser();
-			console.log(user.id);
 			setUser(user || null);
 		};
 		getUser();

@@ -2,7 +2,7 @@ import styles from './Profile.module.css';
 import MyPosts from "./MyPosts/MyPosts";
 import {useEffect, useState} from "react";
 import {supabase} from "../../helper/supabaseClient";
-import state from "../../redux/state";
+// import state from "../../redux/state";
 
 const Profile = () => {
     const [loading, setLoading] = useState(true);
@@ -22,7 +22,6 @@ const Profile = () => {
     }, []);
 
     if (loading) return <p>Loading profile...</p>;
-    console.log("user in profile:", state.profilePage.user)
 
     return (
         <div className={styles.content}>

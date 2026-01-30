@@ -2,7 +2,7 @@ import { useState } from "react";
 import { supabase } from "../../helper/supabaseClient";
 import styles from "./Auth.module.css";
 import {useNavigate} from "react-router-dom";
-import {setUser} from "../../redux/state";
+import state, {setUser} from "../../redux/state";
 
 const Auth = () => {
     const navigate = useNavigate();
@@ -96,7 +96,8 @@ const Auth = () => {
             alert(error.message);
             return;
         } else{
-            console.log("data", data);
+            console.log("data log?", data);
+            console.log("state log?", state.profilePage.user);
             setUser({
                 email: data?.user.email,
                 full_name: data?.user.user_metadata.full_name,
@@ -104,6 +105,7 @@ const Auth = () => {
                 bio: data?.user.user_metadata.bio,
                 avatar_url: data?.user.user_metadata.avatar_url,
             });
+            console.log("state after log?", state.profilePage.user);
         }
 
         // 🔥 FORCE REFRESH USER DATA
