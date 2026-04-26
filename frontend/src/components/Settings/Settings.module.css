@@ -14,6 +14,34 @@
 
 .avatar_container {
     flex-shrink: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+}
+
+.file_input_container {
+    display: flex;
+    justify-content: center;
+}
+
+.file_label {
+    padding: 5px 10px;
+    background-color: #f0f0f0;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 0.8rem;
+    color: #555;
+    transition: background-color 0.2s;
+}
+
+.file_label:hover {
+    background-color: #e0e0e0;
+}
+
+.file_input {
+    display: none;
 }
 
 .avatar {

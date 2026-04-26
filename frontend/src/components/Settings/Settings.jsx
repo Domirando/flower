@@ -7,8 +7,10 @@ const Settings = ({user}) => {
     const [isEditing, setIsEditing] = useState(false);
     const [editForm, setEditForm] = useState({
         full_name: user.full_name,
-        bio: user.bio
+        bio: user.bio,
+        avatar_url: user.avatar_url
     });
+    const [avatarFile, setAvatarFile] = useState(null);
     const [loading, setLoading] = useState(false);
 
     const handleLogout = async () => {
@@ -25,13 +27,59 @@ const Settings = ({user}) => {
         setEditForm(prev => ({ ...prev, [name]: value }));
     };
 
+    const handleFileChange = (e) => {
+        if (e.target.files && e.target.files[0]) {
+            const file = e.target.files[0];
+            setAvatarFile(file);
+            // Create a local preview
+            const reader = new FileReader();
+            reader.onload = (event) => {
+                setEditForm(prev => ({ ...prev, avatar_url: event.target.result }));
+            };
+            reader.readAsDataURL(file);
+        }
+    };
+
+    const uploadAvatar = async (file) => {
+        const { data: { user: authUser } } = await supabase.auth.getUser();
+        if (!authUser || !file) return null;
+
+        const fileExt = file.name.split(".").pop();
+        const fileName = `${authUser.id}-${Math.random()}.${fileExt}`;
+        const filePath = `avatars/${fileName}`;
+
+        const { error } = await supabase.storage
+            .from("avatars")
+            .upload(filePath, file, {
+                cacheControl: "3600",
+                upsert: true,
+                contentType: file.type
+            });
+
+        if (error) {
+            throw error;
+        }
+
+        const { data } = supabase.storage
+            .from("avatars")
+            .getPublicUrl(filePath);
+
+        return data.publicUrl;
+    };
+
     const handleSave = async () => {
         setLoading(true);
         try {
+            let avatarUrl = user.avatar_url;
+            if (avatarFile) {
+                avatarUrl = await uploadAvatar(avatarFile);
+            }
+
             const { data, error } = await supabase.auth.updateUser({
                 data: {
                     full_name: editForm.full_name,
-                    bio: editForm.bio
+                    bio: editForm.bio,
+                    avatar_url: avatarUrl
                 }
             });
 
@@ -39,6 +87,7 @@ const Settings = ({user}) => {
 
             setUser(data.user);
             setIsEditing(false);
+            setAvatarFile(null);
             alert("Profile updated successfully!");
         } catch (error) {
             console.error("Error updating profile:", error.message);
@@ -53,7 +102,21 @@ const Settings = ({user}) => {
             <h1>Settings</h1>
             <div className={styles.user_info}>
                 <div className={styles.avatar_container}>
-                    <img src={user.avatar_url} alt="Profile" className={styles.avatar} />
+                    <img src={isEditing ? editForm.avatar_url : user.avatar_url} alt="Profile" className={styles.avatar} />
+                    {isEditing && (
+                        <div className={styles.file_input_container}>
+                            <label htmlFor="avatar-upload" className={styles.file_label}>
+                                Change Photo
+                            </label>
+                            <input
+                                id="avatar-upload"
+                                type="file"
+                                accept="image/*"
+                                onChange={handleFileChange}
+                                className={styles.file_input}
+                            />
+                        </div>
+                    )}
                 </div>
                 <div className={styles.details}>
                     {isEditing ? (
@@ -103,7 +166,15 @@ const Settings = ({user}) => {
                         </button>
                         <button
                             className={styles.cancel_btn}
-                            onClick={() => setIsEditing(false)}
+                            onClick={() => {
+                                setIsEditing(false);
+                                setAvatarFile(null);
+                                setEditForm({
+                                    full_name: user.full_name,
+                                    bio: user.bio,
+                                    avatar_url: user.avatar_url
+                                });
+                            }}
                             disabled={loading}
                         >
                             Cancel
