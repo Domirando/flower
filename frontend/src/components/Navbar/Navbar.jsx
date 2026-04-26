@@ -19,10 +19,8 @@ export default function Navbar({ expanded, setExpanded, user }) {
             {expanded && (
                 <div className={styles.items}>
                     <NavbarItem name="Profile" link="/" />
-                    {/*<NavbarItem name="Messenger" link="/dialogs" />*/}
-                    {/*<NavbarItem name="Music" link="/music" />*/}
-                    {/*<NavbarItem name="Books" link="/books" />*/}
                     <NavbarItem name="New Post" link="/posting" />
+                    {user && <NavbarItem name="Music" link="/music" />}
                     {user ? (
                         <NavbarItem name="Settings" link="/settings" />
                     ) : (

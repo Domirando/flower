@@ -133,7 +133,16 @@ function App({state, updateNewMessage, addMessage}) {
                             />
 
                             <Route path="/books" element={<Books/>}/>
-                            <Route path="/music" element={<Music/>}/>
+                            <Route
+                                path="/music"
+                                element={
+                                    user ? (
+                                        <Music />
+                                    ) : (
+                                        <Navigate to="/login" />
+                                    )
+                                }
+                            />
                             <Route path="/posting" element={<NewPost/>}/>
                         </Routes>
                     </div>

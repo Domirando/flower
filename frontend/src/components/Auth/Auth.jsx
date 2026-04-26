@@ -138,17 +138,6 @@ const Auth = () => {
         return data.publicUrl;
     };
 
-    const handleLogout = async () => {
-        setLoading(true);
-
-        const { error } = await supabase.auth.signOut();
-
-        setLoading(false);
-
-        if (error) alert(error.message);
-        else alert("Logged out successfully!");
-    };
-
     return (
         <div className={styles.container}>
             <h2 className={styles.header}>
@@ -233,14 +222,6 @@ const Auth = () => {
                 {mode === "signup"
                     ? "Already have an account? Login"
                     : "New user? Sign Up"}
-            </button>
-
-            <button
-                onClick={handleLogout}
-                disabled={loading}
-                className={styles.logoutButton}
-            >
-                Logout
             </button>
         </div>
     );

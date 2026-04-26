@@ -1,0 +1,85 @@
+.music_container, .auth_container {
+    padding: 20px;
+}
+
+.auth_container {
+    text-align: center;
+    margin-top: 50px;
+}
+
+.spotify_btn {
+    background-color: #1DB954;
+    color: white;
+    padding: 12px 24px;
+    border: none;
+    border-radius: 25px;
+    font-size: 1rem;
+    font-weight: bold;
+    cursor: pointer;
+    margin-top: 20px;
+    transition: background-color 0.3s;
+}
+
+.spotify_btn:hover {
+    background-color: #1ed760;
+}
+
+.playlist_grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 20px;
+    margin-top: 30px;
+}
+
+.playlist_card {
+    background-color: white;
+    padding: 15px;
+    border-radius: 10px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    text-align: center;
+    transition: transform 0.2s;
+}
+
+.playlist_card:hover {
+    transform: translateY(-5px);
+}
+
+.playlist_card img {
+    width: 100%;
+    aspect-ratio: 1;
+    object-fit: cover;
+    border-radius: 5px;
+    margin-bottom: 10px;
+}
+
+.playlist_card h3 {
+    font-size: 1.1rem;
+    margin: 10px 0 5px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.playlist_card p {
+    color: #666;
+    font-size: 0.9rem;
+    margin-bottom: 10px;
+}
+
+.playlist_card a {
+    display: inline-block;
+    color: #1DB954;
+    text-decoration: none;
+    font-weight: bold;
+    font-size: 0.9rem;
+}
+
+.playlist_card a:hover {
+    text-decoration: underline;
+}
+
+.loader {
+    padding: 20px;
+    font-style: italic;
+    color: #666;
+}
