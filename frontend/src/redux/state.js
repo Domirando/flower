@@ -35,10 +35,10 @@ export const setUser = (user) => {
 
     state.profilePage.user = {
         email: user.email || "",
-        full_name: user.full_name || "",
-        channel_id: user.channel_id || "",
-        bio: user.bio || "",
-        avatar_url: user.avatar_url || DEFAULT_AVATAR
+        full_name: user.user_metadata?.full_name || user.full_name || "",
+        channel_id: user.user_metadata?.telegram_channel || user.channel_id || "",
+        bio: user.user_metadata?.bio || user.bio || "",
+        avatar_url: user.user_metadata?.avatar_url || user.avatar_url || DEFAULT_AVATAR
     };
 
     rerenderEntireTree(state);
@@ -60,6 +60,21 @@ export const clearUser = () => {
 
 export const subscriber = (observer) => {
     rerenderEntireTree = observer;
+};
+
+export const updateNewMessage = (text) => {
+    state.messagesPage.newDialogMessage = text;
+    rerenderEntireTree(state);
+};
+
+export const addMessage = () => {
+    let newMessage = {
+        id: state.messagesPage.messages.length + 1,
+        message: state.messagesPage.newDialogMessage
+    };
+    state.messagesPage.messages.push(newMessage);
+    state.messagesPage.newDialogMessage = '';
+    rerenderEntireTree(state);
 };
 
 export default state;

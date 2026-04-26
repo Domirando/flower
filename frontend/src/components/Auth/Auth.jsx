@@ -98,13 +98,7 @@ const Auth = () => {
         } else{
             console.log("data log?", data);
             console.log("state log?", state.profilePage.user);
-            setUser({
-                email: data?.user.email,
-                full_name: data?.user.user_metadata.full_name,
-                channel_id: data?.user.user_metadata.channel_id,
-                bio: data?.user.user_metadata.bio,
-                avatar_url: data?.user.user_metadata.avatar_url,
-            });
+            setUser(data.user);
             console.log("state after log?", state.profilePage.user);
         }
 

@@ -2,7 +2,7 @@ import styles from "./Navbar.module.css";
 import { HiChevronLeft, HiChevronRight } from "react-icons/hi";
 import NavbarItem from "./NavbarItem";
 
-export default function Navbar({ expanded, setExpanded }) {
+export default function Navbar({ expanded, setExpanded, user }) {
     return (
         <aside
             className={`${styles.navbar} ${
@@ -23,7 +23,11 @@ export default function Navbar({ expanded, setExpanded }) {
                     {/*<NavbarItem name="Music" link="/music" />*/}
                     {/*<NavbarItem name="Books" link="/books" />*/}
                     <NavbarItem name="New Post" link="/posting" />
-                    <NavbarItem name="Sign up/Login" link="/login" />
+                    {user ? (
+                        <NavbarItem name="Settings" link="/settings" />
+                    ) : (
+                        <NavbarItem name="Sign up/Login" link="/login" />
+                    )}
                 </div>
             )}
         </aside>

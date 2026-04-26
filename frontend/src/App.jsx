@@ -6,6 +6,7 @@ import Music from "./components/Music/Music";
 import Books from "./components/Books/Books";
 import Dialogs from "./components/Dialogs/Dialogs.jsx";
 import NewPost from "./components/NewPost/NewPost.jsx";
+import Settings from "./components/Settings/Settings";
 import Auth from "./components/Auth/Auth";
 import {BrowserRouter as Router, Routes, Route, Navigate} from "react-router-dom";
 import {supabase} from "./helper/supabaseClient";
@@ -34,15 +35,8 @@ function App({state, updateNewMessage, addMessage}) {
 
             console.log("uuser", user);
             if (user) {
-                const mappedUser = {
-                    email: user.email,
-                    full_name: user.user_metadata?.full_name || "",
-                    channel_id: user.user_metadata?.telegram_channel || "",
-                    bio: user.user_metadata?.bio || ""
-                };
-
                 setLocalUser(user);      // local (routing)
-                setUser(mappedUser);     // global (state.js)
+                setUser(user);           // global (state.js)
             } else {
                 setLocalUser(null);
                 setUser({
@@ -63,16 +57,8 @@ function App({state, updateNewMessage, addMessage}) {
                 const user = session?.user ?? null;
 
                 if (user) {
-                    const mappedUser = {
-                        email: user.email,
-                        full_name: user.user_metadata?.full_name || "",
-                        channel_id: user.user_metadata?.telegram_channel || "",
-                        bio: user.user_metadata?.bio || "",
-                        avatar_url: user.user_metadata.avatar_url || "",
-                    };
-
                     setLocalUser(user);
-                    setUser(mappedUser);
+                    setUser(user);
                 } else {
                     setLocalUser(null);
                     setUser({
@@ -98,6 +84,7 @@ function App({state, updateNewMessage, addMessage}) {
                     <Navbar
                         expanded={navbarExpanded}
                         setExpanded={setNavbarExpanded}
+                        user={user}
                     />
 
                     <div
@@ -106,7 +93,17 @@ function App({state, updateNewMessage, addMessage}) {
                         }`}
                     >
                         <Routes>
-                            <Route path="/login" element={<Auth/>}/>
+                            <Route path="/login" element={user ? <Navigate to="/settings" /> : <Auth/>}/>
+                            <Route
+                                path="/settings"
+                                element={
+                                    user ? (
+                                        <Settings user={state.profilePage.user} />
+                                    ) : (
+                                        <Navigate to="/login" />
+                                    )
+                                }
+                            />
 
                             <Route
                                 path="/"
@@ -120,7 +117,7 @@ function App({state, updateNewMessage, addMessage}) {
                             />
 
                             <Route
-                                path="/dialogs"
+                                path="/dialogs/*"
                                 element={
                                     user ? (
                                         <Dialogs

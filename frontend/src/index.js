@@ -4,6 +4,8 @@ import "./index.css";
 import App from "./App";
 import state, {
     subscriber,
+    updateNewMessage,
+    addMessage,
 } from "./redux/state";
 import { initAuth } from "./helper/initAuth";
 
@@ -12,6 +14,8 @@ const rerenderEntireTree = (state) => {
         <React.StrictMode>
             <App
                 state={state}
+                updateNewMessage={updateNewMessage}
+                addMessage={addMessage}
             />
         </React.StrictMode>,
         document.getElementById("root")
