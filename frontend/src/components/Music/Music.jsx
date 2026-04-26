@@ -9,6 +9,7 @@ export default function Music() {
 
     useEffect(() => {
         checkSpotifyAuth();
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
     const checkSpotifyAuth = async () => {
