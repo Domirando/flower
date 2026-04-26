@@ -14,3 +14,31 @@
 .grading{
     @apply border-2 border-red-600 px-2 py-[1px] rounded-3xl gap-1 flex items-center justify-center w-auto;
 }
+
+.post_text {
+    @apply flex flex-col gap-1 w-full;
+}
+
+.owner_actions {
+    @apply flex gap-2 ml-auto;
+}
+
+.owner_actions button {
+    @apply p-1 hover:bg-gray-100 rounded-full transition-colors;
+}
+
+.edit_container {
+    @apply flex flex-col gap-2 w-full;
+}
+
+.edit_textarea {
+    @apply border p-2 rounded w-full;
+}
+
+.edit_actions {
+    @apply flex gap-2;
+}
+
+.edit_actions button {
+    @apply p-1 hover:bg-gray-100 rounded-full transition-colors;
+}

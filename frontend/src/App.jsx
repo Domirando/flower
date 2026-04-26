@@ -4,6 +4,7 @@ import Navbar from "./components/Navbar/Navbar";
 import Profile from "./components/Profile/Profile";
 import Music from "./components/Music/Music";
 import Books from "./components/Books/Books";
+import News from "./components/News/News";
 import Dialogs from "./components/Dialogs/Dialogs.jsx";
 import NewPost from "./components/NewPost/NewPost.jsx";
 import Settings from "./components/Settings/Settings";
@@ -132,7 +133,26 @@ function App({state, updateNewMessage, addMessage}) {
                                 }
                             />
 
-                            <Route path="/books" element={<Books/>}/>
+                            <Route
+                                path="/books"
+                                element={
+                                    user ? (
+                                        <Books />
+                                    ) : (
+                                        <Navigate to="/login" />
+                                    )
+                                }
+                            />
+                            <Route
+                                path="/news"
+                                element={
+                                    user ? (
+                                        <News />
+                                    ) : (
+                                        <Navigate to="/login" />
+                                    )
+                                }
+                            />
                             <Route
                                 path="/music"
                                 element={

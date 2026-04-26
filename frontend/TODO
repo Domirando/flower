@@ -1,8 +1,12 @@
 Features:
-[x] Blogging
+[x] User profile [HIGH]
+[x] Blogging:
+  - [x] Posting [HIGH]
+  - [x] Editing [HIGH]
+  - [x] Deleting [HIGH]
+  - [ ] Update the TG Post [HIGH]
 [x] TG Posting [HIGH]
-[x] user profile uploadable [HIGH]
-[x] music page [LOW]
-[ ] message [HIGH]
-[ ] books page [LOW]
-[ ] news page [LOW]
+[x] news page [LOW]
+[x] messaging [HIGH]
+[ ] music page [LOW]
+[x] books page [LOW]

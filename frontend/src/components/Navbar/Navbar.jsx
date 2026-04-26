@@ -20,7 +20,14 @@ export default function Navbar({ expanded, setExpanded, user }) {
                 <div className={styles.items}>
                     <NavbarItem name="Profile" link="/" />
                     <NavbarItem name="New Post" link="/posting" />
-                    {user && <NavbarItem name="Music" link="/music" />}
+                    {user && (
+                        <>
+                            <NavbarItem name="News" link="/news" />
+                            <NavbarItem name="Messaging" link="/dialogs" />
+                            <NavbarItem name="Music" link="/music" />
+                            <NavbarItem name="Books" link="/books" />
+                        </>
+                    )}
                     {user ? (
                         <NavbarItem name="Settings" link="/settings" />
                     ) : (
