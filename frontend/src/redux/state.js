@@ -16,6 +16,7 @@ let state = {
             full_name: "",
             channel_id: "",
             bio: "",
+            interests: [],
             avatar_url: DEFAULT_AVATAR
         }
     },
@@ -38,6 +39,7 @@ export const setUser = (user) => {
         full_name: user.user_metadata?.full_name || user.full_name || "",
         channel_id: user.user_metadata?.telegram_channel || user.channel_id || "",
         bio: user.user_metadata?.bio || user.bio || "",
+        interests: user.user_metadata?.interests || user.interests || [],
         avatar_url: user.user_metadata?.avatar_url || user.avatar_url || DEFAULT_AVATAR
     };
 
@@ -52,6 +54,7 @@ export const clearUser = () => {
         full_name: "",
         channel_id: "",
         bio: "",
+        interests: [],
         avatar_url: DEFAULT_AVATAR
     };
 

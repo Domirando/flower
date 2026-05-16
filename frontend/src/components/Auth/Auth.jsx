@@ -11,6 +11,7 @@ const Auth = () => {
         fullName: "",
         telegramChannel: "",
         bio: "",
+        interests: "",
         email: "",
         password: ""
     });
@@ -27,7 +28,7 @@ const Auth = () => {
     };
 
     const handleSignUp = async () => {
-        const { fullName, telegramChannel, bio, email, password } = form;
+        const { fullName, telegramChannel, bio, interests, email, password } = form;
 
         if (!fullName || !telegramChannel || !email || !password) {
             alert("Please fill in all fields");
@@ -43,7 +44,8 @@ const Auth = () => {
                 data: {
                     full_name: fullName,
                     telegram_channel: telegramChannel,
-                    bio
+                    bio,
+                    interests: interests.split(',').map(i => i.trim()).filter(i => i)
                 }
             }
         });
@@ -169,6 +171,15 @@ const Auth = () => {
                         name="telegramChannel"
                         placeholder="Your Telegram channel"
                         value={form.telegramChannel}
+                        onChange={handleChange}
+                        className={styles.email_input}
+                    />
+
+                    <input
+                        type="text"
+                        name="interests"
+                        placeholder="Topics of interest (e.g. tech, sports, science)"
+                        value={form.interests}
                         onChange={handleChange}
                         className={styles.email_input}
                     />
