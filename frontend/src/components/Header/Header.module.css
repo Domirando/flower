@@ -1,6 +1,32 @@
-.header_content{
-  @apply bg-blue-200 p-3.5 flex items-center justify-between w-full;
+.header {
+  @apply sticky top-0 bg-white border-b border-gray-100 h-16 flex items-center px-6 shadow-sm z-[60] w-full;
 }
-.header_content > img{
-  max-width: 65px;
+
+.header_content {
+  @apply flex items-center justify-between w-full max-w-7xl mx-auto;
+}
+
+.left_section {
+  @apply flex items-center gap-8;
+}
+
+.nav_links {
+  @apply flex items-center gap-6;
+}
+
+.nav_link {
+  @apply text-gray-600 hover:text-blue-600 font-medium transition-colors text-sm;
+  text-decoration: none;
+}
+
+.logo {
+  @apply flex items-center gap-2;
+}
+
+.logo img {
+  @apply h-10 w-auto transition-transform hover:scale-105;
+}
+
+.logo_text {
+  @apply text-xl font-bold text-blue-600 hidden sm:block;
 }

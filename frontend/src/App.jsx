@@ -9,10 +9,111 @@ import Dialogs from "./components/Dialogs/Dialogs.jsx";
 import NewPost from "./components/NewPost/NewPost.jsx";
 import Settings from "./components/Settings/Settings";
 import Auth from "./components/Auth/Auth";
-import {BrowserRouter as Router, Routes, Route, Navigate} from "react-router-dom";
+import About from "./components/About/About";
+import {BrowserRouter as Router, Routes, Route, Navigate, useLocation} from "react-router-dom";
 import {supabase} from "./helper/supabaseClient";
 import {setUser} from "./redux/state";
 import "./App.css";
+
+function AppContent({state, updateNewMessage, addMessage, user, loading, navbarExpanded, setNavbarExpanded}) {
+    const location = useLocation();
+    const isAuthPage = location.pathname === "/login";
+    const showNavbar = user && !isAuthPage;
+
+    if (loading) return <p>Loading...</p>;
+
+    return (
+        <div className="app-wrapper">
+            <Header state={state}/>
+            <div className="app-body">
+                {showNavbar && (
+                    <Navbar
+                        expanded={navbarExpanded}
+                        setExpanded={setNavbarExpanded}
+                        user={user}
+                    />
+                )}
+
+                <div
+                    className={`app-wrapper-content ${
+                        showNavbar ? (navbarExpanded ? "content-expanded" : "content-collapsed") : "content-full"
+                    }`}
+                >
+                    <Routes>
+                        <Route path="/login" element={user ? <Navigate to="/settings" /> : <Auth/>}/>
+                        <Route path="/about" element={<About/>}/>
+                        <Route
+                            path="/settings"
+                            element={
+                                user ? (
+                                    <Settings user={state.profilePage.user} />
+                                ) : (
+                                    <Navigate to="/login" />
+                                )
+                            }
+                        />
+
+                        <Route
+                            path="/"
+                            element={
+                                user ? (
+                                    <Profile state={state}/>
+                                ) : (
+                                    <Navigate to="/login"/>
+                                )
+                            }
+                        />
+
+                        <Route
+                            path="/dialogs/*"
+                            element={
+                                user ? (
+                                    <Dialogs
+                                        updateNewMessage={updateNewMessage}
+                                        addMessage={addMessage}
+                                        messages={state.messagesPage}
+                                        state={state.messagesPage}
+                                    />
+                                ) : (
+                                    <Navigate to="/login"/>
+                                )
+                            }
+                        />
+
+                        <Route
+                            path="/books"
+                            element={
+                                user ? (
+                                    <Books />
+                                ) : (
+                                    <Navigate to="/login" />
+                                )
+                            }
+                        />
+                        <Route
+                            path="/news"
+                            element={
+                                <News user={state.profilePage.user} />
+                            }
+                        />
+                        <Route
+                            path="/music"
+                            element={
+                                user ? (
+                                    <Music />
+                                ) : (
+                                    <Navigate to="/login" />
+                                )
+                            }
+                        />
+                        <Route path="/posting" element={<NewPost/>}/>
+                        <Route path="*" element={<Navigate to="/" />} />
+                    </Routes>
+                </div>
+            </div>
+        </div>
+    );
+}
 
 function App({state, updateNewMessage, addMessage}) {
     const [loading, setLoading] = useState(true);
@@ -75,99 +176,17 @@ function App({state, updateNewMessage, addMessage}) {
         return () => authListener.subscription.unsubscribe();
     }, []);
 
-    if (loading) return <p>Loading...</p>;
-
     return (
         <Router>
-            <div className="app-wrapper">
-                <Header state={state}/>
-                <div className="app-body">
-                    <Navbar
-                        expanded={navbarExpanded}
-                        setExpanded={setNavbarExpanded}
-                        user={user}
-                    />
-
-                    <div
-                        className={`app-wrapper-content ${
-                            navbarExpanded ? "content-expanded" : "content-collapsed"
-                        }`}
-                    >
-                        <Routes>
-                            <Route path="/login" element={user ? <Navigate to="/settings" /> : <Auth/>}/>
-                            <Route
-                                path="/settings"
-                                element={
-                                    user ? (
-                                        <Settings user={state.profilePage.user} />
-                                    ) : (
-                                        <Navigate to="/login" />
-                                    )
-                                }
-                            />
-
-                            <Route
-                                path="/"
-                                element={
-                                    user ? (
-                                        <Profile state={state}/>
-                                    ) : (
-                                        <Navigate to="/login"/>
-                                    )
-                                }
-                            />
-
-                            <Route
-                                path="/dialogs/*"
-                                element={
-                                    user ? (
-                                        <Dialogs
-                                            updateNewMessage={updateNewMessage}
-                                            addMessage={addMessage}
-                                            messages={state.messagesPage}
-                                            state={state.messagesPage}
-                                        />
-                                    ) : (
-                                        <Navigate to="/login"/>
-                                    )
-                                }
-                            />
-
-                            <Route
-                                path="/books"
-                                element={
-                                    user ? (
-                                        <Books />
-                                    ) : (
-                                        <Navigate to="/login" />
-                                    )
-                                }
-                            />
-                            <Route
-                                path="/news"
-                                element={
-                                    user ? (
-                                        <News />
-                                    ) : (
-                                        <Navigate to="/login" />
-                                    )
-                                }
-                            />
-                            <Route
-                                path="/music"
-                                element={
-                                    user ? (
-                                        <Music />
-                                    ) : (
-                                        <Navigate to="/login" />
-                                    )
-                                }
-                            />
-                            <Route path="/posting" element={<NewPost/>}/>
-                        </Routes>
-                    </div>
-                </div>
-            </div>
+            <AppContent 
+                state={state} 
+                updateNewMessage={updateNewMessage} 
+                addMessage={addMessage} 
+                user={user} 
+                loading={loading} 
+                navbarExpanded={navbarExpanded} 
+                setNavbarExpanded={setNavbarExpanded} 
+            />
         </Router>
     );
 }
