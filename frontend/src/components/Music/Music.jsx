@@ -15,16 +15,21 @@ export default function Music() {
     const checkSpotifyAuth = async () => {
         const { data: { session } } = await supabase.auth.getSession();
         
-        // Supabase stores provider tokens in the session if enabled
-        // For Spotify, we might need to check if the user has a spotify identity
-        const { data: { user } } = await supabase.auth.getUser();
-        const spotifyIdentity = user?.identities?.find(id => id.provider === 'spotify');
+        // Supabase stores provider tokens in the session
+        const providerToken = session?.provider_token;
         
-        if (spotifyIdentity) {
+        if (providerToken) {
             setIsAuthorized(true);
-            fetchPlaylists(session?.provider_token);
+            fetchPlaylists(providerToken);
         } else {
-            setIsAuthorized(false);
+            // Check if they are signed in at all
+            const { data: { user } } = await supabase.auth.getUser();
+            if (user) {
+                // User is signed in but maybe not with Spotify or session expired
+                setIsAuthorized(false);
+            } else {
+                setIsAuthorized(false);
+            }
             setLoading(false);
         }
     };
@@ -52,9 +57,19 @@ export default function Music() {
                     'Authorization': `Bearer ${token}`
                 }
             });
+            
+            if (response.status === 401) {
+                // Token likely expired
+                setIsAuthorized(false);
+                return;
+            }
+
             const data = await response.json();
             if (data.items) {
                 setPlaylists(data.items);
+            } else if (data.error) {
+                console.error("Spotify API error:", data.error);
+                setIsAuthorized(false);
             }
         } catch (error) {
             console.error("Error fetching Spotify playlists:", error);
