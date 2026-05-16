@@ -1,2 +1,10 @@
 .idea
 .env
+node_modules
+build
+dist
+.vercel
+*.log
+backend/.env
+frontend/.env
+frontend/build
