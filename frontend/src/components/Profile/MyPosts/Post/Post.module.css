@@ -1,44 +1,80 @@
-.post{
-    @apply flex items-center gap-6;
-}
-.post > img{
-    max-width: 50px;
-    @apply rounded-full object-contain;
-}
-.isLiked{
-    @apply text-red-400;
-}
-.grading_content{
-    @apply flex gap-2 hover:cursor-pointer;
-}
-.grading{
-    @apply border-2 border-red-600 px-2 py-[1px] rounded-3xl gap-1 flex items-center justify-center w-auto;
+.post_card {
+    @apply bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden transition-all hover:shadow-md;
 }
 
-.post_text {
-    @apply flex flex-col gap-1 w-full;
+.post_main {
+    @apply p-6;
 }
+
+.author_info {
+    @apply flex items-center gap-3 mb-4;
+}
+
+.avatar {
+    @apply w-10 h-10 rounded-full border border-gray-100 object-cover;
+}
+
+.author_details {
+    @apply flex flex-col;
+}
+
+.author_name {
+    @apply text-sm font-bold text-gray-900;
+}
+
+.posted_on {
+    @apply text-xs font-medium text-blue-500 bg-blue-50 px-2 py-0.5 rounded-full inline-block mt-1;
+}
+
+.content_area {
+    @apply flex flex-col gap-4;
+}
+
+.post_content {
+    @apply text-gray-700 leading-relaxed text-sm;
+}
+
+.post_footer {
+    @apply flex justify-end items-center pt-4 border-t border-gray-50;
+}
+
 
 .owner_actions {
-    @apply flex gap-2 ml-auto;
-}
-
-.owner_actions button {
-    @apply p-1 hover:bg-gray-100 rounded-full transition-colors;
-}
-
-.edit_container {
-    @apply flex flex-col gap-2 w-full;
-}
-
-.edit_textarea {
-    @apply border p-2 rounded w-full;
-}
-
-.edit_actions {
     @apply flex gap-2;
 }
 
-.edit_actions button {
-    @apply p-1 hover:bg-gray-100 rounded-full transition-colors;
+.edit_btn, .delete_btn {
+    @apply flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors;
+}
+
+.edit_btn {
+    @apply bg-blue-50 text-blue-600 hover:bg-blue-100;
+}
+
+.delete_btn {
+    @apply bg-red-50 text-red-600 hover:bg-red-100;
+}
+
+.edit_container {
+    @apply flex flex-col gap-3;
+}
+
+.edit_textarea {
+    @apply w-full p-3 rounded-xl border border-blue-100 bg-blue-50/30 focus:outline-none focus:ring-2 focus:ring-blue-500/20 text-sm;
+}
+
+.edit_actions {
+    @apply flex gap-2 justify-end;
+}
+
+.save_btn, .cancel_btn {
+    @apply flex items-center gap-1 px-4 py-2 rounded-lg text-xs font-bold transition-all;
+}
+
+.save_btn {
+    @apply bg-blue-600 text-white hover:bg-blue-700;
+}
+
+.cancel_btn {
+    @apply bg-gray-100 text-gray-600 hover:bg-gray-200;
 }

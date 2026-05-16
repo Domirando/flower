@@ -1,29 +1,65 @@
 .content {
-    @apply bg-slate-200 min-h-screen overflow-scroll;
+    @apply bg-gray-50 min-h-screen p-8;
 }
-.title {
-    background-image: url("https://images.unsplash.com/photo-1469474968028-56623f02e42e");
-    @apply h-[150px] font-semibold leading-tight text-6xl flex items-center px-7 text-white;
+
+.admin_header {
+    @apply flex justify-between items-end mb-8 pb-6 border-b border-gray-200;
 }
+
+.admin_title {
+    @apply text-3xl font-bold text-gray-900;
+}
+
+.admin_subtitle {
+    @apply text-gray-500 mt-1;
+}
+
+.stats_grid {
+    @apply flex gap-4;
+}
+
+.stat_card {
+    @apply bg-white p-4 rounded-xl shadow-sm border border-gray-100 min-w-[120px] flex flex-col;
+}
+
+.stat_value {
+    @apply text-2xl font-bold text-blue-600;
+}
+
+.stat_label {
+    @apply text-xs text-gray-400 uppercase tracking-wider font-semibold;
+}
+
 .main_content {
-    @apply p-5 flex flex-col gap-5;
-}
-
-.content > img {
-    @apply w-full h-[320px] object-cover;
-}
-
-.content_main_card > img {
-    max-width: 50px;
-    @apply object-contain rounded-full;
+    @apply grid grid-cols-1 gap-6;
 }
 
 .content_main_card {
-    @apply flex gap-3 justify-end items-center w-full;
+    @apply flex gap-4 justify-end items-center;
 }
 
-.content_main_card > .content_text{
-    @apply text-right;
+.content_text {
+    @apply flex flex-col items-end;
+}
+
+.user_name {
+    @apply text-gray-800 text-sm font-semibold;
+}
+
+.user_bio {
+    @apply text-gray-500 text-xs;
+}
+
+.avatar_container {
+    @apply w-10 h-10 rounded-full overflow-hidden border-2 border-blue-100 shadow-sm;
+}
+
+.avatar_img {
+    @apply w-full h-full object-cover;
+}
+
+.login_button {
+    @apply bg-blue-600 text-white px-5 py-2 rounded-full text-sm font-medium transition-colors hover:bg-blue-700 shadow-sm;
 }
 p{
     font-size: 14px;

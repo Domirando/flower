@@ -25,10 +25,17 @@ const Profile = () => {
 
     return (
         <div className={styles.content}>
-            <div className={styles.title}>
-                <h1>
-                    Profile: Posts & Articles
-                </h1>
+            <div className={styles.admin_header}>
+                <div className={styles.admin_title_group}>
+                    <h1 className={styles.admin_title}>Content Management</h1>
+                    <p className={styles.admin_subtitle}>Manage your posts and platform integrations</p>
+                </div>
+                <div className={styles.stats_grid}>
+                    <div className={styles.stat_card}>
+                        <span className={styles.stat_value}>Posts</span>
+                        <span className={styles.stat_label}>Platform wide</span>
+                    </div>
+                </div>
             </div>
 
             <MyPosts/>
