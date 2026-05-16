@@ -25,7 +25,8 @@ export default function NewPost() {
         setLoading(true);
 
         try {
-            const res = await fetch(`${process.env.REACT_APP_BACKEND_URL}/api/post-to-telegram`, {
+            const backendUrl = process.env.REACT_APP_BACKEND_URL || (window.location.hostname === 'localhost' ? 'http://localhost:4000' : '');
+            const res = await fetch(`${backendUrl}/api/post-to-telegram`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({

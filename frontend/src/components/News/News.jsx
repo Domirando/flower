@@ -14,7 +14,7 @@ const News = ({ user }) => {
                     ? `?interests=${encodeURIComponent(user.interests.join(','))}` 
                     : '';
                 
-                const backendUrl = process.env.REACT_APP_BACKEND_URL || 'http://localhost:5000';
+                const backendUrl = process.env.REACT_APP_BACKEND_URL || (window.location.hostname === 'localhost' ? 'http://localhost:4000' : '');
                 const url = `${backendUrl}/api/news${interestsParam}`;
                 console.log('Fetching news from:', url);
                 const response = await fetch(url);
