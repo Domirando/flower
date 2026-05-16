@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { ThumbDown, ThumbUp, Edit, Delete, Save, Cancel } from '@material-ui/icons';
+import { Edit, Delete, Save, Cancel } from '@material-ui/icons';
 import styles from './Post.module.css'
 import state from "../../../../redux/state";
 

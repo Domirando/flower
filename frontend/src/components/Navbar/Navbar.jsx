@@ -1,5 +1,5 @@
 import styles from "./Navbar.module.css";
-import { HiChevronLeft, HiChevronRight, HiUser, HiPlusCircle, HiNewspaper, HiChat, HiMusicNote, HiBookOpen, HiCog, HiInformationCircle, HiLogin } from "react-icons/hi";
+import { HiChevronLeft, HiChevronRight, HiUser, HiPlusCircle, HiChat, HiMusicNote, HiBookOpen, HiCog, HiLogin } from "react-icons/hi";
 import NavbarItem from "./NavbarItem";
 
 export default function Navbar({ expanded, setExpanded, user }) {
