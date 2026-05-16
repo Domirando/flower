@@ -110,6 +110,36 @@ app.get('/api/news', async (req, res) => {
     }
 });
 
+app.get('/api/books/search', async (req, res) => {
+    const { q } = req.query;
+    if (!q) return res.status(400).json({ error: 'Search query is required' });
+
+    try {
+        // Google Books API is more reliable and free for searching
+        const response = await fetch(`https://www.googleapis.com/books/v1/volumes?q=${encodeURIComponent(q)}&maxResults=20`);
+        const data = await response.json();
+
+        const books = data.items?.map(item => {
+            const info = item.volumeInfo;
+            return {
+                id: item.id,
+                title: info.title,
+                authors: info.authors || [],
+                description: info.description,
+                thumbnail: info.imageLinks?.thumbnail,
+                previewLink: info.previewLink,
+                infoLink: info.infoLink,
+                amazonLink: `https://www.amazon.com/s?k=${encodeURIComponent(info.title + ' ' + (info.authors?.[0] || ''))}&i=stripbooks`,
+                zLibraryLink: `https://z-lib.gs/s/${encodeURIComponent(info.title)}`
+            };
+        }) || [];
+
+        res.json({ books });
+    } catch (err) {
+        res.status(500).json({ error: 'Book search failed', details: err.message });
+    }
+});
+
 app.listen(PORT, () => {
     console.log(`Server is running on port ${PORT}`);
 });
