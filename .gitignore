@@ -8,3 +8,5 @@ dist
 backend/.env
 frontend/.env
 frontend/build
+backend/uploads/
+backend/target/

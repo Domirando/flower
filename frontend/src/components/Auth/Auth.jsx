@@ -1,8 +1,8 @@
 import { useState } from "react";
-import { supabase } from "../../helper/supabaseClient";
+import { useNavigate } from "react-router-dom";
+import { api, setToken } from "../../api/client";
+import { setUser } from "../../redux/state";
 import styles from "./Auth.module.css";
-import {useNavigate} from "react-router-dom";
-import state, {setUser} from "../../redux/state";
 
 const Auth = () => {
     const navigate = useNavigate();
@@ -15,67 +15,49 @@ const Auth = () => {
         email: "",
         password: ""
     });
-
     const [loading, setLoading] = useState(false);
-    const [mode, setMode] = useState("signup"); // signup | login
+    const [mode, setMode] = useState("signup");
 
     const handleChange = (e) => {
         const { name, value } = e.target;
-        setForm((prev) => ({
-            ...prev,
-            [name]: value
-        }));
+        setForm((prev) => ({ ...prev, [name]: value }));
     };
 
     const handleSignUp = async () => {
         const { fullName, telegramChannel, bio, interests, email, password } = form;
 
-        if (!fullName || !telegramChannel || !email || !password) {
-            alert("Please fill in all fields");
+        if (!fullName || !email || !password) {
+            alert("Please fill in all required fields");
             return;
         }
 
         setLoading(true);
-
-        const { data, error } = await supabase.auth.signUp({
-            email,
-            password,
-            options: {
-                data: {
-                    full_name: fullName,
-                    telegram_channel: telegramChannel,
-                    bio,
-                    interests: interests.split(',').map(i => i.trim()).filter(i => i)
-                }
-            }
-        });
-
-        if (error) {
-            setLoading(false);
-            alert(error.message);
-            return;
-        }
-
-        const userId = data.user.id;
-
         try {
-            const avatarUrl = avatar ? await uploadAvatar(avatar) : null;
+            const { token, user } = await api.register({
+                email,
+                password,
+                full_name: fullName,
+                bio,
+                telegram_channel: telegramChannel,
+                interests: interests.split(',').map(i => i.trim()).filter(Boolean)
+            });
 
-            if (avatarUrl) {
-                await supabase
-                    .from("users")
-                    .update({ avatar_url: avatarUrl })
-                    .eq("id", userId);
+            setToken(token);
+            setUser(user);
+
+            if (avatar) {
+                const formData = new FormData();
+                formData.append("file", avatar);
+                const { avatar_url } = await api.uploadAvatar(formData);
+                setUser({ ...user, avatar_url });
             }
 
-            alert("Check your email to confirm your account");
-            setMode("login");
-
+            navigate("/");
         } catch (err) {
-            alert("Avatar upload failed");
+            alert(err.message);
+        } finally {
+            setLoading(false);
         }
-
-        setLoading(false);
     };
 
     const handleLogin = async () => {
@@ -87,57 +69,16 @@ const Auth = () => {
         }
 
         setLoading(true);
-
-        const { data, error } = await supabase.auth.signInWithPassword({
-            email,
-            password
-        });
-
-        if (error) {
+        try {
+            const { token, user } = await api.login({ email, password });
+            setToken(token);
+            setUser(user);
+            navigate("/");
+        } catch (err) {
+            alert(err.message);
+        } finally {
             setLoading(false);
-            alert(error.message);
-            return;
-        } else{
-            console.log("data log?", data);
-            console.log("state log?", state.profilePage.user);
-            setUser(data.user);
-            console.log("state after log?", state.profilePage.user);
         }
-
-        // 🔥 FORCE REFRESH USER DATA
-        await supabase.auth.getUser();
-
-        setLoading(false);
-        navigate("/");
-    };
-
-    const uploadAvatar = async (file) => {
-        const user = (await supabase.auth.getUser()).data.user;
-        if (!user || !file) return;
-
-        const fileExt = file.name.split(".").pop();
-        const fileName = `${user.id}.${fileExt}`;
-        const filePath = `avatars/${fileName}`;
-
-        const { error } = await supabase.storage
-            .from("avatars")
-            .upload(filePath, file, {
-                cacheControl: "3600",
-                upsert: true,
-                contentType: file.type
-            });
-
-        if (error) {
-            console.error("Upload error:", error.message);
-            alert(error.message);
-            return;
-        }
-
-        const { data } = supabase.storage
-            .from("avatars")
-            .getPublicUrl(filePath);
-
-        return data.publicUrl;
     };
 
     return (
@@ -156,25 +97,22 @@ const Auth = () => {
                         onChange={handleChange}
                         className={styles.email_input}
                     />
-
                     <input
                         type="text"
                         name="bio"
-                        placeholder="A little desciption about yourself"
+                        placeholder="A little description about yourself"
                         value={form.bio}
                         onChange={handleChange}
                         className={styles.email_input}
                     />
-
                     <input
                         type="text"
                         name="telegramChannel"
-                        placeholder="Your Telegram channel"
+                        placeholder="Your Telegram channel (e.g. @mychannel)"
                         value={form.telegramChannel}
                         onChange={handleChange}
                         className={styles.email_input}
                     />
-
                     <input
                         type="text"
                         name="interests"
@@ -183,7 +121,6 @@ const Auth = () => {
                         onChange={handleChange}
                         className={styles.email_input}
                     />
-
                     <input
                         type="file"
                         accept="image/*"
@@ -201,7 +138,6 @@ const Auth = () => {
                 onChange={handleChange}
                 className={styles.email_input}
             />
-
             <input
                 type="password"
                 name="password"
@@ -216,23 +152,15 @@ const Auth = () => {
                 disabled={loading}
                 className={styles.primaryButton}
             >
-                {loading
-                    ? "Please wait..."
-                    : mode === "signup"
-                        ? "Sign Up"
-                        : "Login"}
+                {loading ? "Please wait..." : mode === "signup" ? "Sign Up" : "Login"}
             </button>
 
             <button
                 type="button"
-                onClick={() =>
-                    setMode(mode === "signup" ? "login" : "signup")
-                }
+                onClick={() => setMode(mode === "signup" ? "login" : "signup")}
                 className={styles.linkButton}
             >
-                {mode === "signup"
-                    ? "Already have an account? Login"
-                    : "New user? Sign Up"}
+                {mode === "signup" ? "Already have an account? Login" : "New user? Sign Up"}
             </button>
         </div>
     );

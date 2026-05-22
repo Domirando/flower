@@ -10,6 +10,23 @@
 - <b>Telegram Channel Posting!</b>
     - Please make our bot @DomiFlowerBot an administrator in your channel
     - Enter your Telegram Channel ID in Flower website's Telegram Channel input. You can get your Telegram Channel ID through @userinfobot, just by sending any message from your channel <i>(Spoiler: soon we might add this feature to our own @DomiFlowerBot:))</i>.
+- <b>Personalized User Profiles</b>
+- <b>Real-time Messaging with Dialogs</b>
+- <b>Book Tracking and Recommendations</b>
+- <b>Music Integration</b>
+- <b>Latest News Feed</b>
+
+## Community
+
+Have questions, ideas, or just want to hang out? Join our Discord — feel free to chat, share feedback, and connect with other Flower users. We'd love to hear from you!
+
+👉 **[Join our Discord server](https://discord.gg/EhRW2Dxke)**
+
+## Open Source
+
+Flower is an open source project. Explore the code, report issues, or contribute — every pull request is welcome!
+
+👉 **[github.com/domirando/flower](https://github.com/domirando/flower)**
 
 ## Contributors
 

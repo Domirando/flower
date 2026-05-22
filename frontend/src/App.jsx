@@ -1,4 +1,4 @@
-import {useEffect, useState} from "react";
+import { useEffect, useState } from "react";
 import Header from "./components/Header/Header";
 import Navbar from "./components/Navbar/Navbar";
 import Profile from "./components/Profile/Profile";
@@ -10,12 +10,12 @@ import NewPost from "./components/NewPost/NewPost.jsx";
 import Settings from "./components/Settings/Settings";
 import Auth from "./components/Auth/Auth";
 import About from "./components/About/About";
-import {BrowserRouter as Router, Routes, Route, Navigate, useLocation} from "react-router-dom";
-import {supabase} from "./helper/supabaseClient";
-import {setUser} from "./redux/state";
+import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from "react-router-dom";
+import { api, clearToken, getToken } from "./api/client";
+import { setUser, clearUser, subscriber } from "./redux/state";
 import "./App.css";
 
-function AppContent({state, updateNewMessage, addMessage, user, loading, navbarExpanded, setNavbarExpanded}) {
+function AppContent({ state, updateNewMessage, addMessage, user, loading, navbarExpanded, setNavbarExpanded }) {
     const location = useLocation();
     const isAuthPage = location.pathname === "/login";
     const showNavbar = user && !isAuthPage;
@@ -24,7 +24,7 @@ function AppContent({state, updateNewMessage, addMessage, user, loading, navbarE
 
     return (
         <div className="app-wrapper">
-            <Header state={state}/>
+            <Header state={state} />
             <div className="app-body">
                 {showNavbar && (
                     <Navbar
@@ -36,34 +36,22 @@ function AppContent({state, updateNewMessage, addMessage, user, loading, navbarE
 
                 <div
                     className={`app-wrapper-content ${
-                        showNavbar ? (navbarExpanded ? "content-expanded" : "content-collapsed") : "content-full"
+                        showNavbar
+                            ? navbarExpanded ? "content-expanded" : "content-collapsed"
+                            : "content-full"
                     }`}
                 >
                     <Routes>
-                        <Route path="/login" element={user ? <Navigate to="/settings" /> : <Auth/>}/>
-                        <Route path="/about" element={<About/>}/>
+                        <Route path="/login" element={user ? <Navigate to="/" /> : <Auth />} />
+                        <Route path="/about" element={<About />} />
                         <Route
                             path="/settings"
-                            element={
-                                user ? (
-                                    <Settings user={state.profilePage.user} />
-                                ) : (
-                                    <Navigate to="/login" />
-                                )
-                            }
+                            element={user ? <Settings user={state.profilePage.user} /> : <Navigate to="/login" />}
                         />
-
                         <Route
                             path="/"
-                            element={
-                                user ? (
-                                    <Profile state={state}/>
-                                ) : (
-                                    <Navigate to="/login"/>
-                                )
-                            }
+                            element={user ? <Profile state={state} /> : <Navigate to="/login" />}
                         />
-
                         <Route
                             path="/dialogs/*"
                             element={
@@ -74,39 +62,22 @@ function AppContent({state, updateNewMessage, addMessage, user, loading, navbarE
                                         messages={state.messagesPage}
                                         state={state.messagesPage}
                                     />
-                                ) : (
-                                    <Navigate to="/login"/>
-                                )
+                                ) : <Navigate to="/login" />
                             }
                         />
-
                         <Route
                             path="/books"
-                            element={
-                                user ? (
-                                    <Books />
-                                ) : (
-                                    <Navigate to="/login" />
-                                )
-                            }
+                            element={user ? <Books /> : <Navigate to="/login" />}
                         />
                         <Route
                             path="/news"
-                            element={
-                                <News user={state.profilePage.user} />
-                            }
+                            element={<News user={state.profilePage.user} />}
                         />
                         <Route
                             path="/music"
-                            element={
-                                user ? (
-                                    <Music />
-                                ) : (
-                                    <Navigate to="/login" />
-                                )
-                            }
+                            element={user ? <Music /> : <Navigate to="/login" />}
                         />
-                        <Route path="/posting" element={<NewPost/>}/>
+                        <Route path="/posting" element={user ? <NewPost /> : <Navigate to="/login" />} />
                         <Route path="*" element={<Navigate to="/" />} />
                     </Routes>
                 </div>
@@ -115,77 +86,69 @@ function AppContent({state, updateNewMessage, addMessage, user, loading, navbarE
     );
 }
 
-function App({state, updateNewMessage, addMessage}) {
+function App({ state, updateNewMessage, addMessage }) {
     const [loading, setLoading] = useState(true);
+    const [user, setLocalUser] = useState(null);
     const [navbarExpanded, setNavbarExpanded] = useState(() => {
         const saved = localStorage.getItem("navbarExpanded");
         return saved ? JSON.parse(saved) : true;
     });
-
-    const [user, setLocalUser] = useState(null);
 
     useEffect(() => {
         localStorage.setItem("navbarExpanded", JSON.stringify(navbarExpanded));
     }, [navbarExpanded]);
 
     useEffect(() => {
-        const syncUser = async () => {
-            const { data, error } = await supabase.auth.getUser();
-            error?console.log(error):console.log("sync user", data);
-            const user = data?.user ?? null;
-            console.log("metadata", user?.user_metadata);
-
-            console.log("uuser", user);
-            if (user) {
-                setLocalUser(user);      // local (routing)
-                setUser(user);           // global (state.js)
+        subscriber((newState) => {
+            if (newState.auth.isAuthenticated) {
+                setLocalUser(newState.profilePage.user);
             } else {
                 setLocalUser(null);
-                setUser({
-                    email: "",
-                    full_name: "",
-                    channel_id: "",
-                    bio: ""
-                });
             }
+        });
+    }, []);
 
-            setLoading(false);
+    useEffect(() => {
+        const syncUser = async () => {
+            if (!getToken()) {
+                setLoading(false);
+                return;
+            }
+            try {
+                const userData = await api.getMe();
+                setLocalUser(userData);
+                setUser(userData);
+            } catch {
+                clearToken();
+                clearUser();
+            } finally {
+                setLoading(false);
+            }
         };
 
         syncUser();
 
-        const {data: authListener} = supabase.auth.onAuthStateChange(
-            (_event, session) => {
-                const user = session?.user ?? null;
-
-                if (user) {
-                    setLocalUser(user);
-                    setUser(user);
-                } else {
-                    setLocalUser(null);
-                    setUser({
-                        email: "",
-                        full_name: "",
-                        channel_id: "",
-                        bio: ""
-                    });
-                }
+        // Sync logout across tabs
+        const onStorage = (e) => {
+            if (e.key === 'flower_token' && !e.newValue) {
+                setLocalUser(null);
+                clearUser();
             }
-        );
-
-        return () => authListener.subscription.unsubscribe();
+        };
+        window.addEventListener('storage', onStorage);
+        return () => window.removeEventListener('storage', onStorage);
     }, []);
 
     return (
         <Router>
-            <AppContent 
-                state={state} 
-                updateNewMessage={updateNewMessage} 
-                addMessage={addMessage} 
-                user={user} 
-                loading={loading} 
-                navbarExpanded={navbarExpanded} 
-                setNavbarExpanded={setNavbarExpanded} 
+            <AppContent
+                state={state}
+                updateNewMessage={updateNewMessage}
+                addMessage={addMessage}
+                user={user}
+                loading={loading}
+                navbarExpanded={navbarExpanded}
+                setNavbarExpanded={setNavbarExpanded}
             />
         </Router>
     );

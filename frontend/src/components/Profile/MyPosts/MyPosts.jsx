@@ -1,76 +1,63 @@
 import React, { useEffect, useState } from "react";
 import Post from "./Post/Post";
-import { supabase } from "../../../helper/supabaseClient";
+import { api, getToken } from "../../../api/client";
+import { jwtDecode } from "../../../api/jwtDecode";
 import styles from "../Profile.module.css";
 
 const MyPosts = () => {
-	const [posts, setPosts] = useState([]);
-	const [user, setUser] = useState(null);
+    const [posts, setPosts] = useState([]);
+    const [currentUserId, setCurrentUserId] = useState(null);
 
-	useEffect(() => {
-		const getUser = async () => {
-			const { data: { user } } = await supabase.auth.getUser();
-			setUser(user || null);
-		};
-		getUser();
-	}, []);
+    useEffect(() => {
+        const token = getToken();
+        if (token) {
+            try {
+                const payload = jwtDecode(token);
+                setCurrentUserId(payload.sub);
+            } catch {
+                // malformed token, ignore
+            }
+        }
 
-	console.log(user)
+        api.getPosts()
+            .then(({ posts }) => setPosts(posts))
+            .catch(console.error);
+    }, []);
 
-	const fetchPosts = async () => {
-		const { data, error } = await supabase
-			.from("posts")
-			.select("*, users(full_name)")
-			.order("created_at", { ascending: false });
+    const deletePost = async (id) => {
+        try {
+            await api.deletePost(id);
+            setPosts(prev => prev.filter(p => p.id !== id));
+        } catch (err) {
+            alert(err.message);
+        }
+    };
 
-		if (!error) setPosts(data);
-	};
+    const updatePost = async (id, content) => {
+        try {
+            await api.updatePost(id, content);
+            setPosts(prev => prev.map(p => p.id === id ? { ...p, content } : p));
+        } catch (err) {
+            alert(err.message);
+        }
+    };
 
-	const deletePost = async (id) => {
-		const { error } = await supabase
-			.from("posts")
-			.delete()
-			.eq("id", id);
-
-		if (error) {
-			alert(error.message);
-		} else {
-			setPosts(posts.filter(p => p.id !== id));
-		}
-	};
-
-	const updatePost = async (id, content) => {
-		const { error } = await supabase
-			.from("posts")
-			.update({ content })
-			.eq("id", id);
-
-		if (error) {
-			alert(error.message);
-		} else {
-			setPosts(posts.map(p => p.id === id ? { ...p, content } : p));
-		}
-	};
-
-	useEffect(() => {
-		fetchPosts();
-	}, []);
-
-	return (
-		<div className={styles.main_content}>
-			{posts.map((post) => (
-				<Post
-					key={post.id}
-					id={post.id}
-					title={post.content}
-					author={post.users?.full_name || "Anonymous"}
-					isOwner={user && post.user_id === user.id}
-					onDelete={deletePost}
-					onUpdate={updatePost}
-				/>
-			))}
-		</div>
-	);
+    return (
+        <div className={styles.main_content}>
+            {posts.map((post) => (
+                <Post
+                    key={post.id}
+                    id={post.id}
+                    title={post.content}
+                    author={post.author_name || "Anonymous"}
+                    authorAvatar={post.author_avatar}
+                    isOwner={currentUserId && post.user_id === currentUserId}
+                    onDelete={deletePost}
+                    onUpdate={updatePost}
+                />
+            ))}
+        </div>
+    );
 };
 
 export default MyPosts;

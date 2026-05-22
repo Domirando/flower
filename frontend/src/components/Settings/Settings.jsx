@@ -1,9 +1,11 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { api, clearToken } from '../../api/client';
+import { clearUser, setUser } from '../../redux/state';
 import styles from './Settings.module.css';
-import { supabase } from "../../helper/supabaseClient";
-import { clearUser, setUser } from "../../redux/state";
 
-const Settings = ({user}) => {
+const Settings = ({ user }) => {
+    const navigate = useNavigate();
     const [isEditing, setIsEditing] = useState(false);
     const [editForm, setEditForm] = useState({
         full_name: user.full_name,
@@ -13,13 +15,10 @@ const Settings = ({user}) => {
     const [avatarFile, setAvatarFile] = useState(null);
     const [loading, setLoading] = useState(false);
 
-    const handleLogout = async () => {
-        const { error } = await supabase.auth.signOut();
-        if (error) {
-            console.error("Error logging out:", error.message);
-        } else {
-            clearUser();
-        }
+    const handleLogout = () => {
+        clearToken();
+        clearUser();
+        navigate('/login');
     };
 
     const handleInputChange = (e) => {
@@ -28,70 +27,36 @@ const Settings = ({user}) => {
     };
 
     const handleFileChange = (e) => {
-        if (e.target.files && e.target.files[0]) {
-            const file = e.target.files[0];
-            setAvatarFile(file);
-            // Create a local preview
-            const reader = new FileReader();
-            reader.onload = (event) => {
-                setEditForm(prev => ({ ...prev, avatar_url: event.target.result }));
-            };
-            reader.readAsDataURL(file);
-        }
-    };
-
-    const uploadAvatar = async (file) => {
-        const { data: { user: authUser } } = await supabase.auth.getUser();
-        if (!authUser || !file) return null;
-
-        const fileExt = file.name.split(".").pop();
-        const fileName = `${authUser.id}-${Math.random()}.${fileExt}`;
-        const filePath = `avatars/${fileName}`;
-
-        const { error } = await supabase.storage
-            .from("avatars")
-            .upload(filePath, file, {
-                cacheControl: "3600",
-                upsert: true,
-                contentType: file.type
-            });
-
-        if (error) {
-            throw error;
-        }
-
-        const { data } = supabase.storage
-            .from("avatars")
-            .getPublicUrl(filePath);
-
-        return data.publicUrl;
+        const file = e.target.files?.[0];
+        if (!file) return;
+        setAvatarFile(file);
+        const reader = new FileReader();
+        reader.onload = (event) =>
+            setEditForm(prev => ({ ...prev, avatar_url: event.target.result }));
+        reader.readAsDataURL(file);
     };
 
     const handleSave = async () => {
         setLoading(true);
         try {
-            let avatarUrl = user.avatar_url;
-            if (avatarFile) {
-                avatarUrl = await uploadAvatar(avatarFile);
-            }
-
-            const { data, error } = await supabase.auth.updateUser({
-                data: {
-                    full_name: editForm.full_name,
-                    bio: editForm.bio,
-                    avatar_url: avatarUrl
-                }
+            let updatedUser = await api.updateMe({
+                full_name: editForm.full_name,
+                bio: editForm.bio
             });
 
-            if (error) throw error;
+            if (avatarFile) {
+                const formData = new FormData();
+                formData.append("file", avatarFile);
+                const { avatar_url } = await api.uploadAvatar(formData);
+                updatedUser = { ...updatedUser, avatar_url };
+            }
 
-            setUser(data.user);
+            setUser(updatedUser);
             setIsEditing(false);
             setAvatarFile(null);
             alert("Profile updated successfully!");
-        } catch (error) {
-            console.error("Error updating profile:", error.message);
-            alert("Failed to update profile: " + error.message);
+        } catch (err) {
+            alert("Failed to update profile: " + err.message);
         } finally {
             setLoading(false);
         }
@@ -102,7 +67,11 @@ const Settings = ({user}) => {
             <h1>Settings</h1>
             <div className={styles.user_info}>
                 <div className={styles.avatar_container}>
-                    <img src={isEditing ? editForm.avatar_url : user.avatar_url} alt="Profile" className={styles.avatar} />
+                    <img
+                        src={isEditing ? editForm.avatar_url : user.avatar_url}
+                        alt="Profile"
+                        className={styles.avatar}
+                    />
                     {isEditing && (
                         <div className={styles.file_input_container}>
                             <label htmlFor="avatar-upload" className={styles.file_label}>
@@ -141,17 +110,11 @@ const Settings = ({user}) => {
                         </>
                     ) : (
                         <>
-                            <div>
-                                <strong>Name:</strong> {user.full_name}
-                            </div>
-                            <div>
-                                <strong>Biography:</strong> {user.bio}
-                            </div>
+                            <div><strong>Name:</strong> {user.full_name}</div>
+                            <div><strong>Biography:</strong> {user.bio}</div>
                         </>
                     )}
-                    <div>
-                        <strong>Email:</strong> {user.email}
-                    </div>
+                    <div><strong>Email:</strong> {user.email}</div>
                 </div>
             </div>
             <div className={styles.actions}>
