@@ -20,14 +20,6 @@ let state = {
         }
     },
 
-    messagesPage: {
-        messages: [
-            { id: 1, message: "hi there!" },
-            { id: 2, message: "how are you?!" }
-        ],
-        dialogs: [],
-        newDialogMessage: "type..."
-    }
 };
 
 // Accepts the user object returned by the Rust API
@@ -62,21 +54,6 @@ export const clearUser = () => {
 
 export const subscriber = (observer) => {
     rerenderEntireTree = observer;
-};
-
-export const updateNewMessage = (text) => {
-    state.messagesPage.newDialogMessage = text;
-    rerenderEntireTree(state);
-};
-
-export const addMessage = () => {
-    const newMessage = {
-        id: state.messagesPage.messages.length + 1,
-        message: state.messagesPage.newDialogMessage
-    };
-    state.messagesPage.messages.push(newMessage);
-    state.messagesPage.newDialogMessage = '';
-    rerenderEntireTree(state);
 };
 
 export default state;

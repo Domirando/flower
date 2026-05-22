@@ -5,7 +5,6 @@ import Profile from "./components/Profile/Profile";
 import Music from "./components/Music/Music";
 import Books from "./components/Books/Books";
 import News from "./components/News/News";
-import Dialogs from "./components/Dialogs/Dialogs.jsx";
 import NewPost from "./components/NewPost/NewPost.jsx";
 import Settings from "./components/Settings/Settings";
 import Auth from "./components/Auth/Auth";
@@ -15,7 +14,7 @@ import { api, clearToken, getToken } from "./api/client";
 import { setUser, clearUser, subscriber } from "./redux/state";
 import "./App.css";
 
-function AppContent({ state, updateNewMessage, addMessage, user, loading, navbarExpanded, setNavbarExpanded }) {
+function AppContent({ state, user, loading, navbarExpanded, setNavbarExpanded }) {
     const location = useLocation();
     const isAuthPage = location.pathname === "/login";
     const showNavbar = user && !isAuthPage;
@@ -53,19 +52,6 @@ function AppContent({ state, updateNewMessage, addMessage, user, loading, navbar
                             element={user ? <Profile state={state} /> : <Navigate to="/login" />}
                         />
                         <Route
-                            path="/dialogs/*"
-                            element={
-                                user ? (
-                                    <Dialogs
-                                        updateNewMessage={updateNewMessage}
-                                        addMessage={addMessage}
-                                        messages={state.messagesPage}
-                                        state={state.messagesPage}
-                                    />
-                                ) : <Navigate to="/login" />
-                            }
-                        />
-                        <Route
                             path="/books"
                             element={user ? <Books /> : <Navigate to="/login" />}
                         />
@@ -86,7 +72,7 @@ function AppContent({ state, updateNewMessage, addMessage, user, loading, navbar
     );
 }
 
-function App({ state, updateNewMessage, addMessage }) {
+function App({ state }) {
     const [loading, setLoading] = useState(true);
     const [user, setLocalUser] = useState(null);
     const [navbarExpanded, setNavbarExpanded] = useState(() => {
@@ -143,8 +129,6 @@ function App({ state, updateNewMessage, addMessage }) {
         <Router>
             <AppContent
                 state={state}
-                updateNewMessage={updateNewMessage}
-                addMessage={addMessage}
                 user={user}
                 loading={loading}
                 navbarExpanded={navbarExpanded}

@@ -24,7 +24,6 @@ const About = () => {
                     <ul className={styles.list}>
                         <li>✨ Personalized User Profiles</li>
                         <li>telegram Cross-posting to Telegram Channels</li>
-                        <li>💬 Real-time Messaging with Dialogs</li>
                         <li>📚 Book Tracking and Recommendations</li>
                         <li>🎵 Music Integration</li>
                         <li>📰 Latest News Feed</li>
