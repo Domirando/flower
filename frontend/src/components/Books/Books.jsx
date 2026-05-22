@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { supabase } from "../../helper/supabaseClient";
+import { api } from "../../api/client";
 import styles from './Books.module.css';
 import { HiSearch, HiUpload, HiBookOpen, HiDownload, HiShoppingCart } from 'react-icons/hi';
 
 const Books = () => {
-    const [activeTab, setActiveTab] = useState('search'); // 'search' | 'my-library' | 'upload'
+    const [activeTab, setActiveTab] = useState('search');
     const [searchQuery, setSearchQuery] = useState('');
     const [searchResults, setSearchResults] = useState([]);
     const [myBooks, setMyBooks] = useState([]);
@@ -25,10 +25,7 @@ const Books = () => {
         setLoading(true);
         setError(null);
         try {
-            const backendUrl = process.env.REACT_APP_BACKEND_URL || (window.location.hostname === 'localhost' ? 'http://localhost:4000' : '');
-            const response = await fetch(`${backendUrl}/api/books/search?q=${encodeURIComponent(searchQuery)}`);
-            if (!response.ok) throw new Error('Failed to search books');
-            const data = await response.json();
+            const data = await api.searchBooks(searchQuery);
             setSearchResults(data.books || []);
         } catch (err) {
             setError(err.message);
@@ -40,9 +37,8 @@ const Books = () => {
     const fetchMyBooks = async () => {
         setLoading(true);
         try {
-            const { data, error } = await supabase.from('books').select('*').order('created_at', { ascending: false });
-            if (error) throw error;
-            setMyBooks(data || []);
+            const data = await api.getBooks();
+            setMyBooks(data.books || []);
         } catch (err) {
             setError(err.message);
         } finally {
@@ -54,52 +50,35 @@ const Books = () => {
         e.preventDefault();
         const { title, authors, file } = uploadForm;
         if (!title || !file) {
-            alert('Please provide title and file');
+            alert('Please provide a title and file');
             return;
         }
 
         setLoading(true);
         try {
-            const { data: userData } = await supabase.auth.getUser();
-            const user = userData.user;
-            if (!user) throw new Error('Not authenticated');
+            const formData = new FormData();
+            formData.append('title', title);
+            formData.append('authors', authors);
+            formData.append('file', file);
 
-            const fileExt = file.name.split('.').pop();
-            const fileName = `${user.id}-${Math.random()}.${fileExt}`;
-            const filePath = `books/${fileName}`;
-
-            const { error: uploadError } = await supabase.storage
-                .from('books')
-                .upload(filePath, file);
-
-            if (uploadError) throw uploadError;
-
-            const { data: { publicUrl } } = supabase.storage
-                .from('books')
-                .getPublicUrl(filePath);
-
-            const { error: dbError } = await supabase.from('books').insert({
-                user_id: user.id,
-                title,
-                authors: authors.split(',').map(s => s.trim()),
-                file_url: publicUrl,
-                file_path: filePath
-            });
-
-            if (dbError) throw dbError;
-
+            await api.uploadBook(formData);
             alert('Book uploaded successfully!');
             setUploadForm({ title: '', authors: '', file: null });
             setActiveTab('my-library');
         } catch (err) {
-            console.error('Upload error:', err);
-            let msg = err.message;
-            if (err.message === 'bucket_not_found' || err.status === 404) {
-                msg = 'Storage bucket "books" not found. Please ensure it is created in your Supabase dashboard.';
-            }
-            alert(msg);
+            alert(err.message);
         } finally {
             setLoading(false);
+        }
+    };
+
+    const handleDeleteBook = async (id) => {
+        if (!window.confirm('Delete this book?')) return;
+        try {
+            await api.deleteBook(id);
+            setMyBooks(prev => prev.filter(b => b.id !== id));
+        } catch (err) {
+            alert(err.message);
         }
     };
 
@@ -110,19 +89,19 @@ const Books = () => {
             </header>
 
             <div className={styles.tabs}>
-                <div 
+                <div
                     className={`${styles.tab} ${activeTab === 'search' ? styles.active_tab : ''}`}
                     onClick={() => setActiveTab('search')}
                 >
                     <HiSearch size={18} /> Search
                 </div>
-                <div 
+                <div
                     className={`${styles.tab} ${activeTab === 'my-library' ? styles.active_tab : ''}`}
                     onClick={() => setActiveTab('my-library')}
                 >
                     <HiBookOpen size={18} /> My Library
                 </div>
-                <div 
+                <div
                     className={`${styles.tab} ${activeTab === 'upload' ? styles.active_tab : ''}`}
                     onClick={() => setActiveTab('upload')}
                 >
@@ -133,9 +112,9 @@ const Books = () => {
             {activeTab === 'search' && (
                 <>
                     <form onSubmit={handleSearch} className={styles.search_section}>
-                        <input 
-                            type="text" 
-                            placeholder="Search by title, author, or ISBN..." 
+                        <input
+                            type="text"
+                            placeholder="Search by title, author, or ISBN..."
                             className={styles.search_input}
                             value={searchQuery}
                             onChange={(e) => setSearchQuery(e.target.value)}
@@ -151,11 +130,10 @@ const Books = () => {
                         {searchResults.map((book) => (
                             <div key={book.id} className={styles.book_card}>
                                 <div className={styles.thumbnail_container}>
-                                    {book.thumbnail ? (
-                                        <img src={book.thumbnail} alt={book.title} className={styles.thumbnail} />
-                                    ) : (
-                                        <HiBookOpen size={64} color="#CBD5E0" />
-                                    )}
+                                    {book.thumbnail
+                                        ? <img src={book.thumbnail} alt={book.title} className={styles.thumbnail} />
+                                        : <HiBookOpen size={64} color="#CBD5E0" />
+                                    }
                                 </div>
                                 <div className={styles.book_info}>
                                     <h3 className={styles.book_title}>{book.title}</h3>
@@ -181,24 +159,31 @@ const Books = () => {
 
             {activeTab === 'my-library' && (
                 <div className={styles.my_books_list}>
-                    {loading ? <div className={styles.loader}>Loading your library...</div> : (
-                        myBooks.length > 0 ? (
-                            myBooks.map(book => (
+                    {loading
+                        ? <div className={styles.loader}>Loading your library...</div>
+                        : myBooks.length > 0
+                            ? myBooks.map(book => (
                                 <div key={book.id} className={styles.my_book_item}>
-                                    <HiBookOpen size={24} className="text-blue-500" />
+                                    <HiBookOpen size={24} />
                                     <div className={styles.my_book_info}>
-                                        <h4 className="font-bold">{book.title}</h4>
-                                        <p className="text-sm text-gray-500">{book.authors?.join(', ')}</p>
+                                        <h4>{book.title}</h4>
+                                        <p>{book.authors?.join(', ')}</p>
                                     </div>
                                     <div className={styles.my_book_actions}>
                                         <a href={book.file_url} download className={styles.download_btn}>
                                             <HiDownload /> Download
                                         </a>
+                                        <button
+                                            onClick={() => handleDeleteBook(book.id)}
+                                            className={styles.delete_btn}
+                                        >
+                                            Delete
+                                        </button>
                                     </div>
                                 </div>
                             ))
-                        ) : <div className={styles.no_results}>Your library is empty. Upload some books!</div>
-                    )}
+                            : <div className={styles.no_results}>Your library is empty. Upload some books!</div>
+                    }
                 </div>
             )}
 
@@ -208,29 +193,29 @@ const Books = () => {
                     <form onSubmit={handleUpload}>
                         <div className={styles.form_group}>
                             <label className={styles.label}>Title *</label>
-                            <input 
-                                type="text" 
-                                className={styles.input} 
+                            <input
+                                type="text"
+                                className={styles.input}
                                 value={uploadForm.title}
-                                onChange={e => setUploadForm({...uploadForm, title: e.target.value})}
+                                onChange={e => setUploadForm({ ...uploadForm, title: e.target.value })}
                                 required
                             />
                         </div>
                         <div className={styles.form_group}>
                             <label className={styles.label}>Authors (comma separated)</label>
-                            <input 
-                                type="text" 
+                            <input
+                                type="text"
                                 className={styles.input}
                                 value={uploadForm.authors}
-                                onChange={e => setUploadForm({...uploadForm, authors: e.target.value})}
+                                onChange={e => setUploadForm({ ...uploadForm, authors: e.target.value })}
                             />
                         </div>
                         <div className={styles.form_group}>
                             <label className={styles.label}>File (PDF, EPUB, etc.) *</label>
-                            <input 
-                                type="file" 
+                            <input
+                                type="file"
                                 className={styles.input}
-                                onChange={e => setUploadForm({...uploadForm, file: e.target.files[0]})}
+                                onChange={e => setUploadForm({ ...uploadForm, file: e.target.files[0] })}
                                 required
                             />
                         </div>

@@ -1,9 +1,11 @@
 import React, { useState } from 'react';
 import { Edit, Delete, Save, Cancel } from '@material-ui/icons';
-import styles from './Post.module.css'
-import state from "../../../../redux/state";
+import styles from './Post.module.css';
 
-const Post = ({ id, title, author, description, likeCount, dislikeCount, isOwner, onDelete, onUpdate }) => {
+const DEFAULT_AVATAR =
+    "https://static.vecteezy.com/system/resources/previews/002/608/327/non_2x/mobile-application-avatar-web-button-menu-digital-silhouette-style-icon-free-vector.jpg";
+
+const Post = ({ id, title, author, authorAvatar, isOwner, onDelete, onUpdate }) => {
     const [isEditing, setIsEditing] = useState(false);
     const [editContent, setEditContent] = useState(title);
 
@@ -21,13 +23,17 @@ const Post = ({ id, title, author, description, likeCount, dislikeCount, isOwner
         <div className={styles.post_card}>
             <div className={styles.post_main}>
                 <div className={styles.author_info}>
-                    <img src={state.profilePage.user.avatar_url} alt='' className={styles.avatar} />
+                    <img
+                        src={authorAvatar || DEFAULT_AVATAR}
+                        alt=""
+                        className={styles.avatar}
+                    />
                     <div className={styles.author_details}>
                         <span className={styles.author_name}>{author}</span>
                         <span className={styles.posted_on}>Posted to Telegram</span>
                     </div>
                 </div>
-                
+
                 <div className={styles.content_area}>
                     {isEditing ? (
                         <div className={styles.edit_container}>
@@ -49,8 +55,8 @@ const Post = ({ id, title, author, description, likeCount, dislikeCount, isOwner
                     ) : (
                         <>
                             <p className={styles.post_content}>{title}</p>
-                            <div className={styles.post_footer}>
-                                {isOwner && (
+                            {isOwner && (
+                                <div className={styles.post_footer}>
                                     <div className={styles.owner_actions}>
                                         <button onClick={() => setIsEditing(true)} className={styles.edit_btn} title="Edit">
                                             <Edit fontSize="small" /> Edit
@@ -59,13 +65,14 @@ const Post = ({ id, title, author, description, likeCount, dislikeCount, isOwner
                                             <Delete fontSize="small" /> Delete
                                         </button>
                                     </div>
-                                )}
-                            </div>
+                                </div>
+                            )}
                         </>
                     )}
                 </div>
             </div>
         </div>
-    )
-}
-export default Post
+    );
+};
+
+export default Post;

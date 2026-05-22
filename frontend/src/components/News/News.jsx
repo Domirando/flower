@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { api } from '../../api/client';
 import styles from './News.module.css';
 
 const News = ({ user }) => {
@@ -10,20 +11,10 @@ const News = ({ user }) => {
         const fetchNews = async () => {
             setLoading(true);
             try {
-                const interestsParam = user?.interests?.length > 0 
-                    ? `?interests=${encodeURIComponent(user.interests.join(','))}` 
-                    : '';
-                
-                const backendUrl = process.env.REACT_APP_BACKEND_URL || (window.location.hostname === 'localhost' ? 'http://localhost:4000' : '');
-                const url = `${backendUrl}/api/news${interestsParam}`;
-                console.log('Fetching news from:', url);
-                const response = await fetch(url);
-                if (!response.ok) {
-                    const errorText = await response.text();
-                    throw new Error(`Failed to fetch news: ${response.status} ${errorText}`);
-                }
-                
-                const data = await response.json();
+                const interests = user?.interests?.length > 0
+                    ? user.interests.join(',')
+                    : undefined;
+                const data = await api.getNews(interests);
                 setNews(data.items || []);
             } catch (err) {
                 setError(err.message);
