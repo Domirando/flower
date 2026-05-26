@@ -1,6 +1,6 @@
 use axum::{
     extract::{Multipart, Path, Query, State},
-    routing::{delete, get},
+    routing::{delete, get, post},
     Json, Router,
 };
 use serde::Deserialize;
@@ -11,7 +11,10 @@ use crate::{auth::AuthUser, error::AppError, models::Book, AppState};
 
 pub fn router() -> Router<AppState> {
     Router::new()
-        .route("/", get(list_books).post(upload_book))
+        // POST accepts JSON {title,authors,file_url,file_key?} after presigned R2 upload
+        .route("/", get(list_books).post(create_book_json))
+        // Multipart fallback: file goes through backend → R2/local
+        .route("/upload", post(upload_book_multipart))
         .route("/:id", delete(delete_book))
         .route("/search", get(search_books))
 }
@@ -39,7 +42,57 @@ async fn list_books(
     Ok(Json(json!({ "books": books })))
 }
 
-async fn upload_book(
+#[derive(Deserialize)]
+struct CreateBookBody {
+    title: String,
+    #[serde(default)]
+    authors: Vec<String>,
+    file_url: String,
+    /// R2 key — stored in file_path for later deletion
+    #[serde(default)]
+    file_key: String,
+}
+
+/// Called after the frontend has uploaded the file directly to R2.
+async fn create_book_json(
+    State(state): State<AppState>,
+    auth: AuthUser,
+    Json(body): Json<CreateBookBody>,
+) -> Result<Json<Value>, AppError> {
+    let title = body.title.trim().to_string();
+    if title.is_empty() {
+        return Err(AppError::BadRequest("Title is required".into()));
+    }
+    if body.file_url.trim().is_empty() {
+        return Err(AppError::BadRequest("file_url is required".into()));
+    }
+
+    let file_path = if body.file_key.trim().is_empty() {
+        body.file_url.trim().to_string()
+    } else {
+        body.file_key.trim().to_string()
+    };
+
+    let book = sqlx::query_as::<_, Book>(
+        r#"
+        INSERT INTO books (user_id, title, authors, file_url, file_path)
+        VALUES ($1, $2, $3, $4, $5)
+        RETURNING id, user_id, title, authors, file_url, file_path, created_at
+        "#,
+    )
+    .bind(auth.user_id)
+    .bind(&title)
+    .bind(&body.authors)
+    .bind(body.file_url.trim())
+    .bind(&file_path)
+    .fetch_one(&state.db)
+    .await?;
+
+    Ok(Json(json!({ "book": book })))
+}
+
+/// Multipart upload: file goes through backend then R2/local.
+async fn upload_book_multipart(
     State(state): State<AppState>,
     auth: AuthUser,
     mut multipart: Multipart,
@@ -97,17 +150,24 @@ async fn upload_book(
         .next()
         .unwrap_or("bin")
         .to_lowercase();
-    let file_name = format!("{}-{}.{}", auth.user_id, Uuid::new_v4(), ext);
-    let file_path = format!("uploads/books/{}", file_name);
 
-    tokio::fs::write(&file_path, &data)
-        .await
-        .map_err(|e| anyhow::anyhow!("Failed to save file: {e}"))?;
-
-    let file_url = format!(
-        "{}/uploads/books/{}",
-        state.config.public_url, file_name
-    );
+    let (file_url, file_path) = if let Some(ref r2) = state.r2 {
+        let key = format!("books/{}-{}.{}", auth.user_id, Uuid::new_v4(), ext);
+        let mime = book_mime(&ext);
+        crate::routes::upload::upload_bytes_to_r2(r2, &state.config.r2_bucket, &key, data, mime)
+            .await
+            .map_err(|e| anyhow::anyhow!("R2 book upload failed: {e}"))?;
+        let url = format!("{}/{}", state.config.r2_public_url.trim_end_matches('/'), key);
+        (url, key)
+    } else {
+        let file_name = format!("{}-{}.{}", auth.user_id, Uuid::new_v4(), ext);
+        let local_path = format!("uploads/books/{}", file_name);
+        tokio::fs::write(&local_path, &data)
+            .await
+            .map_err(|e| anyhow::anyhow!("Failed to save file: {e}"))?;
+        let url = format!("{}/uploads/books/{}", state.config.public_url, file_name);
+        (url, local_path)
+    };
 
     let book = sqlx::query_as::<_, Book>(
         r#"
@@ -147,8 +207,13 @@ async fn delete_book(
         .execute(&state.db)
         .await?;
 
-    // Remove file from disk (ignore errors, file might already be gone)
-    let _ = tokio::fs::remove_file(&path).await;
+    if let Some(ref r2) = state.r2 {
+        if !path.starts_with("uploads/") && !path.starts_with('/') {
+            let _ = crate::routes::upload::delete_from_r2(r2, &state.config.r2_bucket, &path).await;
+        }
+    } else {
+        let _ = tokio::fs::remove_file(&path).await;
+    }
 
     Ok(Json(json!({ "success": true })))
 }
@@ -210,8 +275,16 @@ async fn search_books(
     Ok(Json(json!({ "books": books })))
 }
 
-// Simple URL encoding without a dep, or add percent-encoding crate.
-// For now inline it:
+fn book_mime(ext: &str) -> &'static str {
+    match ext {
+        "pdf" => "application/pdf",
+        "epub" => "application/epub+zip",
+        "mobi" => "application/x-mobipocket-ebook",
+        "fb2" => "application/x-fictionbook+xml",
+        _ => "application/octet-stream",
+    }
+}
+
 mod urlencoding {
     pub fn encode(s: &str) -> String {
         let mut out = String::with_capacity(s.len());
