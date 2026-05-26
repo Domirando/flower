@@ -1,4 +1,4 @@
-use axum::{routing::get, Router};
+use axum::{extract::DefaultBodyLimit, routing::get, Router};
 use sqlx::postgres::PgPoolOptions;
 use std::sync::Arc;
 use tower_http::{
@@ -55,7 +55,7 @@ async fn main() -> anyhow::Result<()> {
     if r2.is_some() {
         tracing::info!("Cloudflare R2 storage configured (bucket: {})", config.r2_bucket);
     } else {
-        tracing::warn!("R2 not configured — files will be stored on local disk. Set R2_ACCOUNT_ID, R2_ACCESS_KEY_ID, R2_SECRET_ACCESS_KEY, R2_BUCKET, R2_PUBLIC_URL to enable.");
+        tracing::warn!("R2 not configured");
     }
 
     let state = AppState {
@@ -80,6 +80,7 @@ async fn main() -> anyhow::Result<()> {
         .nest("/api/music", routes::music::router())
         .nest("/api/upload", routes::upload::router())
         .nest_service("/uploads", ServeDir::new("uploads"))
+        .layer(DefaultBodyLimit::max(500 * 1024 * 1024)) // 500 MB — covers large audio/book uploads
         .layer(cors)
         .layer(TraceLayer::new_for_http())
         .with_state(state);

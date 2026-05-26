@@ -17,7 +17,7 @@ const Header = ({state}) => {
                         <Link to="/news" className={styles.nav_link}>News</Link>
                     </nav>
                 </div>
-                <ProfileInfo user={state.profilePage.user} />
+                <Link to="/settings"><ProfileInfo user={state.profilePage.user} /></Link>
             </div>
         </header>
     )

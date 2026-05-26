@@ -1,10 +1,156 @@
-.container{
-    @apply relative flex flex-col justify-center items-center m-2 h-5/6 gap-6;
+.container {
+    @apply relative flex flex-col justify-center items-center m-2 h-5/6 gap-3;
 }
-.header{
+
+.header {
     @apply font-extrabold leading-tight text-2xl;
 }
 
+/* ── Poster drop zone ─────────────────────────────────────────────────────── */
+
+.poster_wrap {
+    @apply w-4/6 rounded-xl transition-all;
+}
+
+.poster_btn {
+    @apply w-full py-3 px-4 rounded-xl border-2 border-dashed border-gray-300 text-sm text-gray-500
+           hover:border-blue-400 hover:text-blue-500 transition-colors;
+}
+
+.dragging .poster_btn,
+.dragging {
+    @apply border-blue-500 bg-blue-50 text-blue-600;
+}
+
+.poster_preview_wrap {
+    @apply relative;
+}
+
+.poster_preview {
+    @apply w-full max-h-48 object-cover rounded-xl border border-gray-200;
+}
+
+.uploading_badge {
+    @apply absolute top-2 left-2 bg-black/60 text-white text-xs px-2 py-1 rounded-full;
+}
+
+.poster_remove {
+    @apply absolute top-2 right-2 bg-black/60 text-white w-6 h-6 rounded-full text-xs
+           flex items-center justify-center hover:bg-red-600 transition-colors;
+}
+
+.hidden_file { @apply hidden; }
+
+/* ── Toolbar ─────────────────────────────────────────────────────────────── */
+
+.toolbar {
+    @apply flex gap-1 w-4/6 bg-gray-50 border border-gray-200 rounded-t-xl px-2 py-1.5;
+}
+
+.tool_btn {
+    @apply w-8 h-8 flex items-center justify-center rounded-lg text-sm text-gray-600
+           hover:bg-gray-200 transition-colors cursor-pointer;
+}
+
+.tool_btn_active {
+    @apply bg-blue-100 text-blue-600;
+}
+
+/* ── Link dialog ─────────────────────────────────────────────────────────── */
+
+.link_dialog {
+    @apply flex gap-2 items-center w-4/6 bg-white border border-blue-200 rounded-xl px-3 py-2 shadow-sm;
+}
+
+.link_input {
+    @apply flex-1 text-sm border border-gray-200 rounded-lg px-2 py-1
+           focus:outline-none focus:ring-2 focus:ring-blue-400/30;
+}
+
+.link_confirm {
+    @apply px-3 py-1 bg-blue-600 text-white text-xs font-bold rounded-lg hover:bg-blue-700 transition-colors;
+}
+
+.link_cancel {
+    @apply px-3 py-1 bg-gray-100 text-gray-600 text-xs font-semibold rounded-lg hover:bg-gray-200 transition-colors;
+}
+
+/* ── Emoji picker ────────────────────────────────────────────────────────── */
+
+.emoji_picker {
+    @apply w-4/6 grid grid-cols-10 gap-0.5 bg-white border border-gray-200 rounded-xl p-2
+           shadow-md max-h-40 overflow-y-auto;
+}
+
+.emoji_btn {
+    @apply w-8 h-8 flex items-center justify-center rounded-lg text-lg
+           hover:bg-gray-100 transition-colors cursor-pointer;
+}
+
+/* ── Textarea ────────────────────────────────────────────────────────────── */
+
 .textarea {
-    @apply border-gray-200 border-2 rounded-md h-5/6 w-4/6 block py-2 px-3;
+    @apply border-gray-200 border-2 rounded-b-xl w-4/6 h-40 block py-2 px-3 text-sm
+           focus:outline-none focus:ring-2 focus:ring-blue-400/30 resize-none;
+}
+
+/* ── Channel checkboxes ──────────────────────────────────────────────────── */
+
+.channels_wrap {
+    @apply flex flex-wrap gap-2 items-center w-4/6;
+}
+
+.channels_label {
+    @apply text-xs font-semibold text-gray-500 uppercase tracking-wide mr-1;
+}
+
+.channel_item {
+    @apply flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-gray-200 bg-white
+           text-sm cursor-pointer hover:border-blue-400 transition-colors select-none;
+}
+
+.channel_item input[type="checkbox"] {
+    @apply accent-blue-600;
+}
+
+/* ── Post button ─────────────────────────────────────────────────────────── */
+
+.post_btn {
+    @apply px-8 py-2 bg-blue-600 text-white font-bold rounded-xl
+           hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors text-sm;
+}
+
+/* ── Attachments ─────────────────────────────────────────────────────────── */
+
+.attachments_wrap {
+    @apply flex flex-col gap-2;
+}
+
+.attachment_panel {
+    @apply bg-gray-50 border border-gray-200 rounded-xl p-3 flex flex-col gap-3 max-h-48 overflow-y-auto;
+}
+
+.att_group {
+    @apply flex flex-col gap-1;
+}
+
+.att_group_label {
+    @apply text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1;
+}
+
+.att_item {
+    @apply flex items-center gap-2 text-sm text-gray-700 cursor-pointer hover:text-gray-900;
+}
+
+.attached_list {
+    @apply flex flex-wrap gap-2;
+}
+
+.attached_tag {
+    @apply flex items-center gap-1 bg-blue-50 text-blue-700 text-xs font-medium
+           px-2 py-1 rounded-full border border-blue-200;
+}
+
+.attached_tag button {
+    @apply text-blue-400 hover:text-blue-700 ml-1 font-bold;
 }

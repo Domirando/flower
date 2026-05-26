@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import Header from "./components/Header/Header";
 import Navbar from "./components/Navbar/Navbar";
+import Footer from "./components/Footer/Footer";
 import Profile from "./components/Profile/Profile";
 import Music from "./components/Music/Music";
 import Books from "./components/Books/Books";
@@ -66,6 +67,9 @@ function AppContent({ state, user, loading, navbarExpanded, setNavbarExpanded })
                         <Route path="/posting" element={user ? <NewPost /> : <Navigate to="/login" />} />
                         <Route path="*" element={<Navigate to="/" />} />
                     </Routes>
+                    <div className="mt-auto">
+                        <Footer />
+                    </div>
                 </div>
             </div>
         </div>

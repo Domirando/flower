@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { api } from "../../api/client";
+import { api, uploadFileToR2 } from '../../api/client';
 import styles from './Books.module.css';
 import { HiSearch, HiUpload, HiBookOpen, HiDownload, HiShoppingCart } from 'react-icons/hi';
 
@@ -9,6 +9,7 @@ const Books = () => {
     const [searchResults, setSearchResults] = useState([]);
     const [myBooks, setMyBooks] = useState([]);
     const [loading, setLoading] = useState(false);
+    const [uploadProgress, setUploadProgress] = useState(null); // null | 0-100
     const [error, setError] = useState(null);
     const [uploadForm, setUploadForm] = useState({ title: '', authors: '', file: null });
 
@@ -21,7 +22,6 @@ const Books = () => {
     const handleSearch = async (e) => {
         e.preventDefault();
         if (!searchQuery.trim()) return;
-
         setLoading(true);
         setError(null);
         try {
@@ -55,13 +55,37 @@ const Books = () => {
         }
 
         setLoading(true);
+        setUploadProgress(0);
         try {
-            const formData = new FormData();
-            formData.append('title', title);
-            formData.append('authors', authors);
-            formData.append('file', file);
+            // Try direct R2 upload first
+            let file_url, file_key;
+            try {
+                const result = await uploadFileToR2(file, 'books', (pct) => setUploadProgress(pct));
+                file_url = result.public_url;
+                file_key = result.key;
+            } catch (r2err) {
+                if (r2err.message.includes('R2 storage is not configured')) {
+                    // Fallback: send file through backend
+                    setUploadProgress(null);
+                    const formData = new FormData();
+                    formData.append('title', title);
+                    formData.append('authors', authors);
+                    formData.append('file', file);
+                    await api.uploadBook(formData);
+                    alert('Book uploaded successfully!');
+                    setUploadForm({ title: '', authors: '', file: null });
+                    setActiveTab('my-library');
+                    return;
+                }
+                throw r2err;
+            }
 
-            await api.uploadBook(formData);
+            // Save metadata
+            const authorList = authors
+                ? authors.split(',').map(a => a.trim()).filter(Boolean)
+                : [];
+            await api.saveBook({ title, authors: authorList, file_url, file_key });
+
             alert('Book uploaded successfully!');
             setUploadForm({ title: '', authors: '', file: null });
             setActiveTab('my-library');
@@ -69,6 +93,7 @@ const Books = () => {
             alert(err.message);
         } finally {
             setLoading(false);
+            setUploadProgress(null);
         }
     };
 
@@ -216,11 +241,32 @@ const Books = () => {
                                 type="file"
                                 className={styles.input}
                                 onChange={e => setUploadForm({ ...uploadForm, file: e.target.files[0] })}
+                                accept=".pdf,.epub,.mobi,.fb2,.txt,.djvu"
                                 required
                             />
+                            {uploadForm.file && (
+                                <span className={styles.file_name}>{uploadForm.file.name}</span>
+                            )}
                         </div>
+
+                        {/* Upload progress bar */}
+                        {uploadProgress !== null && (
+                            <div className={styles.progress_wrap}>
+                                <div className={styles.progress_bar}>
+                                    <div
+                                        className={styles.progress_fill}
+                                        style={{ width: `${uploadProgress}%` }}
+                                    />
+                                </div>
+                                <span className={styles.progress_label}>{uploadProgress}%</span>
+                            </div>
+                        )}
+
                         <button type="submit" className={styles.upload_btn} disabled={loading}>
-                            {loading ? 'Uploading...' : 'Upload to Library'}
+                            {loading
+                                ? (uploadProgress !== null ? `Uploading ${uploadProgress}%…` : 'Saving…')
+                                : 'Upload to Library'
+                            }
                         </button>
                     </form>
                 </div>
