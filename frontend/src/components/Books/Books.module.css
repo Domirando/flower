@@ -129,3 +129,23 @@
 .download_btn {
     @apply text-blue-600 hover:underline text-sm font-semibold;
 }
+
+.file_name {
+    @apply text-xs text-gray-500 mt-1 truncate;
+}
+
+.progress_wrap {
+    @apply flex items-center gap-3 mt-2 mb-1;
+}
+
+.progress_bar {
+    @apply flex-1 h-2 bg-gray-200 rounded-full overflow-hidden;
+}
+
+.progress_fill {
+    @apply h-full bg-blue-500 rounded-full transition-all duration-150;
+}
+
+.progress_label {
+    @apply text-xs text-gray-600 w-8 text-right;
+}
