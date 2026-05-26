@@ -10,8 +10,19 @@ pub struct User {
     pub bio: String,
     pub interests: Vec<String>,
     pub telegram_channel: String,
+    pub telegram_channels: Vec<String>,
     pub avatar_url: String,
     pub created_at: DateTime<Utc>,
+    // Spotify fields: stored but not serialised to the client
+    #[sqlx(default)]
+    #[serde(skip)]
+    pub spotify_token: String,
+    #[sqlx(default)]
+    #[serde(skip)]
+    pub spotify_refresh: String,
+    #[sqlx(default)]
+    #[serde(skip)]
+    pub spotify_expiry: Option<DateTime<Utc>>,
 }
 
 #[derive(Debug, Clone, Serialize, sqlx::FromRow)]
@@ -42,5 +53,15 @@ pub struct Book {
     pub authors: Vec<String>,
     pub file_url: String,
     pub file_path: String,
+    pub created_at: DateTime<Utc>,
+}
+
+#[derive(Debug, Clone, Serialize, sqlx::FromRow)]
+pub struct Song {
+    pub id: Uuid,
+    pub user_id: Uuid,
+    pub title: String,
+    pub artist: String,
+    pub file_url: String,
     pub created_at: DateTime<Utc>,
 }
