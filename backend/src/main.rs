@@ -21,6 +21,7 @@ pub struct AppState {
     pub db: sqlx::PgPool,
     pub config: Arc<Config>,
     pub http: reqwest::Client,
+    pub r2: Option<aws_sdk_s3::Client>,
 }
 
 #[tokio::main]
@@ -44,13 +45,24 @@ async fn main() -> anyhow::Result<()> {
 
     sqlx::migrate!("./migrations").run(&pool).await?;
 
+    // Local upload dirs still used as fallback when R2 is not configured
     tokio::fs::create_dir_all("uploads/avatars").await?;
     tokio::fs::create_dir_all("uploads/books").await?;
+    tokio::fs::create_dir_all("uploads/images").await?;
+    tokio::fs::create_dir_all("uploads/songs").await?;
+
+    let r2 = build_r2_client(&config);
+    if r2.is_some() {
+        tracing::info!("Cloudflare R2 storage configured (bucket: {})", config.r2_bucket);
+    } else {
+        tracing::warn!("R2 not configured — files will be stored on local disk. Set R2_ACCOUNT_ID, R2_ACCESS_KEY_ID, R2_SECRET_ACCESS_KEY, R2_BUCKET, R2_PUBLIC_URL to enable.");
+    }
 
     let state = AppState {
         db: pool,
         config: config.clone(),
         http: reqwest::Client::new(),
+        r2,
     };
 
     let cors = CorsLayer::new()
@@ -65,6 +77,8 @@ async fn main() -> anyhow::Result<()> {
         .nest("/api/books", routes::books::router())
         .nest("/api/news", routes::news::router())
         .nest("/api/telegram", routes::telegram::router())
+        .nest("/api/music", routes::music::router())
+        .nest("/api/upload", routes::upload::router())
         .nest_service("/uploads", ServeDir::new("uploads"))
         .layer(cors)
         .layer(TraceLayer::new_for_http())
@@ -76,4 +90,31 @@ async fn main() -> anyhow::Result<()> {
     axum::serve(listener, app).await?;
 
     Ok(())
+}
+
+fn build_r2_client(config: &Config) -> Option<aws_sdk_s3::Client> {
+    if !config.r2_configured() {
+        return None;
+    }
+    use aws_credential_types::Credentials;
+    use aws_sdk_s3::config::{BehaviorVersion, Region};
+
+    let creds = Credentials::new(
+        &config.r2_access_key_id,
+        &config.r2_secret_access_key,
+        None,
+        None,
+        "r2",
+    );
+    let s3_cfg = aws_sdk_s3::Config::builder()
+        .behavior_version(BehaviorVersion::latest())
+        .endpoint_url(format!(
+            "https://{}.r2.cloudflarestorage.com",
+            config.r2_account_id
+        ))
+        .credentials_provider(creds)
+        .region(Region::new("auto"))
+        .force_path_style(false)
+        .build();
+    Some(aws_sdk_s3::Client::from_conf(s3_cfg))
 }
