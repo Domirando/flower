@@ -18,6 +18,13 @@ use crate::{
     AppState,
 };
 
+const SELECT_USER: &str = r#"
+    SELECT id, email, full_name, bio, interests,
+           telegram_channel, telegram_channels, avatar_url, created_at,
+           spotify_token, spotify_refresh, spotify_expiry
+    FROM users WHERE id = $1
+"#;
+
 pub fn router() -> Router<AppState> {
     Router::new()
         .route("/register", post(register))
@@ -34,6 +41,7 @@ struct RegisterRequest {
     bio: Option<String>,
     interests: Option<Vec<String>>,
     telegram_channel: Option<String>,
+    telegram_channels: Option<Vec<String>>,
 }
 
 #[derive(Deserialize)]
@@ -48,6 +56,7 @@ struct UpdateProfileRequest {
     bio: Option<String>,
     interests: Option<Vec<String>>,
     telegram_channel: Option<String>,
+    telegram_channels: Option<Vec<String>>,
 }
 
 async fn register(
@@ -73,13 +82,22 @@ async fn register(
     let full_name = body.full_name.trim().to_string();
     let bio = body.bio.unwrap_or_default();
     let interests = body.interests.unwrap_or_default();
-    let telegram_channel = body.telegram_channel.unwrap_or_default();
+    let primary_channel = body.telegram_channel.unwrap_or_default();
+
+    // Merge primary + extras, deduplicate, filter empty
+    let mut all_channels: Vec<String> = body.telegram_channels.unwrap_or_default();
+    if !primary_channel.is_empty() && !all_channels.contains(&primary_channel) {
+        all_channels.insert(0, primary_channel.clone());
+    }
 
     let user = sqlx::query_as::<_, User>(
         r#"
-        INSERT INTO users (email, password_hash, full_name, bio, interests, telegram_channel)
-        VALUES ($1, $2, $3, $4, $5, $6)
-        RETURNING id, email, full_name, bio, interests, telegram_channel, avatar_url, created_at
+        INSERT INTO users
+            (email, password_hash, full_name, bio, interests, telegram_channel, telegram_channels)
+        VALUES ($1, $2, $3, $4, $5, $6, $7)
+        RETURNING id, email, full_name, bio, interests,
+                  telegram_channel, telegram_channels, avatar_url, created_at,
+                  spotify_token, spotify_refresh, spotify_expiry
         "#,
     )
     .bind(&email)
@@ -87,7 +105,8 @@ async fn register(
     .bind(&full_name)
     .bind(&bio)
     .bind(&interests)
-    .bind(&telegram_channel)
+    .bind(&primary_channel)
+    .bind(&all_channels)
     .fetch_one(&state.db)
     .await
     .map_err(|e| match e {
@@ -138,15 +157,10 @@ async fn login(
         .verify_password(body.password.as_bytes(), &parsed)
         .map_err(|_| AppError::BadRequest("Invalid email or password".into()))?;
 
-    let user = sqlx::query_as::<_, User>(
-        r#"
-        SELECT id, email, full_name, bio, interests, telegram_channel, avatar_url, created_at
-        FROM users WHERE id = $1
-        "#,
-    )
-    .bind(row.id)
-    .fetch_one(&state.db)
-    .await?;
+    let user = sqlx::query_as::<_, User>(SELECT_USER)
+        .bind(row.id)
+        .fetch_one(&state.db)
+        .await?;
 
     let token =
         create_token(user.id, &state.config.jwt_secret).map_err(anyhow::Error::from)?;
@@ -158,16 +172,11 @@ async fn get_me(
     State(state): State<AppState>,
     auth_user: AuthUser,
 ) -> Result<Json<User>, AppError> {
-    let user = sqlx::query_as::<_, User>(
-        r#"
-        SELECT id, email, full_name, bio, interests, telegram_channel, avatar_url, created_at
-        FROM users WHERE id = $1
-        "#,
-    )
-    .bind(auth_user.user_id)
-    .fetch_optional(&state.db)
-    .await?
-    .ok_or(AppError::NotFound)?;
+    let user = sqlx::query_as::<_, User>(SELECT_USER)
+        .bind(auth_user.user_id)
+        .fetch_optional(&state.db)
+        .await?
+        .ok_or(AppError::NotFound)?;
 
     Ok(Json(user))
 }
@@ -177,15 +186,32 @@ async fn update_me(
     auth_user: AuthUser,
     Json(body): Json<UpdateProfileRequest>,
 ) -> Result<Json<User>, AppError> {
+    // Rebuild the canonical channels list when provided
+    let new_channels: Option<Vec<String>> = match body.telegram_channels {
+        Some(ref chs) => {
+            let mut merged = chs.clone();
+            if let Some(ref primary) = body.telegram_channel {
+                if !primary.is_empty() && !merged.contains(primary) {
+                    merged.insert(0, primary.clone());
+                }
+            }
+            Some(merged)
+        }
+        None => None,
+    };
+
     let user = sqlx::query_as::<_, User>(
         r#"
         UPDATE users SET
-            full_name        = COALESCE($2, full_name),
-            bio              = COALESCE($3, bio),
-            interests        = COALESCE($4, interests),
-            telegram_channel = COALESCE($5, telegram_channel)
+            full_name         = COALESCE($2, full_name),
+            bio               = COALESCE($3, bio),
+            interests         = COALESCE($4, interests),
+            telegram_channel  = COALESCE($5, telegram_channel),
+            telegram_channels = COALESCE($6, telegram_channels)
         WHERE id = $1
-        RETURNING id, email, full_name, bio, interests, telegram_channel, avatar_url, created_at
+        RETURNING id, email, full_name, bio, interests,
+                  telegram_channel, telegram_channels, avatar_url, created_at,
+                  spotify_token, spotify_refresh, spotify_expiry
         "#,
     )
     .bind(auth_user.user_id)
@@ -193,6 +219,7 @@ async fn update_me(
     .bind(body.bio.as_deref())
     .bind(body.interests.as_deref())
     .bind(body.telegram_channel.as_deref())
+    .bind(new_channels.as_deref())
     .fetch_optional(&state.db)
     .await?
     .ok_or(AppError::NotFound)?;
@@ -214,32 +241,30 @@ async fn upload_avatar(
             continue;
         }
 
-        let original_name = field
-            .file_name()
-            .unwrap_or("avatar.bin")
-            .to_string();
-        let ext = original_name
-            .rsplit('.')
-            .next()
-            .unwrap_or("bin")
-            .to_lowercase();
+        let original_name = field.file_name().unwrap_or("avatar.bin").to_string();
+        let ext = original_name.rsplit('.').next().unwrap_or("bin").to_lowercase();
 
         let data = field
             .bytes()
             .await
-            .map_err(|e| AppError::BadRequest(e.to_string()))?;
+            .map_err(|e| AppError::BadRequest(e.to_string()))?
+            .to_vec();
 
-        let file_name = format!("{}.{}", auth_user.user_id, ext);
-        let save_path = format!("uploads/avatars/{}", file_name);
-
-        tokio::fs::write(&save_path, &data)
-            .await
-            .map_err(|e| anyhow::anyhow!("Failed to save avatar: {e}"))?;
-
-        let avatar_url = format!(
-            "{}/uploads/avatars/{}",
-            state.config.public_url, file_name
-        );
+        let avatar_url = if let Some(ref r2) = state.r2 {
+            let key = format!("avatars/{}.{}", auth_user.user_id, ext);
+            let mime = mime_for_ext(&ext);
+            crate::routes::upload::upload_bytes_to_r2(r2, &state.config.r2_bucket, &key, data, mime)
+                .await
+                .map_err(|e| anyhow::anyhow!("R2 avatar upload failed: {e}"))?;
+            format!("{}/{}", state.config.r2_public_url.trim_end_matches('/'), key)
+        } else {
+            let file_name = format!("{}.{}", auth_user.user_id, ext);
+            let save_path = format!("uploads/avatars/{}", file_name);
+            tokio::fs::write(&save_path, &data)
+                .await
+                .map_err(|e| anyhow::anyhow!("Failed to save avatar: {e}"))?;
+            format!("{}/uploads/avatars/{}", state.config.public_url, file_name)
+        };
 
         sqlx::query("UPDATE users SET avatar_url = $1 WHERE id = $2")
             .bind(&avatar_url)
@@ -251,4 +276,14 @@ async fn upload_avatar(
     }
 
     Err(AppError::BadRequest("No file provided".into()))
+}
+
+fn mime_for_ext(ext: &str) -> &'static str {
+    match ext {
+        "png" => "image/png",
+        "gif" => "image/gif",
+        "webp" => "image/webp",
+        "jpg" | "jpeg" => "image/jpeg",
+        _ => "application/octet-stream",
+    }
 }
