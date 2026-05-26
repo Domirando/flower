@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Edit, Delete, Save, Cancel } from '@material-ui/icons';
+import { extractPoster, RenderMarkdown } from '../../../../helper/renderMarkdown';
 import styles from './Post.module.css';
 
 const DEFAULT_AVATAR =
@@ -19,8 +20,13 @@ const Post = ({ id, title, author, authorAvatar, isOwner, onDelete, onUpdate }) 
         setIsEditing(false);
     };
 
+    const { posterUrl, text } = extractPoster(title);
+
     return (
         <div className={styles.post_card}>
+            {posterUrl && !isEditing && (
+                <img src={posterUrl} alt="poster" className={styles.poster} />
+            )}
             <div className={styles.post_main}>
                 <div className={styles.author_info}>
                     <img
@@ -54,7 +60,9 @@ const Post = ({ id, title, author, authorAvatar, isOwner, onDelete, onUpdate }) 
                         </div>
                     ) : (
                         <>
-                            <p className={styles.post_content}>{title}</p>
+                            <p className={styles.post_content}>
+                                <RenderMarkdown content={text} />
+                            </p>
                             {isOwner && (
                                 <div className={styles.post_footer}>
                                     <div className={styles.owner_actions}>
