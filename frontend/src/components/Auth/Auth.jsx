@@ -9,12 +9,16 @@ const Auth = () => {
     const [avatar, setAvatar] = useState(null);
     const [form, setForm] = useState({
         fullName: "",
-        telegramChannel: "",
         bio: "",
         interests: "",
         email: "",
-        password: ""
+        password: "",
     });
+    // Primary Telegram channel + extra channels
+    const [primaryChannel, setPrimaryChannel] = useState("");
+    const [extraChannels, setExtraChannels] = useState([]);
+    const [showChannels, setShowChannels] = useState(false);
+
     const [loading, setLoading] = useState(false);
     const [mode, setMode] = useState("signup");
 
@@ -23,8 +27,16 @@ const Auth = () => {
         setForm((prev) => ({ ...prev, [name]: value }));
     };
 
+    const addChannel = () => setExtraChannels((prev) => [...prev, ""]);
+    const removeChannel = (i) =>
+        setExtraChannels((prev) => prev.filter((_, idx) => idx !== i));
+    const updateChannel = (i, val) =>
+        setExtraChannels((prev) => prev.map((ch, idx) => (idx === i ? val : ch)));
+
+    const allChannels = [primaryChannel, ...extraChannels].filter(Boolean);
+
     const handleSignUp = async () => {
-        const { fullName, telegramChannel, bio, interests, email, password } = form;
+        const { fullName, bio, interests, email, password } = form;
 
         if (!fullName || !email || !password) {
             alert("Please fill in all required fields");
@@ -38,8 +50,9 @@ const Auth = () => {
                 password,
                 full_name: fullName,
                 bio,
-                telegram_channel: telegramChannel,
-                interests: interests.split(',').map(i => i.trim()).filter(Boolean)
+                telegram_channel: primaryChannel,
+                telegram_channels: allChannels,
+                interests: interests.split(',').map(i => i.trim()).filter(Boolean),
             });
 
             setToken(token);
@@ -92,7 +105,7 @@ const Auth = () => {
                     <input
                         type="text"
                         name="fullName"
-                        placeholder="Your full name"
+                        placeholder="Your full name *"
                         value={form.fullName}
                         onChange={handleChange}
                         className={styles.email_input}
@@ -100,16 +113,8 @@ const Auth = () => {
                     <input
                         type="text"
                         name="bio"
-                        placeholder="A little description about yourself"
+                        placeholder="A little about yourself"
                         value={form.bio}
-                        onChange={handleChange}
-                        className={styles.email_input}
-                    />
-                    <input
-                        type="text"
-                        name="telegramChannel"
-                        placeholder="Your Telegram channel (e.g. @mychannel)"
-                        value={form.telegramChannel}
                         onChange={handleChange}
                         className={styles.email_input}
                     />
@@ -127,13 +132,72 @@ const Auth = () => {
                         onChange={(e) => setAvatar(e.target.files[0])}
                         className={styles.email_input}
                     />
+
+                    {/* Telegram accounts section */}
+                    <div className={styles.accounts_section}>
+                        <div className={styles.accounts_header}>
+                            <span className={styles.accounts_title}>📢 Telegram channels</span>
+                            <button
+                                type="button"
+                                className={styles.add_account_btn}
+                                onClick={() => setShowChannels(v => !v)}
+                            >
+                                {showChannels ? "Hide" : "+ Add accounts"}
+                            </button>
+                        </div>
+
+                        {showChannels && (
+                            <div className={styles.channels_list}>
+                                <div className={styles.channel_row}>
+                                    <input
+                                        type="text"
+                                        placeholder="Primary Telegram channel (e.g. @mychannel)"
+                                        value={primaryChannel}
+                                        onChange={(e) => setPrimaryChannel(e.target.value)}
+                                        className={styles.channel_input}
+                                    />
+                                </div>
+
+                                {extraChannels.map((ch, i) => (
+                                    <div key={i} className={styles.channel_row}>
+                                        <input
+                                            type="text"
+                                            placeholder={`Channel ${i + 2} (e.g. @secondchannel)`}
+                                            value={ch}
+                                            onChange={(e) => updateChannel(i, e.target.value)}
+                                            className={styles.channel_input}
+                                        />
+                                        <button
+                                            type="button"
+                                            className={styles.remove_channel_btn}
+                                            onClick={() => removeChannel(i)}
+                                        >✕</button>
+                                    </div>
+                                ))}
+
+                                <button
+                                    type="button"
+                                    className={styles.more_channel_btn}
+                                    onClick={addChannel}
+                                >
+                                    + Add another channel
+                                </button>
+
+                                {allChannels.length > 0 && (
+                                    <p className={styles.channels_preview}>
+                                        Posts will go to: {allChannels.join(", ")}
+                                    </p>
+                                )}
+                            </div>
+                        )}
+                    </div>
                 </>
             )}
 
             <input
                 type="email"
                 name="email"
-                placeholder="Your email"
+                placeholder="Your email *"
                 value={form.email}
                 onChange={handleChange}
                 className={styles.email_input}
@@ -141,7 +205,7 @@ const Auth = () => {
             <input
                 type="password"
                 name="password"
-                placeholder="Password"
+                placeholder="Password *"
                 value={form.password}
                 onChange={handleChange}
                 className={styles.email_input}
@@ -152,7 +216,7 @@ const Auth = () => {
                 disabled={loading}
                 className={styles.primaryButton}
             >
-                {loading ? "Please wait..." : mode === "signup" ? "Sign Up" : "Login"}
+                {loading ? "Please wait…" : mode === "signup" ? "Sign Up" : "Login"}
             </button>
 
             <button

@@ -2,6 +2,10 @@
     @apply bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden transition-all hover:shadow-md;
 }
 
+.poster {
+    @apply w-full max-h-64 object-cover;
+}
+
 .post_main {
     @apply p-6;
 }

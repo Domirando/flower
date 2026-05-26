@@ -18,3 +18,48 @@
 .linkButton {
     @apply text-sm text-blue-600 hover:underline;
 }
+
+/* ── Telegram accounts section ────────────────────────────────────────────── */
+
+.accounts_section {
+    @apply w-full border border-gray-200 rounded-xl overflow-hidden;
+}
+
+.accounts_header {
+    @apply flex items-center justify-between px-4 py-3 bg-gray-50;
+}
+
+.accounts_title {
+    @apply text-sm font-semibold text-gray-700;
+}
+
+.add_account_btn {
+    @apply text-sm text-blue-600 font-semibold hover:underline;
+}
+
+.channels_list {
+    @apply flex flex-col gap-2 p-4 border-t border-gray-100;
+}
+
+.channel_row {
+    @apply flex gap-2 items-center;
+}
+
+.channel_input {
+    @apply flex-1 h-10 border border-gray-200 rounded-lg px-3 text-sm
+           focus:outline-none focus:ring-2 focus:ring-blue-400/30;
+}
+
+.remove_channel_btn {
+    @apply w-8 h-8 flex items-center justify-center rounded-lg bg-red-50 text-red-500
+           hover:bg-red-100 text-xs transition-colors;
+}
+
+.more_channel_btn {
+    @apply w-full py-1.5 border-2 border-dashed border-gray-300 rounded-lg text-sm text-gray-500
+           hover:border-blue-400 hover:text-blue-500 transition-colors;
+}
+
+.channels_preview {
+    @apply text-xs text-gray-500 mt-1;
+}
