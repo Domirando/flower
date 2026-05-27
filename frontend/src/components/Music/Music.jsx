@@ -336,9 +336,6 @@ export default function Music() {
                         <button className={styles.spotify_btn} onClick={connectSpotify}>
                             Connect Spotify
                         </button>
-                        <p className={styles.spotify_note}>
-                            Requires <code>SPOTIFY_CLIENT_ID</code> and <code>SPOTIFY_CLIENT_SECRET</code> on the server.
-                        </p>
                     </div>
                 )}
             </section>

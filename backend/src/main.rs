@@ -1,4 +1,4 @@
-use axum::{routing::get, Router};
+use axum::{extract::DefaultBodyLimit, routing::get, Router};
 use sqlx::postgres::PgPoolOptions;
 use std::sync::Arc;
 use tower_http::{
@@ -80,6 +80,7 @@ async fn main() -> anyhow::Result<()> {
         .nest("/api/music", routes::music::router())
         .nest("/api/upload", routes::upload::router())
         .nest_service("/uploads", ServeDir::new("uploads"))
+        .layer(DefaultBodyLimit::max(500 * 1024 * 1024)) // 500 MB — covers large audio/book uploads
         .layer(cors)
         .layer(TraceLayer::new_for_http())
         .with_state(state);

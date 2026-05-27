@@ -3,11 +3,11 @@
 }
 
 .app-body {
-    @apply flex flex-1;
+    @apply flex flex-1 items-stretch;
 }
 
 .app-wrapper-content {
-    @apply transition-all duration-300 flex-1;
+    @apply transition-all duration-300 flex-1 flex flex-col justify-between;
 }
 
 .content-expanded {
