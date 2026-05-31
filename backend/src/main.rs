@@ -55,7 +55,7 @@ async fn main() -> anyhow::Result<()> {
     if r2.is_some() {
         tracing::info!("Cloudflare R2 storage configured (bucket: {})", config.r2_bucket);
     } else {
-        tracing::warn!("R2 not configured — files will be stored on local disk. Set R2_ACCOUNT_ID, R2_ACCESS_KEY_ID, R2_SECRET_ACCESS_KEY, R2_BUCKET, R2_PUBLIC_URL to enable.");
+        tracing::warn!("R2 not configured");
     }
 
     let state = AppState {
