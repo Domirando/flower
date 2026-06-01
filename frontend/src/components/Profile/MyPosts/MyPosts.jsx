@@ -22,12 +22,29 @@ const MyPosts = () => {
             }
         }
 
-        api.getMe().then(user => {
+        api.getMe().then(async (user) => {
             const ids = user.telegram_channels || [];
-            const names = user.telegram_channel_names || [];
+            const stored = user.telegram_channel_names || [];
             const map = {};
-            ids.forEach((id, i) => { if (names[i]) map[id] = names[i]; });
+            ids.forEach((id, i) => { if (stored[i]) map[id] = stored[i]; });
             setChannelNameMap(map);
+
+            // Resolve any channel names not yet in DB
+            const missing = ids.filter(id => !map[id]);
+            if (missing.length > 0) {
+                const resolved = await Promise.all(
+                    missing.map(id =>
+                        api.resolveTelegramChannel(id)
+                            .then(({ name }) => ({ id, name: name || id }))
+                            .catch(() => ({ id, name: id }))
+                    )
+                );
+                setChannelNameMap(prev => {
+                    const next = { ...prev };
+                    resolved.forEach(({ id, name }) => { next[id] = name; });
+                    return next;
+                });
+            }
         }).catch(() => {});
 
         api.getPosts()
