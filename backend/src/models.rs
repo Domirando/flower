@@ -11,6 +11,7 @@ pub struct User {
     pub interests: Vec<String>,
     pub telegram_channel: String,
     pub telegram_channels: Vec<String>,
+    pub telegram_channel_names: Vec<String>,
     pub avatar_url: String,
     pub created_at: DateTime<Utc>,
     // Spotify fields: stored but not serialised to the client

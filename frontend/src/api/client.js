@@ -174,4 +174,7 @@ export const api = {
 
     getPlaylistTracks: (playlistId) =>
         request(`/api/music/spotify/playlists/${playlistId}/tracks`),
+
+    resolveTelegramChannel: (id) =>
+        request(`/api/telegram/channel-name?id=${encodeURIComponent(id)}`),
 };

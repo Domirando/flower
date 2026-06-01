@@ -42,7 +42,15 @@
 }
 
 .channel_row {
+    @apply flex flex-col gap-1;
+}
+
+.channel_input_row {
     @apply flex gap-2 items-center;
+}
+
+.channel_name_badge {
+    @apply text-xs text-green-600 font-medium pl-1;
 }
 
 .channel_input {

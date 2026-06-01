@@ -32,8 +32,9 @@ export default function NewPost() {
     const [showEmoji, setShowEmoji] = useState(false);
     const [showLinkDialog, setShowLinkDialog] = useState(false);
     const [linkUrl, setLinkUrl] = useState("https://");
-    const [channels, setChannels] = useState([]);       // all user channels
-    const [selected, setSelected] = useState(new Set()); // checked ones
+    const [channels, setChannels] = useState([]);       // all user channel IDs
+    const [channelNames, setChannelNames] = useState([]); // resolved names (parallel to channels)
+    const [selected, setSelected] = useState(new Set()); // checked channel IDs
 
     const [attachedFiles, setAttachedFiles] = useState([]); // [{url,name,type}]
     const [showAttachments, setShowAttachments] = useState(false);
@@ -48,7 +49,9 @@ export default function NewPost() {
     useEffect(() => {
         api.getMe().then((user) => {
             const chs = user.telegram_channels || [];
+            const names = user.telegram_channel_names || [];
             setChannels(chs);
+            setChannelNames(names);
             setSelected(new Set(chs));
         }).catch(() => {});
     }, []);
@@ -289,14 +292,14 @@ export default function NewPost() {
             {channels.length > 0 && (
                 <div className={styles.channels_wrap}>
                     <span className={styles.channels_label}>Post to:</span>
-                    {channels.map((ch) => (
+                    {channels.map((ch, i) => (
                         <label key={ch} className={styles.channel_item}>
                             <input
                                 type="checkbox"
                                 checked={selected.has(ch)}
                                 onChange={() => toggleChannel(ch)}
                             />
-                            <span>{ch}</span>
+                            <span>{channelNames[i] || ch}</span>
                         </label>
                     ))}
                 </div>

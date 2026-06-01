@@ -18,6 +18,9 @@ const Auth = () => {
     const [primaryChannel, setPrimaryChannel] = useState("");
     const [extraChannels, setExtraChannels] = useState([]);
     const [showChannels, setShowChannels] = useState(false);
+    // Resolved channel names: { primary: string, extras: string[] }
+    const [channelNamePrimary, setChannelNamePrimary] = useState("");
+    const [channelNameExtras, setChannelNameExtras] = useState([]);
 
     const [loading, setLoading] = useState(false);
     const [mode, setMode] = useState("signup");
@@ -27,11 +30,26 @@ const Auth = () => {
         setForm((prev) => ({ ...prev, [name]: value }));
     };
 
-    const addChannel = () => setExtraChannels((prev) => [...prev, ""]);
-    const removeChannel = (i) =>
+    const addChannel = () => {
+        setExtraChannels((prev) => [...prev, ""]);
+        setChannelNameExtras((prev) => [...prev, ""]);
+    };
+    const removeChannel = (i) => {
         setExtraChannels((prev) => prev.filter((_, idx) => idx !== i));
+        setChannelNameExtras((prev) => prev.filter((_, idx) => idx !== i));
+    };
     const updateChannel = (i, val) =>
         setExtraChannels((prev) => prev.map((ch, idx) => (idx === i ? val : ch)));
+
+    const resolveChannelName = async (id, setter) => {
+        if (!id.trim()) { setter(""); return; }
+        try {
+            const { name } = await api.resolveTelegramChannel(id.trim());
+            setter(name !== id.trim() ? name : "");
+        } catch {
+            setter("");
+        }
+    };
 
     const allChannels = [primaryChannel, ...extraChannels].filter(Boolean);
 
@@ -151,27 +169,37 @@ const Auth = () => {
                                 <div className={styles.channel_row}>
                                     <input
                                         type="text"
-                                        placeholder="Primary Telegram channel (e.g. @mychannel)"
+                                        placeholder="Primary Telegram channel ID (e.g. @mychannel or -100…)"
                                         value={primaryChannel}
-                                        onChange={(e) => setPrimaryChannel(e.target.value)}
+                                        onChange={(e) => { setPrimaryChannel(e.target.value); setChannelNamePrimary(""); }}
+                                        onBlur={(e) => resolveChannelName(e.target.value, setChannelNamePrimary)}
                                         className={styles.channel_input}
                                     />
+                                    {channelNamePrimary && (
+                                        <span className={styles.channel_name_badge}>✓ {channelNamePrimary}</span>
+                                    )}
                                 </div>
 
                                 {extraChannels.map((ch, i) => (
                                     <div key={i} className={styles.channel_row}>
-                                        <input
-                                            type="text"
-                                            placeholder={`Channel ${i + 2} (e.g. @secondchannel)`}
-                                            value={ch}
-                                            onChange={(e) => updateChannel(i, e.target.value)}
-                                            className={styles.channel_input}
-                                        />
-                                        <button
-                                            type="button"
-                                            className={styles.remove_channel_btn}
-                                            onClick={() => removeChannel(i)}
-                                        >✕</button>
+                                        <div className={styles.channel_input_row}>
+                                            <input
+                                                type="text"
+                                                placeholder={`Channel ${i + 2} ID (e.g. @secondchannel)`}
+                                                value={ch}
+                                                onChange={(e) => { updateChannel(i, e.target.value); setChannelNameExtras(prev => prev.map((n, idx) => idx === i ? "" : n)); }}
+                                                onBlur={(e) => resolveChannelName(e.target.value, (name) => setChannelNameExtras(prev => prev.map((n, idx) => idx === i ? name : n)))}
+                                                className={styles.channel_input}
+                                            />
+                                            <button
+                                                type="button"
+                                                className={styles.remove_channel_btn}
+                                                onClick={() => removeChannel(i)}
+                                            >✕</button>
+                                        </div>
+                                        {channelNameExtras[i] && (
+                                            <span className={styles.channel_name_badge}>✓ {channelNameExtras[i]}</span>
+                                        )}
                                     </div>
                                 ))}
 
