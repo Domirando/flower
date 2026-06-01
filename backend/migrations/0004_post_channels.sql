@@ -1,0 +1,1 @@
+ALTER TABLE posts ADD COLUMN IF NOT EXISTS telegram_channels TEXT[] NOT NULL DEFAULT '{}';

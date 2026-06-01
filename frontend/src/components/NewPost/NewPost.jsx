@@ -45,14 +45,27 @@ export default function NewPost() {
 
     const { songs, books } = useLibraryAttachments();
 
-    // Load user's channels on mount
+    // Load user's channels on mount, resolving any names not yet stored in DB
     useEffect(() => {
-        api.getMe().then((user) => {
+        api.getMe().then(async (user) => {
             const chs = user.telegram_channels || [];
-            const names = user.telegram_channel_names || [];
+            const stored = user.telegram_channel_names || [];
             setChannels(chs);
-            setChannelNames(names);
+            setChannelNames(stored);
             setSelected(new Set(chs));
+
+            const missing = chs.some((_, i) => !stored[i]);
+            if (missing) {
+                const resolved = await Promise.all(
+                    chs.map((ch, i) => {
+                        if (stored[i]) return Promise.resolve(stored[i]);
+                        return api.resolveTelegramChannel(ch)
+                            .then(({ name }) => name || ch)
+                            .catch(() => ch);
+                    })
+                );
+                setChannelNames(resolved);
+            }
         }).catch(() => {});
     }, []);
 

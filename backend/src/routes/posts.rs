@@ -297,8 +297,9 @@ async fn list_posts(
         r#"
         SELECT
             p.id, p.user_id, p.content, p.created_at, p.updated_at,
-            u.full_name  AS author_name,
-            u.avatar_url AS author_avatar
+            u.full_name        AS author_name,
+            u.avatar_url       AS author_avatar,
+            p.telegram_channels
         FROM posts p
         JOIN users u ON u.id = p.user_id
         ORDER BY p.created_at DESC
@@ -320,17 +321,8 @@ async fn create_post(
         return Err(AppError::BadRequest("Content cannot be empty".into()));
     }
 
-    let post = sqlx::query_as::<_, PostWithAuthor>(
-        r#"
-        WITH inserted AS (
-            INSERT INTO posts (user_id, content) VALUES ($1, $2)
-            RETURNING id, user_id, content, created_at, updated_at
-        )
-        SELECT i.id, i.user_id, i.content, i.created_at, i.updated_at,
-               u.full_name AS author_name, u.avatar_url AS author_avatar
-        FROM inserted i
-        JOIN users u ON u.id = i.user_id
-        "#,
+    let post_id: uuid::Uuid = sqlx::query_scalar(
+        "INSERT INTO posts (user_id, content) VALUES ($1, $2) RETURNING id",
     )
     .bind(auth.user_id)
     .bind(&content)
@@ -350,11 +342,31 @@ async fn create_post(
     };
 
     if !state.config.telegram_bot_token.is_empty() {
-        let attachments = body.attachments.unwrap_or_default();
+        let attachments = body.attachments.clone().unwrap_or_default();
         for channel in &channels {
             let _ = send_to_telegram(&state, channel, &content, &attachments).await;
         }
     }
+
+    sqlx::query("UPDATE posts SET telegram_channels = $1 WHERE id = $2")
+        .bind(&channels)
+        .bind(post_id)
+        .execute(&state.db)
+        .await?;
+
+    let post = sqlx::query_as::<_, PostWithAuthor>(
+        r#"
+        SELECT p.id, p.user_id, p.content, p.created_at, p.updated_at,
+               u.full_name AS author_name, u.avatar_url AS author_avatar,
+               p.telegram_channels
+        FROM posts p
+        JOIN users u ON u.id = p.user_id
+        WHERE p.id = $1
+        "#,
+    )
+    .bind(post_id)
+    .fetch_one(&state.db)
+    .await?;
 
     Ok(Json(json!({ "post": post })))
 }
