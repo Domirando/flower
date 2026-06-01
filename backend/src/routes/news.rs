@@ -69,16 +69,15 @@ async fn get_news(
             .filter(|i| !i.is_empty())
             .collect();
 
-        items.sort_by(|a, b| {
-            let matches = |v: &Value| -> bool {
+        if !interest_list.is_empty() {
+            items.retain(|v| {
                 let title = v["title"].as_str().unwrap_or("").to_lowercase();
                 let snippet = v["snippet"].as_str().unwrap_or("").to_lowercase();
                 interest_list
                     .iter()
                     .any(|i| title.contains(i.as_str()) || snippet.contains(i.as_str()))
-            };
-            matches(b).cmp(&matches(a))
-        });
+            });
+        }
     }
 
     Ok(Json(json!({ "items": items })))
