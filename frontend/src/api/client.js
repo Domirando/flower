@@ -171,4 +171,7 @@ export const api = {
 
     disconnectSpotify: () =>
         request('/api/music/spotify/disconnect', { method: 'POST' }),
+
+    getPlaylistTracks: (playlistId) =>
+        request(`/api/music/spotify/playlists/${playlistId}/tracks`),
 };
