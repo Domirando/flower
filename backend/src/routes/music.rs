@@ -26,6 +26,7 @@ pub fn router() -> Router<AppState> {
         .route("/spotify/status", get(spotify_status))
         .route("/spotify/token", get(spotify_token))
         .route("/spotify/playlists", get(spotify_playlists))
+        .route("/spotify/playlists/:id/tracks", get(spotify_playlist_tracks))
 }
 
 // ── Own songs ─────────────────────────────────────────────────────────────────
@@ -441,6 +442,40 @@ async fn spotify_playlists(
         .map_err(|e| anyhow::anyhow!("Failed to parse playlists: {e}"))?;
 
     Ok(Json(json!({ "playlists": data["items"] })))
+}
+
+async fn spotify_playlist_tracks(
+    State(state): State<AppState>,
+    auth: AuthUser,
+    Path(playlist_id): Path<String>,
+) -> Result<Json<Value>, AppError> {
+    let token_resp = spotify_token(State(state.clone()), auth).await?;
+    let token = token_resp
+        .0
+        .get("access_token")
+        .and_then(|v| v.as_str())
+        .ok_or_else(|| AppError::BadRequest("Could not get Spotify token".into()))?
+        .to_string();
+
+    let url = format!(
+        "https://api.spotify.com/v1/playlists/{}/tracks?limit=50&fields=items(track(id,name,artists,duration_ms,uri,album(images)))",
+        playlist_id
+    );
+
+    let resp = state
+        .http
+        .get(&url)
+        .bearer_auth(&token)
+        .send()
+        .await
+        .map_err(|e| anyhow::anyhow!("Spotify API error: {e}"))?;
+
+    let data: Value = resp
+        .json()
+        .await
+        .map_err(|e| anyhow::anyhow!("Failed to parse tracks: {e}"))?;
+
+    Ok(Json(json!({ "tracks": data["items"] })))
 }
 
 // ── Utils ─────────────────────────────────────────────────────────────────────

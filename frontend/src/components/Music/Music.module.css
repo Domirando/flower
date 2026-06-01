@@ -86,20 +86,55 @@
     @apply text-xs text-red-500 hover:underline font-medium;
 }
 
-.now_playing {
-    @apply flex items-center gap-3 px-4 py-2 bg-green-50 border border-green-200 rounded-xl;
+/* ── Player bar ─────────────────────────────────────────────────────────── */
+
+.player_bar {
+    @apply flex flex-wrap items-center gap-3 px-4 py-3 bg-green-50 border border-green-200 rounded-xl;
 }
 
 .np_thumb {
-    @apply w-10 h-10 rounded object-cover;
+    @apply w-10 h-10 rounded object-cover flex-shrink-0;
+}
+
+.np_info {
+    @apply flex flex-col flex-1 min-w-0;
 }
 
 .np_title {
-    @apply text-sm font-semibold text-gray-900 block;
+    @apply text-sm font-semibold text-gray-900 truncate;
 }
 
 .np_artist {
-    @apply text-xs text-gray-500;
+    @apply text-xs text-gray-500 truncate;
+}
+
+.player_controls {
+    @apply flex items-center gap-1 flex-shrink-0;
+}
+
+.ctrl_btn {
+    @apply w-8 h-8 flex items-center justify-center rounded-full text-gray-600
+           hover:bg-green-200 transition-colors text-sm;
+}
+
+.ctrl_play {
+    @apply w-9 h-9 bg-green-500 text-white hover:bg-green-600;
+}
+
+.np_progress {
+    @apply flex flex-col gap-1 w-full;
+}
+
+.np_bar {
+    @apply w-full h-1.5 bg-green-200 rounded-full overflow-hidden;
+}
+
+.np_bar_fill {
+    @apply h-full bg-green-500 rounded-full transition-all duration-1000;
+}
+
+.np_time {
+    @apply text-xs text-gray-400 tabular-nums;
 }
 
 .playlist_grid {
@@ -128,12 +163,55 @@
 }
 
 .playlist_actions {
-    @apply px-3 pb-3 pt-1;
+    @apply px-3 pb-3 pt-1 flex flex-col gap-1.5;
 }
 
 .play_playlist_btn {
     @apply w-full py-1.5 rounded-lg bg-green-500 text-white text-xs font-bold
            hover:bg-green-600 transition-colors;
+}
+
+.tracks_btn {
+    @apply w-full py-1.5 rounded-lg bg-gray-100 text-gray-600 text-xs font-medium
+           hover:bg-gray-200 transition-colors;
+}
+
+.tracks_btn_active {
+    @apply bg-green-100 text-green-700 hover:bg-green-200;
+}
+
+/* ── Track panel ────────────────────────────────────────────────────────── */
+
+.track_panel {
+    @apply flex flex-col gap-2 border border-gray-200 rounded-xl overflow-hidden;
+}
+
+.track_panel_header {
+    @apply flex items-center justify-between px-4 py-3 bg-gray-50 border-b border-gray-100;
+}
+
+.track_panel_title {
+    @apply text-sm font-semibold text-gray-800;
+}
+
+.close_btn {
+    @apply text-gray-400 hover:text-gray-700 text-sm transition-colors;
+}
+
+.track_list {
+    @apply flex flex-col divide-y divide-gray-50;
+}
+
+.track_item {
+    @apply flex items-center gap-3 px-4 py-2.5 hover:bg-gray-50 transition-colors;
+}
+
+.track_active {
+    @apply bg-green-50 hover:bg-green-50;
+}
+
+.track_duration {
+    @apply text-xs text-gray-400 tabular-nums flex-shrink-0;
 }
 
 /* ── Spotify connect ────────────────────────────────────────────────────── */
