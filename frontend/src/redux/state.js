@@ -17,6 +17,7 @@ let state = {
             bio: "",
             interests: [],
             telegram_channels: [],
+            telegram_channel_names: [],
             avatar_url: DEFAULT_AVATAR
         }
     },
@@ -35,6 +36,7 @@ export const setUser = (user) => {
         bio: user.bio || "",
         interests: user.interests || [],
         telegram_channels: user.telegram_channels || [],
+        telegram_channel_names: user.telegram_channel_names || [],
         avatar_url: user.avatar_url || DEFAULT_AVATAR,
     };
     rerenderEntireTree(state);
@@ -50,6 +52,7 @@ export const clearUser = () => {
         bio: "",
         interests: [],
         telegram_channels: [],
+        telegram_channel_names: [],
         avatar_url: DEFAULT_AVATAR
     };
     rerenderEntireTree(state);
