@@ -51,6 +51,12 @@ async fn get_news(
                     })
                 });
 
+            let categories: Vec<String> = item
+                .categories()
+                .iter()
+                .map(|c| c.name().to_lowercase())
+                .collect();
+
             json!({
                 "title": item.title().unwrap_or(""),
                 "link": item.link().unwrap_or(""),
@@ -58,6 +64,7 @@ async fn get_news(
                 "content": item.content().unwrap_or(""),
                 "snippet": item.description().unwrap_or(""),
                 "thumbnail": thumbnail,
+                "categories": categories,
             })
         })
         .collect();
@@ -73,9 +80,16 @@ async fn get_news(
             items.retain(|v| {
                 let title = v["title"].as_str().unwrap_or("").to_lowercase();
                 let snippet = v["snippet"].as_str().unwrap_or("").to_lowercase();
-                interest_list
-                    .iter()
-                    .any(|i| title.contains(i.as_str()) || snippet.contains(i.as_str()))
+                let cats: Vec<&str> = v["categories"]
+                    .as_array()
+                    .map(|a| a.iter().filter_map(|c| c.as_str()).collect())
+                    .unwrap_or_default();
+
+                interest_list.iter().any(|interest| {
+                    title.contains(interest.as_str())
+                        || snippet.contains(interest.as_str())
+                        || cats.iter().any(|c| c.contains(interest.as_str()))
+                })
             });
         }
     }
