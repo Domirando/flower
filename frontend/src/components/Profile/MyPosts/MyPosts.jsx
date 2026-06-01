@@ -10,11 +10,13 @@ const MyPosts = () => {
     const [channelNameMap, setChannelNameMap] = useState({});
 
     useEffect(() => {
+        let userId = null;
         const token = getToken();
         if (token) {
             try {
                 const payload = jwtDecode(token);
-                setCurrentUserId(payload.sub);
+                userId = payload.sub;
+                setCurrentUserId(userId);
             } catch {
                 // malformed token, ignore
             }
@@ -28,8 +30,10 @@ const MyPosts = () => {
             setChannelNameMap(map);
         }).catch(() => {});
 
-        api.getMyPosts()
-            .then(({ posts }) => setPosts(posts))
+        api.getPosts()
+            .then(({ posts }) => {
+                setPosts(userId ? posts.filter(p => p.user_id === userId) : posts);
+            })
             .catch(console.error);
     }, []);
 
