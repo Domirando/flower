@@ -12,7 +12,7 @@ const Profile = () => {
                 <div className={styles.stats_grid}>
                     <div className={styles.stat_card}>
                         <span className={styles.stat_value}>Posts</span>
-                        <span className={styles.stat_label}>Platform wide</span>
+                        <span className={styles.stat_label}>Your posts only</span>
                     </div>
                 </div>
             </div>

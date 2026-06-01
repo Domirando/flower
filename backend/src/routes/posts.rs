@@ -12,6 +12,7 @@ use crate::{auth::AuthUser, error::AppError, models::PostWithAuthor, AppState};
 pub fn router() -> Router<AppState> {
     Router::new()
         .route("/", get(list_posts).post(create_post))
+        .route("/mine", get(list_my_posts))
         .route("/upload-image", post(upload_image))
         .route("/:id", put(update_post).delete(delete_post))
 }
@@ -297,14 +298,38 @@ async fn list_posts(
         r#"
         SELECT
             p.id, p.user_id, p.content, p.created_at, p.updated_at,
-            u.full_name        AS author_name,
-            u.avatar_url       AS author_avatar,
+            u.full_name  AS author_name,
+            u.avatar_url AS author_avatar,
             p.telegram_channels
         FROM posts p
         JOIN users u ON u.id = p.user_id
         ORDER BY p.created_at DESC
         "#,
     )
+    .fetch_all(&state.db)
+    .await?;
+
+    Ok(Json(json!({ "posts": posts })))
+}
+
+async fn list_my_posts(
+    State(state): State<AppState>,
+    auth: AuthUser,
+) -> Result<Json<Value>, AppError> {
+    let posts = sqlx::query_as::<_, PostWithAuthor>(
+        r#"
+        SELECT
+            p.id, p.user_id, p.content, p.created_at, p.updated_at,
+            p.telegram_channels,
+            u.full_name  AS author_name,
+            u.avatar_url AS author_avatar
+        FROM posts p
+        JOIN users u ON u.id = p.user_id
+        WHERE p.user_id = $1
+        ORDER BY p.created_at DESC
+        "#,
+    )
+    .bind(auth.user_id)
     .fetch_all(&state.db)
     .await?;
 

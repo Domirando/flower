@@ -85,6 +85,8 @@ export const api = {
     // Posts
     getPosts: () => request('/api/posts'),
 
+    getMyPosts: () => request('/api/posts/mine'),
+
     /**
      * channels: string[] — if omitted, backend uses the user's configured channels.
      * attachments: [{url, name, type}] — optional files to send to Telegram.
