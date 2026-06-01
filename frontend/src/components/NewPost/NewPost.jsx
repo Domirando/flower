@@ -184,7 +184,7 @@ export default function NewPost() {
         const attachments = attachedFiles.length ? attachedFiles : undefined;
         setLoading(true);
         try {
-            await api.createPost(content, channelList.length ? channelList : undefined, attachments);
+            await api.createPost(content, channelList, attachments);
             setText("");
             setPosterUrl("");
             setPosterPreview("");
