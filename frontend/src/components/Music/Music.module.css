@@ -41,6 +41,10 @@
     @apply text-sm text-gray-400 italic;
 }
 
+.player_connecting {
+    @apply text-sm text-amber-600 bg-amber-50 border border-amber-200 rounded-lg px-4 py-2 mb-3;
+}
+
 .song_list {
     @apply flex flex-col gap-2;
 }

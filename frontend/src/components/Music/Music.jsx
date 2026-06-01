@@ -40,10 +40,12 @@ export default function Music() {
     const [playlistsLoading, setPlaylistsLoading] = useState(false);
     const [spotifyPlayer, setSpotifyPlayer] = useState(null);
     const [deviceId, setDeviceId] = useState('');
+    const [playerReady, setPlayerReady] = useState(false);
     const [nowPlaying, setNowPlaying] = useState(null);
     const [isPaused, setIsPaused] = useState(true);
     const [position, setPosition] = useState(0);
     const [duration, setDuration] = useState(0);
+    const playerRef = useRef(null);
 
     // ── track listing ────────────────────────────────────────────────────────
     const [expandedPlaylist, setExpandedPlaylist] = useState(null);
@@ -76,9 +78,13 @@ export default function Music() {
     // ── Spotify SDK init when connected ──────────────────────────────────────
     useEffect(() => {
         if (!spotifyConnected) return;
-        let playerInstance = null;
+        let cancelled = false;
+        setPlayerReady(false);
+
         loadSpotifySdk(() => {
+            if (cancelled) return;
             api.getSpotifyToken().then(({ access_token }) => {
+                if (cancelled) return;
                 const player = new window.Spotify.Player({
                     name: 'Flower',
                     getOAuthToken: cb => cb(access_token),
@@ -86,6 +92,7 @@ export default function Music() {
                 });
                 player.addListener('ready', ({ device_id }) => {
                     setDeviceId(device_id);
+                    setPlayerReady(true);
                     player.getCurrentState().then(state => {
                         if (!state) return;
                         if (state.track_window?.current_track) {
@@ -96,7 +103,10 @@ export default function Music() {
                         setDuration(state.duration);
                     });
                 });
-                player.addListener('not_ready', () => setDeviceId(''));
+                player.addListener('not_ready', () => {
+                    setDeviceId('');
+                    setPlayerReady(false);
+                });
                 player.addListener('player_state_changed', (state) => {
                     if (!state) return;
                     if (state.track_window?.current_track) {
@@ -107,11 +117,19 @@ export default function Music() {
                     setDuration(state.duration);
                 });
                 player.connect();
-                playerInstance = player;
+                playerRef.current = player;
                 setSpotifyPlayer(player);
             }).catch(() => {});
         });
-        return () => { if (playerInstance) playerInstance.disconnect(); };
+
+        return () => {
+            cancelled = true;
+            if (playerRef.current) {
+                playerRef.current.disconnect();
+                playerRef.current = null;
+            }
+            setPlayerReady(false);
+        };
     }, [spotifyConnected]);
 
     // ── tick position while playing ──────────────────────────────────────────
@@ -148,6 +166,7 @@ export default function Music() {
         setPlaylists([]);
         setNowPlaying(null);
         setDeviceId('');
+        setPlayerReady(false);
         setIsPaused(true);
         setExpandedPlaylist(null);
         if (spotifyPlayer) { spotifyPlayer.disconnect(); setSpotifyPlayer(null); }
@@ -155,10 +174,7 @@ export default function Music() {
 
     // ── Spotify playback ──────────────────────────────────────────────────────
     const playSpotifyPlaylist = async (playlist) => {
-        if (!deviceId) {
-            window.open(playlist.external_urls?.spotify, '_blank');
-            return;
-        }
+        if (!playerReady || !deviceId) return;
         try {
             const { access_token } = await api.getSpotifyToken();
             await fetch(`https://api.spotify.com/v1/me/player/play?device_id=${deviceId}`, {
@@ -166,13 +182,11 @@ export default function Music() {
                 headers: { Authorization: `Bearer ${access_token}`, 'Content-Type': 'application/json' },
                 body: JSON.stringify({ context_uri: playlist.uri }),
             });
-        } catch {
-            window.open(playlist.external_urls?.spotify, '_blank');
-        }
+        } catch { /* ignore */ }
     };
 
     const playTrack = async (trackUri) => {
-        if (!deviceId) return;
+        if (!playerReady || !deviceId) return;
         try {
             const { access_token } = await api.getSpotifyToken();
             await fetch(`https://api.spotify.com/v1/me/player/play?device_id=${deviceId}`, {
@@ -348,6 +362,13 @@ export default function Music() {
                     <p className={styles.empty}>Checking Spotify connection…</p>
                 ) : spotifyConnected ? (
                     <>
+                        {/* ── Player ready notice ── */}
+                        {!playerReady && (
+                            <p className={styles.player_connecting}>
+                                Connecting Spotify player… (Spotify Premium required for in-app playback)
+                            </p>
+                        )}
+
                         {/* ── Player bar ── */}
                         {nowPlaying && (
                             <div className={styles.player_bar}>
@@ -405,9 +426,10 @@ export default function Music() {
                                             <button
                                                 className={styles.play_playlist_btn}
                                                 onClick={() => playSpotifyPlaylist(pl)}
-                                                title="Play playlist"
+                                                disabled={!playerReady}
+                                                title={playerReady ? 'Play playlist' : 'Connecting player…'}
                                             >
-                                                ▶ Play
+                                                {playerReady ? '▶ Play' : '⌛ Connecting…'}
                                             </button>
                                             <button
                                                 className={`${styles.tracks_btn} ${expandedPlaylist === pl.id ? styles.tracks_btn_active : ''}`}
@@ -440,9 +462,9 @@ export default function Music() {
                                                 <li key={track.id || i} className={`${styles.track_item} ${isActive ? styles.track_active : ''}`}>
                                                     <button
                                                         className={styles.play_btn}
-                                                        onClick={() => deviceId ? playTrack(track.uri) : undefined}
-                                                        disabled={!deviceId}
-                                                        title={deviceId ? 'Play' : 'Spotify Premium required for in-app playback'}
+                                                        onClick={() => playTrack(track.uri)}
+                                                        disabled={!playerReady}
+                                                        title={playerReady ? 'Play' : 'Connecting player…'}
                                                     >
                                                         {isActive && !isPaused ? '⏸' : '▶'}
                                                     </button>
