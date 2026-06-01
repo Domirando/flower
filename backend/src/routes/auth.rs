@@ -15,12 +15,14 @@ use crate::{
     auth::{create_token, AuthUser},
     error::AppError,
     models::User,
+    routes::telegram::resolve_channel_name,
     AppState,
 };
 
 const SELECT_USER: &str = r#"
     SELECT id, email, full_name, bio, interests,
-           telegram_channel, telegram_channels, avatar_url, created_at,
+           telegram_channel, telegram_channels, telegram_channel_names,
+           avatar_url, created_at,
            spotify_token, spotify_refresh, spotify_expiry
     FROM users WHERE id = $1
 "#;
@@ -90,13 +92,22 @@ async fn register(
         all_channels.insert(0, primary_channel.clone());
     }
 
+    // Resolve human-readable names for each channel
+    let mut channel_names: Vec<String> = Vec::with_capacity(all_channels.len());
+    for ch in &all_channels {
+        let name = resolve_channel_name(&state.http, &state.config.telegram_bot_token, ch).await;
+        channel_names.push(name);
+    }
+
     let user = sqlx::query_as::<_, User>(
         r#"
         INSERT INTO users
-            (email, password_hash, full_name, bio, interests, telegram_channel, telegram_channels)
-        VALUES ($1, $2, $3, $4, $5, $6, $7)
+            (email, password_hash, full_name, bio, interests,
+             telegram_channel, telegram_channels, telegram_channel_names)
+        VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
         RETURNING id, email, full_name, bio, interests,
-                  telegram_channel, telegram_channels, avatar_url, created_at,
+                  telegram_channel, telegram_channels, telegram_channel_names,
+                  avatar_url, created_at,
                   spotify_token, spotify_refresh, spotify_expiry
         "#,
     )
@@ -107,6 +118,7 @@ async fn register(
     .bind(&interests)
     .bind(&primary_channel)
     .bind(&all_channels)
+    .bind(&channel_names)
     .fetch_one(&state.db)
     .await
     .map_err(|e| match e {
@@ -200,17 +212,31 @@ async fn update_me(
         None => None,
     };
 
+    // Resolve names whenever channels are being updated
+    let new_channel_names: Option<Vec<String>> = if let Some(ref chs) = new_channels {
+        let mut names = Vec::with_capacity(chs.len());
+        for ch in chs {
+            let name = resolve_channel_name(&state.http, &state.config.telegram_bot_token, ch).await;
+            names.push(name);
+        }
+        Some(names)
+    } else {
+        None
+    };
+
     let user = sqlx::query_as::<_, User>(
         r#"
         UPDATE users SET
-            full_name         = COALESCE($2, full_name),
-            bio               = COALESCE($3, bio),
-            interests         = COALESCE($4, interests),
-            telegram_channel  = COALESCE($5, telegram_channel),
-            telegram_channels = COALESCE($6, telegram_channels)
+            full_name              = COALESCE($2, full_name),
+            bio                    = COALESCE($3, bio),
+            interests              = COALESCE($4, interests),
+            telegram_channel       = COALESCE($5, telegram_channel),
+            telegram_channels      = COALESCE($6, telegram_channels),
+            telegram_channel_names = COALESCE($7, telegram_channel_names)
         WHERE id = $1
         RETURNING id, email, full_name, bio, interests,
-                  telegram_channel, telegram_channels, avatar_url, created_at,
+                  telegram_channel, telegram_channels, telegram_channel_names,
+                  avatar_url, created_at,
                   spotify_token, spotify_refresh, spotify_expiry
         "#,
     )
@@ -220,6 +246,7 @@ async fn update_me(
     .bind(body.interests.as_deref())
     .bind(body.telegram_channel.as_deref())
     .bind(new_channels.as_deref())
+    .bind(new_channel_names.as_deref())
     .fetch_optional(&state.db)
     .await?
     .ok_or(AppError::NotFound)?;

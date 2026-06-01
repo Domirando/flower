@@ -6,7 +6,7 @@ import styles from './Post.module.css';
 const DEFAULT_AVATAR =
     "https://static.vecteezy.com/system/resources/previews/002/608/327/non_2x/mobile-application-avatar-web-button-menu-digital-silhouette-style-icon-free-vector.jpg";
 
-const Post = ({ id, title, author, authorAvatar, isOwner, onDelete, onUpdate }) => {
+const Post = ({ id, title, author, authorAvatar, isOwner, channels = [], channelNameMap = {}, onDelete, onUpdate }) => {
     const [isEditing, setIsEditing] = useState(false);
     const [editContent, setEditContent] = useState(title);
 
@@ -22,6 +22,10 @@ const Post = ({ id, title, author, authorAvatar, isOwner, onDelete, onUpdate }) 
 
     const { posterUrl, text } = extractPoster(title);
 
+    const channelDisplay = channels.length > 0
+        ? channels.map(ch => channelNameMap[ch] || ch).join(', ')
+        : null;
+
     return (
         <div className={styles.post_card}>
             {posterUrl && !isEditing && (
@@ -36,7 +40,9 @@ const Post = ({ id, title, author, authorAvatar, isOwner, onDelete, onUpdate }) 
                     />
                     <div className={styles.author_details}>
                         <span className={styles.author_name}>{author}</span>
-                        <span className={styles.posted_on}>Posted to Telegram</span>
+                        <span className={styles.posted_on}>
+                            {channelDisplay ? `Sent to ${channelDisplay}` : 'Saved to Flower'}
+                        </span>
                     </div>
                 </div>
 
