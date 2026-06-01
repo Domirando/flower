@@ -32,7 +32,9 @@ export default function Music() {
     const fileInputRef = useRef(null);
 
     // ── spotify ──────────────────────────────────────────────────────────────
-    const [spotifyConnected, setSpotifyConnected] = useState(false);
+    const [spotifyConnected, setSpotifyConnected] = useState(
+        () => localStorage.getItem('flower_spotify_connected') === 'true'
+    );
     const [spotifyLoading, setSpotifyLoading] = useState(true);
     const [playlists, setPlaylists] = useState([]);
     const [playlistsLoading, setPlaylistsLoading] = useState(false);
@@ -64,6 +66,7 @@ export default function Music() {
         api.getSpotifyStatus()
             .then(({ connected }) => {
                 setSpotifyConnected(connected);
+                localStorage.setItem('flower_spotify_connected', connected ? 'true' : 'false');
                 if (connected) loadPlaylists();
             })
             .catch(() => {})
@@ -73,6 +76,7 @@ export default function Music() {
     // ── Spotify SDK init when connected ──────────────────────────────────────
     useEffect(() => {
         if (!spotifyConnected) return;
+        let playerInstance = null;
         loadSpotifySdk(() => {
             api.getSpotifyToken().then(({ access_token }) => {
                 const player = new window.Spotify.Player({
@@ -80,7 +84,18 @@ export default function Music() {
                     getOAuthToken: cb => cb(access_token),
                     volume: 0.8,
                 });
-                player.addListener('ready', ({ device_id }) => setDeviceId(device_id));
+                player.addListener('ready', ({ device_id }) => {
+                    setDeviceId(device_id);
+                    player.getCurrentState().then(state => {
+                        if (!state) return;
+                        if (state.track_window?.current_track) {
+                            setNowPlaying(state.track_window.current_track);
+                        }
+                        setIsPaused(state.paused);
+                        setPosition(state.position);
+                        setDuration(state.duration);
+                    });
+                });
                 player.addListener('not_ready', () => setDeviceId(''));
                 player.addListener('player_state_changed', (state) => {
                     if (!state) return;
@@ -92,9 +107,11 @@ export default function Music() {
                     setDuration(state.duration);
                 });
                 player.connect();
+                playerInstance = player;
                 setSpotifyPlayer(player);
             }).catch(() => {});
         });
+        return () => { if (playerInstance) playerInstance.disconnect(); };
     }, [spotifyConnected]);
 
     // ── tick position while playing ──────────────────────────────────────────
@@ -126,6 +143,7 @@ export default function Music() {
 
     const disconnectSpotify = async () => {
         await api.disconnectSpotify();
+        localStorage.removeItem('flower_spotify_connected');
         setSpotifyConnected(false);
         setPlaylists([]);
         setNowPlaying(null);
@@ -246,17 +264,6 @@ export default function Music() {
         setTimeout(() => audioRef.current?.play(), 50);
     };
 
-    const deleteSong = async (id) => {
-        if (!window.confirm('Delete this song?')) return;
-        try {
-            await api.deleteSong(id);
-            setSongs(prev => prev.filter(s => s.id !== id));
-            if (activeSong === id) { setActiveSong(null); setAudioUrl(''); }
-        } catch (err) {
-            alert(err.message);
-        }
-    };
-
     const expandedTracks = expandedPlaylist ? (playlistTracks[expandedPlaylist] || []) : [];
     const expandedPlaylistName = playlists.find(p => p.id === expandedPlaylist)?.name;
 
@@ -320,7 +327,6 @@ export default function Music() {
                                     <span className={styles.song_title}>{song.title}</span>
                                     {song.artist && <span className={styles.song_artist}>{song.artist}</span>}
                                 </div>
-                                <button className={styles.delete_btn} onClick={() => deleteSong(song.id)} title="Delete">🗑</button>
                             </li>
                         ))}
                     </ul>
@@ -399,9 +405,9 @@ export default function Music() {
                                             <button
                                                 className={styles.play_playlist_btn}
                                                 onClick={() => playSpotifyPlaylist(pl)}
-                                                title={deviceId ? 'Play here' : 'Open in Spotify'}
+                                                title="Play playlist"
                                             >
-                                                {deviceId ? '▶ Play' : '↗ Open'}
+                                                ▶ Play
                                             </button>
                                             <button
                                                 className={`${styles.tracks_btn} ${expandedPlaylist === pl.id ? styles.tracks_btn_active : ''}`}
