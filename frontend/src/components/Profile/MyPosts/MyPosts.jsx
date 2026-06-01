@@ -7,6 +7,7 @@ import styles from "../Profile.module.css";
 const MyPosts = () => {
     const [posts, setPosts] = useState([]);
     const [currentUserId, setCurrentUserId] = useState(null);
+    const [channelNameMap, setChannelNameMap] = useState({});
 
     useEffect(() => {
         const token = getToken();
@@ -19,7 +20,15 @@ const MyPosts = () => {
             }
         }
 
-        api.getPosts()
+        api.getMe().then(user => {
+            const ids = user.telegram_channels || [];
+            const names = user.telegram_channel_names || [];
+            const map = {};
+            ids.forEach((id, i) => { if (names[i]) map[id] = names[i]; });
+            setChannelNameMap(map);
+        }).catch(() => {});
+
+        api.getMyPosts()
             .then(({ posts }) => setPosts(posts))
             .catch(console.error);
     }, []);
@@ -44,6 +53,11 @@ const MyPosts = () => {
 
     return (
         <div className={styles.main_content}>
+            {posts.length === 0 && (
+                <p style={{ color: '#9ca3af', fontStyle: 'italic', fontSize: '0.9rem' }}>
+                    No posts yet.
+                </p>
+            )}
             {posts.map((post) => (
                 <Post
                     key={post.id}
@@ -52,6 +66,8 @@ const MyPosts = () => {
                     author={post.author_name || "Anonymous"}
                     authorAvatar={post.author_avatar}
                     isOwner={currentUserId && post.user_id === currentUserId}
+                    channels={post.telegram_channels || []}
+                    channelNameMap={channelNameMap}
                     onDelete={deletePost}
                     onUpdate={updatePost}
                 />

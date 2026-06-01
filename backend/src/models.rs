@@ -44,6 +44,8 @@ pub struct PostWithAuthor {
     pub updated_at: DateTime<Utc>,
     pub author_name: String,
     pub author_avatar: String,
+    #[sqlx(default)]
+    pub telegram_channels: Vec<String>,
 }
 
 #[derive(Debug, Clone, Serialize, sqlx::FromRow)]
