@@ -12,7 +12,7 @@ export default function Navbar({ expanded, setExpanded, user }) {
             }`}
         >
             <div className={styles.items}>
-                <NavbarItem name={expanded ? "Profile" : ""} icon={<HiUser size={20} />} link="/" />
+                <NavbarItem name={expanded ? "Content" : ""} icon={<HiUser size={20} />} link="/" />
                 
                 <NavbarItem name={expanded ? "New Post" : ""} icon={<HiPlusCircle size={20} />} link="/posting" />
                 
