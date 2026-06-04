@@ -40,9 +40,22 @@ const Post = ({ id, title, author, authorAvatar, isOwner, channels = [], channel
                     />
                     <div className={styles.author_details}>
                         <span className={styles.author_name}>{author}</span>
-                        <span className={styles.posted_on}>
-                            {channelDisplay ? `Sent to ${channelDisplay}` : 'Saved to Flower'}
-                        </span>
+                        {!channelDisplay ? (
+                            <span className={styles.saved}>
+                                <p>Saved as Flower Blog Post</p>
+                            </span>
+                        ) : (
+                            <div className={styles.list_channels}>
+                                <span className={styles.sent}>
+                                        <p>Sent to:</p>
+                                </span>
+                                {channels.map(ch => (
+                                    <span key={ch} className={styles.posted_on}>
+                                        <p>{channelNameMap[ch]}</p>
+                                    </span>
+                                ))}
+                            </div>
+                        )}
                     </div>
                 </div>
 
