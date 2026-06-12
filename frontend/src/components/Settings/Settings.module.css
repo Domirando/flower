@@ -1,146 +1,144 @@
-.settings_wrapper {
-    padding: 20px;
+.page {
+    @apply max-w-2xl mx-auto px-4 py-6 flex flex-col gap-6;
 }
 
-.user_info {
-    display: flex;
-    gap: 30px;
-    margin-top: 20px;
-    background-color: white;
-    padding: 30px;
-    border-radius: 15px;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+.heading {
+    @apply text-2xl font-bold text-gray-900;
 }
 
-.avatar_container {
-    flex-shrink: 0;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 10px;
+/* ── Sections ─────────────────────────────────────────────────────────── */
+
+.card {
+    @apply bg-white rounded-2xl border border-gray-100 shadow-sm p-6 flex flex-col gap-4;
 }
 
-.file_input_container {
-    display: flex;
-    justify-content: center;
+.section_title {
+    @apply text-base font-semibold text-gray-800;
 }
 
-.file_label {
-    padding: 5px 10px;
-    background-color: #f0f0f0;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-    cursor: pointer;
-    font-size: 0.8rem;
-    color: #555;
-    transition: background-color 0.2s;
+.hint {
+    @apply text-sm text-gray-500;
 }
 
-.file_label:hover {
-    background-color: #e0e0e0;
+.empty {
+    @apply text-sm text-gray-400 italic;
 }
 
-.file_input {
-    display: none;
+/* ── Profile ──────────────────────────────────────────────────────────── */
+
+.avatar_row {
+    @apply flex gap-6 flex-wrap;
+}
+
+.avatar_wrap {
+    @apply flex flex-col items-center gap-2 flex-shrink-0;
 }
 
 .avatar {
-    width: 150px;
-    height: 150px;
-    border-radius: 50%;
-    object-fit: cover;
-    border: 3px solid #eee;
+    @apply w-24 h-24 rounded-full object-cover border-2 border-gray-200;
 }
 
-.details {
-    display: flex;
-    flex-direction: column;
-    gap: 15px;
-    font-size: 1.1rem;
+.avatar_btn {
+    @apply text-xs text-blue-600 hover:underline cursor-pointer font-medium;
 }
 
-.details strong {
-    color: #555;
-    margin-right: 5px;
+.hidden { display: none; }
+
+.fields {
+    @apply flex flex-col gap-3 flex-1 min-w-0;
 }
 
-.input_group {
-    display: flex;
-    flex-direction: column;
-    gap: 5px;
+.label {
+    @apply flex flex-col gap-1 text-sm font-medium text-gray-700;
 }
 
-.input_group label {
-    font-weight: bold;
-    color: #555;
-    font-size: 0.9rem;
+.input {
+    @apply w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:border-blue-400;
 }
 
-.input_group input, .input_group textarea {
-    padding: 8px;
-    border: 1px solid #ddd;
-    border-radius: 5px;
-    font-size: 1rem;
-    width: 300px;
+.textarea {
+    @apply w-full px-3 py-2 border border-gray-200 rounded-lg text-sm resize-y
+           focus:outline-none focus:border-blue-400;
 }
 
-.input_group textarea {
-    height: 100px;
-    resize: vertical;
+.readonly {
+    @apply text-sm font-normal text-gray-500;
 }
+
+/* ── Interests tags ───────────────────────────────────────────────────── */
+
+.tag_input_wrap {
+    @apply flex flex-wrap gap-2 px-3 py-2 border border-gray-200 rounded-lg min-h-[42px]
+           focus-within:border-blue-400 cursor-text;
+}
+
+.tag {
+    @apply flex items-center gap-1 bg-blue-100 text-blue-700 text-xs font-medium px-2 py-1 rounded-full;
+}
+
+.tag_remove {
+    @apply text-blue-500 hover:text-blue-800 font-bold leading-none;
+}
+
+.tag_input {
+    @apply flex-1 min-w-[120px] text-sm outline-none bg-transparent;
+}
+
+/* ── Channels ─────────────────────────────────────────────────────────── */
+
+.channel_list {
+    @apply flex flex-col gap-2;
+}
+
+.channel_item {
+    @apply flex items-center justify-between gap-3 px-4 py-3 rounded-xl bg-gray-50 border border-gray-100;
+}
+
+.channel_info {
+    @apply flex flex-col min-w-0;
+}
+
+.channel_name {
+    @apply text-sm font-semibold text-gray-900 truncate;
+}
+
+.channel_id {
+    @apply text-xs text-gray-400 truncate;
+}
+
+.remove_btn {
+    @apply text-xs text-red-500 hover:underline font-medium flex-shrink-0;
+}
+
+.add_channel_row {
+    @apply flex items-center gap-2 flex-wrap;
+}
+
+.add_channel_row .input {
+    @apply flex-1;
+}
+
+.resolved_name {
+    @apply text-xs text-green-600 font-medium flex-shrink-0;
+}
+
+.add_btn {
+    @apply px-4 py-2 bg-gray-800 text-white text-sm rounded-lg hover:bg-gray-700
+           disabled:opacity-40 disabled:cursor-not-allowed transition-colors;
+}
+
+/* ── Actions ──────────────────────────────────────────────────────────── */
 
 .actions {
-    display: flex;
-    gap: 15px;
-    margin-top: 30px;
-}
-
-.edit_btn, .save_btn, .cancel_btn, .logout_btn {
-    padding: 10px 20px;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    font-size: 1rem;
-    transition: background-color 0.3s, opacity 0.3s;
-}
-
-.edit_btn {
-    background-color: #1890ff;
-    color: white;
-}
-
-.edit_btn:hover {
-    background-color: #40a9ff;
+    @apply flex gap-3;
 }
 
 .save_btn {
-    background-color: #52c41a;
-    color: white;
-}
-
-.save_btn:hover:not(:disabled) {
-    background-color: #73d13d;
-}
-
-.save_btn:disabled {
-    opacity: 0.6;
-    cursor: not-allowed;
-}
-
-.cancel_btn {
-    background-color: #f0f0f0;
-    color: #333;
-}
-
-.cancel_btn:hover {
-    background-color: #d9d9d9;
+    @apply px-6 py-2.5 bg-blue-600 text-white text-sm font-semibold rounded-lg
+           hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors;
 }
 
 .logout_btn {
-    background-color: #ff4d4f;
-    color: white;
-}
-
-.logout_btn:hover {
-    background-color: #ff7875;
+    @apply px-6 py-2.5 bg-red-500 text-white text-sm font-semibold rounded-lg
+           hover:bg-red-600 transition-colors;
 }

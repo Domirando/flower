@@ -1,9 +1,12 @@
 import React, { useState } from 'react';
 import { Edit, Delete, Save, Cancel } from '@material-ui/icons';
-import styles from './Post.module.css'
-import state from "../../../../redux/state";
+import { extractPoster, RenderMarkdown } from '../../../../helper/renderMarkdown';
+import styles from './Post.module.css';
 
-const Post = ({ id, title, author, description, likeCount, dislikeCount, isOwner, onDelete, onUpdate }) => {
+const DEFAULT_AVATAR =
+    "https://static.vecteezy.com/system/resources/previews/002/608/327/non_2x/mobile-application-avatar-web-button-menu-digital-silhouette-style-icon-free-vector.jpg";
+
+const Post = ({ id, title, author, authorAvatar, isOwner, channels = [], channelNameMap = {}, onDelete, onUpdate }) => {
     const [isEditing, setIsEditing] = useState(false);
     const [editContent, setEditContent] = useState(title);
 
@@ -17,17 +20,45 @@ const Post = ({ id, title, author, description, likeCount, dislikeCount, isOwner
         setIsEditing(false);
     };
 
+    const { posterUrl, text } = extractPoster(title);
+
+    const channelDisplay = channels.length > 0
+        ? channels.map(ch => channelNameMap[ch] || ch).join(', ')
+        : null;
+
     return (
         <div className={styles.post_card}>
+            {posterUrl && !isEditing && (
+                <img src={posterUrl} alt="poster" className={styles.poster} />
+            )}
             <div className={styles.post_main}>
                 <div className={styles.author_info}>
-                    <img src={state.profilePage.user.avatar_url} alt='' className={styles.avatar} />
+                    <img
+                        src={authorAvatar || DEFAULT_AVATAR}
+                        alt=""
+                        className={styles.avatar}
+                    />
                     <div className={styles.author_details}>
                         <span className={styles.author_name}>{author}</span>
-                        <span className={styles.posted_on}>Posted to Telegram</span>
+                        {!channelDisplay ? (
+                            <span className={styles.saved}>
+                                <p>Saved as Flower Blog Post</p>
+                            </span>
+                        ) : (
+                            <div className={styles.list_channels}>
+                                <span className={styles.sent}>
+                                        <p>Sent to:</p>
+                                </span>
+                                {channels.map(ch => (
+                                    <span key={ch} className={styles.posted_on}>
+                                        <p>{channelNameMap[ch]}</p>
+                                    </span>
+                                ))}
+                            </div>
+                        )}
                     </div>
                 </div>
-                
+
                 <div className={styles.content_area}>
                     {isEditing ? (
                         <div className={styles.edit_container}>
@@ -48,9 +79,11 @@ const Post = ({ id, title, author, description, likeCount, dislikeCount, isOwner
                         </div>
                     ) : (
                         <>
-                            <p className={styles.post_content}>{title}</p>
-                            <div className={styles.post_footer}>
-                                {isOwner && (
+                            <p className={styles.post_content}>
+                                <RenderMarkdown content={text} />
+                            </p>
+                            {isOwner && (
+                                <div className={styles.post_footer}>
                                     <div className={styles.owner_actions}>
                                         <button onClick={() => setIsEditing(true)} className={styles.edit_btn} title="Edit">
                                             <Edit fontSize="small" /> Edit
@@ -59,13 +92,14 @@ const Post = ({ id, title, author, description, likeCount, dislikeCount, isOwner
                                             <Delete fontSize="small" /> Delete
                                         </button>
                                     </div>
-                                )}
-                            </div>
+                                </div>
+                            )}
                         </>
                     )}
                 </div>
             </div>
         </div>
-    )
-}
-export default Post
+    );
+};
+
+export default Post;

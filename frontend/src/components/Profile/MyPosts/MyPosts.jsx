@@ -1,76 +1,100 @@
 import React, { useEffect, useState } from "react";
 import Post from "./Post/Post";
-import { supabase } from "../../../helper/supabaseClient";
+import { api, getToken } from "../../../api/client";
+import { jwtDecode } from "../../../api/jwtDecode";
 import styles from "../Profile.module.css";
 
 const MyPosts = () => {
-	const [posts, setPosts] = useState([]);
-	const [user, setUser] = useState(null);
+    const [posts, setPosts] = useState([]);
+    const [currentUserId, setCurrentUserId] = useState(null);
+    const [channelNameMap, setChannelNameMap] = useState({});
 
-	useEffect(() => {
-		const getUser = async () => {
-			const { data: { user } } = await supabase.auth.getUser();
-			setUser(user || null);
-		};
-		getUser();
-	}, []);
+    useEffect(() => {
+        let userId = null;
+        const token = getToken();
+        if (token) {
+            try {
+                const payload = jwtDecode(token);
+                userId = payload.sub;
+                setCurrentUserId(userId);
+            } catch {
+                // malformed token, ignore
+            }
+        }
 
-	console.log(user)
+        api.getMe().then(async (user) => {
+            const ids = user.telegram_channels || [];
+            const stored = user.telegram_channel_names || [];
+            const map = {};
+            ids.forEach((id, i) => { if (stored[i]) map[id] = stored[i]; });
+            setChannelNameMap(map);
 
-	const fetchPosts = async () => {
-		const { data, error } = await supabase
-			.from("posts")
-			.select("*, users(full_name)")
-			.order("created_at", { ascending: false });
+            // Resolve any channel names not yet in DB
+            const missing = ids.filter(id => !map[id]);
+            if (missing.length > 0) {
+                const resolved = await Promise.all(
+                    missing.map(id =>
+                        api.resolveTelegramChannel(id)
+                            .then(({ name }) => ({ id, name: name || id }))
+                            .catch(() => ({ id, name: id }))
+                    )
+                );
+                setChannelNameMap(prev => {
+                    const next = { ...prev };
+                    resolved.forEach(({ id, name }) => { next[id] = name; });
+                    return next;
+                });
+            }
+        }).catch(() => {});
 
-		if (!error) setPosts(data);
-	};
+        api.getPosts()
+            .then(({ posts }) => {
+                setPosts(userId ? posts.filter(p => p.user_id === userId) : posts);
+            })
+            .catch(console.error);
+    }, []);
 
-	const deletePost = async (id) => {
-		const { error } = await supabase
-			.from("posts")
-			.delete()
-			.eq("id", id);
+    const deletePost = async (id) => {
+        try {
+            await api.deletePost(id);
+            setPosts(prev => prev.filter(p => p.id !== id));
+        } catch (err) {
+            alert(err.message);
+        }
+    };
 
-		if (error) {
-			alert(error.message);
-		} else {
-			setPosts(posts.filter(p => p.id !== id));
-		}
-	};
+    const updatePost = async (id, content) => {
+        try {
+            await api.updatePost(id, content);
+            setPosts(prev => prev.map(p => p.id === id ? { ...p, content } : p));
+        } catch (err) {
+            alert(err.message);
+        }
+    };
 
-	const updatePost = async (id, content) => {
-		const { error } = await supabase
-			.from("posts")
-			.update({ content })
-			.eq("id", id);
-
-		if (error) {
-			alert(error.message);
-		} else {
-			setPosts(posts.map(p => p.id === id ? { ...p, content } : p));
-		}
-	};
-
-	useEffect(() => {
-		fetchPosts();
-	}, []);
-
-	return (
-		<div className={styles.main_content}>
-			{posts.map((post) => (
-				<Post
-					key={post.id}
-					id={post.id}
-					title={post.content}
-					author={post.users?.full_name || "Anonymous"}
-					isOwner={user && post.user_id === user.id}
-					onDelete={deletePost}
-					onUpdate={updatePost}
-				/>
-			))}
-		</div>
-	);
+    return (
+        <div className={styles.main_content}>
+            {posts.length === 0 && (
+                <p style={{ color: '#9ca3af', fontStyle: 'italic', fontSize: '0.9rem' }}>
+                    No posts yet.
+                </p>
+            )}
+            {posts.map((post) => (
+                <Post
+                    key={post.id}
+                    id={post.id}
+                    title={post.content}
+                    author={post.author_name || "Anonymous"}
+                    authorAvatar={post.author_avatar}
+                    isOwner={currentUserId && post.user_id === currentUserId}
+                    channels={post.telegram_channels || []}
+                    channelNameMap={channelNameMap}
+                    onDelete={deletePost}
+                    onUpdate={updatePost}
+                />
+            ))}
+        </div>
+    );
 };
 
 export default MyPosts;

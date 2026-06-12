@@ -1,39 +1,42 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
+import { api } from '../../api/client';
 import styles from './News.module.css';
 
 const News = ({ user }) => {
     const [news, setNews] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
+    const [interests, setInterests] = useState(null); // null = not yet known
+    const prevInterestsRef = useRef(undefined);
 
+    // Resolve interests: prefer prop, fall back to API
     useEffect(() => {
-        const fetchNews = async () => {
-            setLoading(true);
-            try {
-                const interestsParam = user?.interests?.length > 0 
-                    ? `?interests=${encodeURIComponent(user.interests.join(','))}` 
-                    : '';
-                
-                const backendUrl = process.env.REACT_APP_BACKEND_URL || (window.location.hostname === 'localhost' ? 'http://localhost:4000' : '');
-                const url = `${backendUrl}/api/news${interestsParam}`;
-                console.log('Fetching news from:', url);
-                const response = await fetch(url);
-                if (!response.ok) {
-                    const errorText = await response.text();
-                    throw new Error(`Failed to fetch news: ${response.status} ${errorText}`);
-                }
-                
-                const data = await response.json();
-                setNews(data.items || []);
-            } catch (err) {
-                setError(err.message);
-            } finally {
-                setLoading(false);
-            }
-        };
-
-        fetchNews();
+        if (user?.interests !== undefined) {
+            setInterests(user.interests);
+        } else {
+            api.getMe()
+                .then(u => setInterests(u.interests || []))
+                .catch(() => setInterests([]));
+        }
     }, [user?.interests]);
+
+    // Fetch news whenever interests are known
+    useEffect(() => {
+        if (interests === null) return; // still loading interests
+
+        // Skip if interests haven't actually changed
+        const key = (interests || []).slice().sort().join(',');
+        if (key === prevInterestsRef.current) return;
+        prevInterestsRef.current = key;
+
+        setLoading(true);
+        setError(null);
+        const interestParam = interests.length > 0 ? interests.join(',') : undefined;
+        api.getNews(interestParam)
+            .then(data => setNews(data.items || []))
+            .catch(err => setError(err.message))
+            .finally(() => setLoading(false));
+    }, [interests]);
 
     if (loading) return <div className={styles.loader}>Loading the latest news...</div>;
     if (error) return <div className={styles.error}>Error: {error}</div>;
@@ -42,38 +45,46 @@ const News = ({ user }) => {
         <div className={styles.container}>
             <header className={styles.news_header}>
                 <h1>BBC News</h1>
-                {user?.interests?.length > 0 && (
+                {interests && interests.length > 0 && (
                     <p className={styles.personalized_tag}>
-                        Personalized for you based on: {user.interests.join(', ')}
+                        Filtered by: {interests.join(', ')}
                     </p>
                 )}
             </header>
-            
-            <div className={styles.news_grid}>
-                {news.map((item, index) => (
-                    <article key={index} className={styles.card}>
-                        {item.thumbnail && (
-                            <div className={styles.thumbnail_container}>
-                                <img src={item.thumbnail} alt={item.title} className={styles.thumbnail} />
+
+            {news.length === 0 ? (
+                <p className={styles.no_results}>
+                    {interests && interests.length > 0
+                        ? `No articles found matching "${interests.join(', ')}". Try broader interests in Settings.`
+                        : 'No news articles available.'}
+                </p>
+            ) : (
+                <div className={styles.news_grid}>
+                    {news.map((item, index) => (
+                        <article key={index} className={styles.card}>
+                            {item.thumbnail && (
+                                <div className={styles.thumbnail_container}>
+                                    <img src={item.thumbnail} alt={item.title} className={styles.thumbnail} />
+                                </div>
+                            )}
+                            <div className={styles.content}>
+                                <h2 className={styles.title}>
+                                    <a href={item.link} target="_blank" rel="noopener noreferrer">
+                                        {item.title}
+                                    </a>
+                                </h2>
+                                <p className={styles.snippet}>{item.snippet}</p>
+                                <div className={styles.footer}>
+                                    <span className={styles.date}>{new Date(item.pubDate).toLocaleDateString()}</span>
+                                    <a href={item.link} target="_blank" rel="noopener noreferrer" className={styles.read_more}>
+                                        Read more
+                                    </a>
+                                </div>
                             </div>
-                        )}
-                        <div className={styles.content}>
-                            <h2 className={styles.title}>
-                                <a href={item.link} target="_blank" rel="noopener noreferrer">
-                                    {item.title}
-                                </a>
-                            </h2>
-                            <p className={styles.snippet}>{item.snippet}</p>
-                            <div className={styles.footer}>
-                                <span className={styles.date}>{new Date(item.pubDate).toLocaleDateString()}</span>
-                                <a href={item.link} target="_blank" rel="noopener noreferrer" className={styles.read_more}>
-                                    Read more
-                                </a>
-                            </div>
-                        </div>
-                    </article>
-                ))}
-            </div>
+                        </article>
+                    ))}
+                </div>
+            )}
         </div>
     );
 };

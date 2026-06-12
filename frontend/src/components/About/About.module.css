@@ -33,3 +33,7 @@
 .list li {
     @apply flex items-center gap-3 text-gray-700 text-lg bg-white p-4 rounded-lg shadow-sm border border-gray-100;
 }
+
+.link {
+    @apply inline-block mt-4 text-blue-600 font-medium text-lg hover:text-blue-800 hover:underline transition-colors;
+}

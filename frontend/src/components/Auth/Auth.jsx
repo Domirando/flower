@@ -1,81 +1,94 @@
 import { useState } from "react";
-import { supabase } from "../../helper/supabaseClient";
+import { useNavigate } from "react-router-dom";
+import { api, setToken } from "../../api/client";
+import { setUser } from "../../redux/state";
 import styles from "./Auth.module.css";
-import {useNavigate} from "react-router-dom";
-import state, {setUser} from "../../redux/state";
 
 const Auth = () => {
     const navigate = useNavigate();
     const [avatar, setAvatar] = useState(null);
     const [form, setForm] = useState({
         fullName: "",
-        telegramChannel: "",
         bio: "",
         interests: "",
         email: "",
-        password: ""
+        password: "",
     });
+    // Primary Telegram channel + extra channels
+    const [primaryChannel, setPrimaryChannel] = useState("");
+    const [extraChannels, setExtraChannels] = useState([]);
+    const [showChannels, setShowChannels] = useState(false);
+    // Resolved channel names: { primary: string, extras: string[] }
+    const [channelNamePrimary, setChannelNamePrimary] = useState("");
+    const [channelNameExtras, setChannelNameExtras] = useState([]);
 
     const [loading, setLoading] = useState(false);
-    const [mode, setMode] = useState("signup"); // signup | login
+    const [mode, setMode] = useState("signup");
 
     const handleChange = (e) => {
         const { name, value } = e.target;
-        setForm((prev) => ({
-            ...prev,
-            [name]: value
-        }));
+        setForm((prev) => ({ ...prev, [name]: value }));
     };
 
-    const handleSignUp = async () => {
-        const { fullName, telegramChannel, bio, interests, email, password } = form;
+    const addChannel = () => {
+        setExtraChannels((prev) => [...prev, ""]);
+        setChannelNameExtras((prev) => [...prev, ""]);
+    };
+    const removeChannel = (i) => {
+        setExtraChannels((prev) => prev.filter((_, idx) => idx !== i));
+        setChannelNameExtras((prev) => prev.filter((_, idx) => idx !== i));
+    };
+    const updateChannel = (i, val) =>
+        setExtraChannels((prev) => prev.map((ch, idx) => (idx === i ? val : ch)));
 
-        if (!fullName || !telegramChannel || !email || !password) {
-            alert("Please fill in all fields");
+    const resolveChannelName = async (id, setter) => {
+        if (!id.trim()) { setter(""); return; }
+        try {
+            const { name } = await api.resolveTelegramChannel(id.trim());
+            setter(name !== id.trim() ? name : "");
+        } catch {
+            setter("");
+        }
+    };
+
+    const allChannels = [primaryChannel, ...extraChannels].filter(Boolean);
+
+    const handleSignUp = async () => {
+        const { fullName, bio, interests, email, password } = form;
+
+        if (!fullName || !email || !password) {
+            alert("Please fill in all required fields");
             return;
         }
 
         setLoading(true);
-
-        const { data, error } = await supabase.auth.signUp({
-            email,
-            password,
-            options: {
-                data: {
-                    full_name: fullName,
-                    telegram_channel: telegramChannel,
-                    bio,
-                    interests: interests.split(',').map(i => i.trim()).filter(i => i)
-                }
-            }
-        });
-
-        if (error) {
-            setLoading(false);
-            alert(error.message);
-            return;
-        }
-
-        const userId = data.user.id;
-
         try {
-            const avatarUrl = avatar ? await uploadAvatar(avatar) : null;
+            const { token, user } = await api.register({
+                email,
+                password,
+                full_name: fullName,
+                bio,
+                telegram_channel: primaryChannel,
+                telegram_channels: allChannels,
+                interests: interests.split(',').map(i => i.trim()).filter(Boolean),
+            });
 
-            if (avatarUrl) {
-                await supabase
-                    .from("users")
-                    .update({ avatar_url: avatarUrl })
-                    .eq("id", userId);
+            setToken(token);
+            setUser(user);
+
+            if (avatar) {
+                const formData = new FormData();
+                formData.append("file", avatar);
+                const { avatar_url } = await api.uploadAvatar(formData);
+                setUser({ ...user, avatar_url });
             }
 
-            alert("Check your email to confirm your account");
-            setMode("login");
-
+            navigate("/");
         } catch (err) {
-            alert("Avatar upload failed");
+            alert(err.message);
+        } finally {
+            setLoading(false);
         }
-
-        setLoading(false);
     };
 
     const handleLogin = async () => {
@@ -87,57 +100,16 @@ const Auth = () => {
         }
 
         setLoading(true);
-
-        const { data, error } = await supabase.auth.signInWithPassword({
-            email,
-            password
-        });
-
-        if (error) {
+        try {
+            const { token, user } = await api.login({ email, password });
+            setToken(token);
+            setUser(user);
+            navigate("/");
+        } catch (err) {
+            alert(err.message);
+        } finally {
             setLoading(false);
-            alert(error.message);
-            return;
-        } else{
-            console.log("data log?", data);
-            console.log("state log?", state.profilePage.user);
-            setUser(data.user);
-            console.log("state after log?", state.profilePage.user);
         }
-
-        // 🔥 FORCE REFRESH USER DATA
-        await supabase.auth.getUser();
-
-        setLoading(false);
-        navigate("/");
-    };
-
-    const uploadAvatar = async (file) => {
-        const user = (await supabase.auth.getUser()).data.user;
-        if (!user || !file) return;
-
-        const fileExt = file.name.split(".").pop();
-        const fileName = `${user.id}.${fileExt}`;
-        const filePath = `avatars/${fileName}`;
-
-        const { error } = await supabase.storage
-            .from("avatars")
-            .upload(filePath, file, {
-                cacheControl: "3600",
-                upsert: true,
-                contentType: file.type
-            });
-
-        if (error) {
-            console.error("Upload error:", error.message);
-            alert(error.message);
-            return;
-        }
-
-        const { data } = supabase.storage
-            .from("avatars")
-            .getPublicUrl(filePath);
-
-        return data.publicUrl;
     };
 
     return (
@@ -151,30 +123,19 @@ const Auth = () => {
                     <input
                         type="text"
                         name="fullName"
-                        placeholder="Your full name"
+                        placeholder="Your full name *"
                         value={form.fullName}
                         onChange={handleChange}
                         className={styles.email_input}
                     />
-
                     <input
                         type="text"
                         name="bio"
-                        placeholder="A little desciption about yourself"
+                        placeholder="A little about yourself"
                         value={form.bio}
                         onChange={handleChange}
                         className={styles.email_input}
                     />
-
-                    <input
-                        type="text"
-                        name="telegramChannel"
-                        placeholder="Your Telegram channel"
-                        value={form.telegramChannel}
-                        onChange={handleChange}
-                        className={styles.email_input}
-                    />
-
                     <input
                         type="text"
                         name="interests"
@@ -183,29 +144,96 @@ const Auth = () => {
                         onChange={handleChange}
                         className={styles.email_input}
                     />
-
                     <input
                         type="file"
                         accept="image/*"
                         onChange={(e) => setAvatar(e.target.files[0])}
                         className={styles.email_input}
                     />
+
+                    {/* Telegram accounts section */}
+                    <div className={styles.accounts_section}>
+                        <div className={styles.accounts_header}>
+                            <span className={styles.accounts_title}>📢 Telegram channels</span>
+                            <button
+                                type="button"
+                                className={styles.add_account_btn}
+                                onClick={() => setShowChannels(v => !v)}
+                            >
+                                {showChannels ? "Hide" : "+ Add accounts"}
+                            </button>
+                        </div>
+
+                        {showChannels && (
+                            <div className={styles.channels_list}>
+                                <div className={styles.channel_row}>
+                                    <input
+                                        type="text"
+                                        placeholder="Primary Telegram channel ID (e.g. @mychannel or -100…)"
+                                        value={primaryChannel}
+                                        onChange={(e) => { setPrimaryChannel(e.target.value); setChannelNamePrimary(""); }}
+                                        onBlur={(e) => resolveChannelName(e.target.value, setChannelNamePrimary)}
+                                        className={styles.channel_input}
+                                    />
+                                    {channelNamePrimary && (
+                                        <span className={styles.channel_name_badge}>✓ {channelNamePrimary}</span>
+                                    )}
+                                </div>
+
+                                {extraChannels.map((ch, i) => (
+                                    <div key={i} className={styles.channel_row}>
+                                        <div className={styles.channel_input_row}>
+                                            <input
+                                                type="text"
+                                                placeholder={`Channel ${i + 2} ID (e.g. @secondchannel)`}
+                                                value={ch}
+                                                onChange={(e) => { updateChannel(i, e.target.value); setChannelNameExtras(prev => prev.map((n, idx) => idx === i ? "" : n)); }}
+                                                onBlur={(e) => resolveChannelName(e.target.value, (name) => setChannelNameExtras(prev => prev.map((n, idx) => idx === i ? name : n)))}
+                                                className={styles.channel_input}
+                                            />
+                                            <button
+                                                type="button"
+                                                className={styles.remove_channel_btn}
+                                                onClick={() => removeChannel(i)}
+                                            >✕</button>
+                                        </div>
+                                        {channelNameExtras[i] && (
+                                            <span className={styles.channel_name_badge}>✓ {channelNameExtras[i]}</span>
+                                        )}
+                                    </div>
+                                ))}
+
+                                <button
+                                    type="button"
+                                    className={styles.more_channel_btn}
+                                    onClick={addChannel}
+                                >
+                                    + Add another channel
+                                </button>
+
+                                {allChannels.length > 0 && (
+                                    <p className={styles.channels_preview}>
+                                        Posts will go to: {allChannels.join(", ")}
+                                    </p>
+                                )}
+                            </div>
+                        )}
+                    </div>
                 </>
             )}
 
             <input
                 type="email"
                 name="email"
-                placeholder="Your email"
+                placeholder="Your email *"
                 value={form.email}
                 onChange={handleChange}
                 className={styles.email_input}
             />
-
             <input
                 type="password"
                 name="password"
-                placeholder="Password"
+                placeholder="Password *"
                 value={form.password}
                 onChange={handleChange}
                 className={styles.email_input}
@@ -216,23 +244,15 @@ const Auth = () => {
                 disabled={loading}
                 className={styles.primaryButton}
             >
-                {loading
-                    ? "Please wait..."
-                    : mode === "signup"
-                        ? "Sign Up"
-                        : "Login"}
+                {loading ? "Please wait…" : mode === "signup" ? "Sign Up" : "Login"}
             </button>
 
             <button
                 type="button"
-                onClick={() =>
-                    setMode(mode === "signup" ? "login" : "signup")
-                }
+                onClick={() => setMode(mode === "signup" ? "login" : "signup")}
                 className={styles.linkButton}
             >
-                {mode === "signup"
-                    ? "Already have an account? Login"
-                    : "New user? Sign Up"}
+                {mode === "signup" ? "Already have an account? Login" : "New user? Sign Up"}
             </button>
         </div>
     );

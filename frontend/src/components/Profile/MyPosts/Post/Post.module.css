@@ -2,6 +2,10 @@
     @apply bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden transition-all hover:shadow-md;
 }
 
+.poster {
+    @apply w-full max-h-64 object-cover;
+}
+
 .post_main {
     @apply p-6;
 }
@@ -22,7 +26,21 @@
     @apply text-sm font-bold text-gray-900;
 }
 
+.list_channels {
+    @apply flex flex-row gap-2;
+}
+
+.saved {
+    @apply text-xs font-medium text-green-500 bg-green-100 px-2 py-0.5 rounded-full inline-block mt-1;
+
+}
+
+.sent {
+    @apply text-xs font-medium text-purple-500 bg-purple-100 px-2 py-0.5 rounded-full inline-block mt-1;
+}
+
 .posted_on {
+    display: inline-block;
     @apply text-xs font-medium text-blue-500 bg-blue-50 px-2 py-0.5 rounded-full inline-block mt-1;
 }
 

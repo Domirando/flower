@@ -1,5 +1,5 @@
 import styles from "./Navbar.module.css";
-import { HiChevronLeft, HiChevronRight, HiUser, HiPlusCircle, HiChat, HiMusicNote, HiBookOpen, HiCog, HiLogin } from "react-icons/hi";
+import { HiChevronLeft, HiChevronRight, HiUser, HiPlusCircle, HiMusicNote, HiBookOpen, HiCog, HiLogin } from "react-icons/hi";
 import NavbarItem from "./NavbarItem";
 
 export default function Navbar({ expanded, setExpanded, user }) {
@@ -12,13 +12,12 @@ export default function Navbar({ expanded, setExpanded, user }) {
             }`}
         >
             <div className={styles.items}>
-                <NavbarItem name={expanded ? "Profile" : ""} icon={<HiUser size={20} />} link="/" />
+                <NavbarItem name={expanded ? "Content" : ""} icon={<HiUser size={20} />} link="/" />
                 
                 <NavbarItem name={expanded ? "New Post" : ""} icon={<HiPlusCircle size={20} />} link="/posting" />
                 
                 {isAuthenticated && (
                     <>
-                        <NavbarItem name={expanded ? "Messaging" : ""} icon={<HiChat size={20} />} link="/dialogs" />
                         <NavbarItem name={expanded ? "Music" : ""} icon={<HiMusicNote size={20} />} link="/music" />
                         <NavbarItem name={expanded ? "Books" : ""} icon={<HiBookOpen size={20} />} link="/books" />
                     </>

@@ -1,83 +1,252 @@
-.container {
-    @apply p-8 bg-gray-50 min-h-screen pb-24;
+.page {
+    @apply max-w-3xl mx-auto px-4 py-6 flex flex-col gap-8;
 }
 
-.header {
-    @apply mb-6 border-b pb-4;
+.section {
+    @apply flex flex-col gap-4;
 }
 
-.header h1 {
-    @apply text-3xl font-bold text-gray-800;
+.section_title {
+    @apply text-xl font-bold text-gray-900;
 }
 
-.tabs {
-    @apply flex gap-4 mb-6 border-b border-gray-200;
+/* ── Drop zone ──────────────────────────────────────────────────────────── */
+
+.drop_zone {
+    @apply flex items-center justify-center py-8 px-4 rounded-xl border-2 border-dashed border-gray-300
+           text-gray-500 text-sm cursor-pointer hover:border-blue-400 hover:text-blue-500 transition-colors;
 }
 
-.tab {
-    @apply pb-2 px-4 text-sm font-medium text-gray-500 cursor-pointer transition-colors flex items-center gap-1;
+.drop_zone_active {
+    @apply border-blue-500 bg-blue-50 text-blue-600;
 }
 
-.active_tab {
-    @apply text-purple-600 border-b-2 border-purple-600;
+.drop_zone_uploading {
+    @apply border-green-400 bg-green-50 text-green-600 cursor-wait;
 }
 
-.tracks_list {
+.hidden_input { @apply hidden; }
+
+/* ── Audio player ───────────────────────────────────────────────────────── */
+
+.audio_player {
+    @apply w-full rounded-lg;
+}
+
+.hidden { display: none; }
+
+/* ── Song list ──────────────────────────────────────────────────────────── */
+
+.empty {
+    @apply text-sm text-gray-400 italic;
+}
+
+.player_connecting {
+    @apply text-sm text-amber-600 bg-amber-50 border border-amber-200 rounded-lg px-4 py-2 mb-3;
+}
+
+.song_list {
     @apply flex flex-col gap-2;
 }
 
-.track_item {
-    @apply flex items-center gap-4 bg-white px-4 py-3 rounded-xl shadow-sm border border-gray-100 transition-all;
+.song_item {
+    @apply flex items-center gap-3 px-4 py-3 rounded-xl bg-white border border-gray-100
+           hover:shadow-sm transition-all;
 }
 
-.track_active {
-    @apply border-purple-300 bg-purple-50;
+.song_active {
+    @apply border-blue-200 bg-blue-50;
 }
 
 .play_btn {
-    @apply w-9 h-9 rounded-full bg-purple-600 text-white flex items-center justify-center flex-shrink-0 hover:bg-purple-700 transition-colors border-none cursor-pointer;
+    @apply w-9 h-9 flex items-center justify-center rounded-full bg-gray-100
+           hover:bg-blue-600 hover:text-white text-base transition-colors;
 }
 
-.track_info {
-    @apply flex-1 overflow-hidden;
+.song_info {
+    @apply flex flex-col flex-1 min-w-0;
 }
 
-.track_title {
-    @apply font-semibold text-gray-800 text-sm truncate m-0;
+.song_title {
+    @apply text-sm font-semibold text-gray-900 truncate;
 }
 
-.track_artist {
-    @apply text-xs text-gray-500 truncate m-0;
+.song_artist {
+    @apply text-xs text-gray-500 truncate;
 }
 
 .delete_btn {
-    @apply text-gray-400 hover:text-red-500 transition-colors bg-transparent border-none cursor-pointer p-1 flex-shrink-0 disabled:opacity-40;
+    @apply w-8 h-8 flex items-center justify-center rounded-lg text-gray-400
+           hover:bg-red-50 hover:text-red-500 transition-colors text-sm;
 }
 
-.upload_section {
-    @apply bg-white p-8 rounded-xl shadow-sm border border-gray-100 max-w-2xl mx-auto;
+/* ── Spotify ────────────────────────────────────────────────────────────── */
+
+.spotify_header {
+    @apply flex items-center justify-between;
 }
 
-.upload_section h2 {
-    @apply text-xl font-bold text-gray-800 mb-6;
+.disconnect_btn {
+    @apply text-xs text-red-500 hover:underline font-medium;
 }
 
-.form_group {
-    @apply mb-4;
+/* ── Player bar ─────────────────────────────────────────────────────────── */
+
+.player_bar {
+    @apply flex flex-wrap items-center gap-3 px-4 py-3 bg-green-50 border border-green-200 rounded-xl;
 }
 
-.label {
-    @apply block text-sm font-semibold text-gray-700 mb-1;
+.np_thumb {
+    @apply w-10 h-10 rounded object-cover flex-shrink-0;
 }
 
-.input {
-    @apply w-full px-4 py-2 rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-purple-500;
+.np_info {
+    @apply flex flex-col flex-1 min-w-0;
 }
 
-.upload_btn {
-    @apply w-full bg-purple-600 text-white py-3 rounded-lg font-bold hover:bg-purple-700 transition-colors mt-4 disabled:bg-gray-400;
+.np_title {
+    @apply text-sm font-semibold text-gray-900 truncate;
 }
 
-.loader, .empty {
-    @apply flex items-center justify-center min-h-[40vh] text-gray-500 font-medium;
+.np_artist {
+    @apply text-xs text-gray-500 truncate;
+}
+
+.player_controls {
+    @apply flex items-center gap-1 flex-shrink-0;
+}
+
+.ctrl_btn {
+    @apply w-8 h-8 flex items-center justify-center rounded-full text-gray-600
+           hover:bg-green-200 transition-colors text-sm;
+}
+
+.ctrl_play {
+    @apply w-9 h-9 bg-green-500 text-white hover:bg-green-600;
+}
+
+.np_progress {
+    @apply flex flex-col gap-1 w-full;
+}
+
+.np_bar {
+    @apply w-full h-1.5 bg-green-200 rounded-full overflow-hidden;
+}
+
+.np_bar_fill {
+    @apply h-full bg-green-500 rounded-full transition-all duration-1000;
+}
+
+.np_time {
+    @apply text-xs text-gray-400 tabular-nums;
+}
+
+.playlist_grid {
+    @apply grid gap-4;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+}
+
+.playlist_card {
+    @apply bg-white rounded-xl border border-gray-100 overflow-hidden hover:shadow-md transition-shadow flex flex-col;
+}
+
+.playlist_img {
+    @apply w-full aspect-square object-cover;
+}
+
+.playlist_info {
+    @apply flex flex-col px-3 pt-2 pb-1 flex-1;
+}
+
+.playlist_name {
+    @apply text-sm font-semibold text-gray-900 truncate;
+}
+
+.playlist_tracks {
+    @apply text-xs text-gray-400 mt-0.5;
+}
+
+.playlist_actions {
+    @apply px-3 pb-3 pt-1 flex flex-col gap-1.5;
+}
+
+.play_playlist_btn {
+    @apply w-full py-1.5 rounded-lg bg-green-500 text-white text-xs font-bold
+           hover:bg-green-600 transition-colors;
+}
+
+.tracks_btn {
+    @apply w-full py-1.5 rounded-lg bg-gray-100 text-gray-600 text-xs font-medium
+           hover:bg-gray-200 transition-colors;
+}
+
+.tracks_btn_active {
+    @apply bg-green-100 text-green-700 hover:bg-green-200;
+}
+
+/* ── Track panel ────────────────────────────────────────────────────────── */
+
+.track_panel {
+    @apply flex flex-col gap-2 border border-gray-200 rounded-xl overflow-hidden;
+}
+
+.track_panel_header {
+    @apply flex items-center justify-between px-4 py-3 bg-gray-50 border-b border-gray-100;
+}
+
+.track_panel_title {
+    @apply text-sm font-semibold text-gray-800;
+}
+
+.close_btn {
+    @apply text-gray-400 hover:text-gray-700 text-sm transition-colors;
+}
+
+.track_list {
+    @apply flex flex-col divide-y divide-gray-50;
+}
+
+.track_item {
+    @apply flex items-center gap-3 px-4 py-2.5 hover:bg-gray-50 transition-colors;
+}
+
+.track_active {
+    @apply bg-green-50 hover:bg-green-50;
+}
+
+.track_duration {
+    @apply text-xs text-gray-400 tabular-nums flex-shrink-0;
+}
+
+/* ── Spotify connect ────────────────────────────────────────────────────── */
+
+.spotify_connect {
+    @apply flex flex-col items-center gap-4 py-8 text-center;
+}
+
+.spotify_desc {
+    @apply text-sm text-gray-600 max-w-md;
+}
+
+.spotify_btn {
+    @apply px-8 py-3 bg-green-500 text-white font-bold rounded-full
+           hover:bg-green-600 transition-colors text-sm;
+}
+
+.spotify_note {
+    @apply text-xs text-gray-400 max-w-xs;
+}
+
+/* ── Upload progress ────────────────────────────────────────────────────── */
+
+.upload_progress_wrap {
+    @apply flex flex-col items-center gap-2 w-full px-4;
+}
+
+.progress_bar {
+    @apply w-full h-2 bg-gray-200 rounded-full overflow-hidden;
+}
+
+.progress_fill {
+    @apply h-full bg-blue-500 rounded-full transition-all duration-150;
 }
