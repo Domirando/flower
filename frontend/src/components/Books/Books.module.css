@@ -127,5 +127,9 @@
 }
 
 .download_btn {
-    @apply text-blue-600 hover:underline text-sm font-semibold;
+    @apply text-blue-600 hover:underline text-sm font-semibold flex items-center gap-1;
+}
+
+.delete_btn {
+    @apply text-gray-400 hover:text-red-500 transition-colors bg-transparent border-none cursor-pointer p-1 disabled:opacity-40;
 }

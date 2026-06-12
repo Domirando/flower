@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { supabase } from "../../helper/supabaseClient";
 import styles from './Books.module.css';
-import { HiSearch, HiUpload, HiBookOpen, HiDownload, HiShoppingCart } from 'react-icons/hi';
+import { HiSearch, HiUpload, HiBookOpen, HiDownload, HiShoppingCart, HiTrash } from 'react-icons/hi';
 
 const Books = () => {
     const [activeTab, setActiveTab] = useState('search'); // 'search' | 'my-library' | 'upload'
@@ -11,6 +11,7 @@ const Books = () => {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
     const [uploadForm, setUploadForm] = useState({ title: '', authors: '', file: null });
+    const [deleting, setDeleting] = useState(null);
 
     useEffect(() => {
         if (activeTab === 'my-library') {
@@ -47,6 +48,24 @@ const Books = () => {
             setError(err.message);
         } finally {
             setLoading(false);
+        }
+    };
+
+    const handleDeleteBook = async (book) => {
+        if (!window.confirm(`Delete "${book.title}"?`)) return;
+        setDeleting(book.id);
+        try {
+            if (book.file_path) {
+                await supabase.storage.from('books').remove([book.file_path]);
+            }
+            const { error } = await supabase.from('books').delete().eq('id', book.id);
+            if (error) throw error;
+            setMyBooks(prev => prev.filter(b => b.id !== book.id));
+        } catch (err) {
+            console.error('Delete error:', err);
+            alert(err.message);
+        } finally {
+            setDeleting(null);
         }
     };
 
@@ -194,6 +213,13 @@ const Books = () => {
                                         <a href={book.file_url} download className={styles.download_btn}>
                                             <HiDownload /> Download
                                         </a>
+                                        <button
+                                            onClick={() => handleDeleteBook(book)}
+                                            className={styles.delete_btn}
+                                            disabled={deleting === book.id}
+                                        >
+                                            <HiTrash size={16} />
+                                        </button>
                                     </div>
                                 </div>
                             ))

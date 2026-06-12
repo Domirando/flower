@@ -10,9 +10,11 @@ import NewPost from "./components/NewPost/NewPost.jsx";
 import Settings from "./components/Settings/Settings";
 import Auth from "./components/Auth/Auth";
 import About from "./components/About/About";
+import MusicPlayer from "./components/Music/MusicPlayer";
 import {BrowserRouter as Router, Routes, Route, Navigate, useLocation} from "react-router-dom";
 import {supabase} from "./helper/supabaseClient";
 import {setUser} from "./redux/state";
+import {MusicPlayerProvider} from "./context/MusicPlayerContext";
 import "./App.css";
 
 function AppContent({state, updateNewMessage, addMessage, user, loading, navbarExpanded, setNavbarExpanded}) {
@@ -111,6 +113,7 @@ function AppContent({state, updateNewMessage, addMessage, user, loading, navbarE
                     </Routes>
                 </div>
             </div>
+            <MusicPlayer />
         </div>
     );
 }
@@ -177,17 +180,19 @@ function App({state, updateNewMessage, addMessage}) {
     }, []);
 
     return (
-        <Router>
-            <AppContent 
-                state={state} 
-                updateNewMessage={updateNewMessage} 
-                addMessage={addMessage} 
-                user={user} 
-                loading={loading} 
-                navbarExpanded={navbarExpanded} 
-                setNavbarExpanded={setNavbarExpanded} 
-            />
-        </Router>
+        <MusicPlayerProvider>
+            <Router>
+                <AppContent
+                    state={state}
+                    updateNewMessage={updateNewMessage}
+                    addMessage={addMessage}
+                    user={user}
+                    loading={loading}
+                    navbarExpanded={navbarExpanded}
+                    setNavbarExpanded={setNavbarExpanded}
+                />
+            </Router>
+        </MusicPlayerProvider>
     );
 }
 
