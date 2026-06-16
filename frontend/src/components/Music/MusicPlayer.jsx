@@ -1,6 +1,7 @@
 import { useMusicPlayer } from '../../context/MusicPlayerContext';
 import styles from './MusicPlayer.module.css';
-import { HiPlay, HiPause, HiSkipForward, HiSkipBackward, HiMusicNote } from 'react-icons/hi';
+import { HiPlay, HiPause, HiMusicNote } from 'react-icons/hi';
+import { HiBackward, HiForward } from 'react-icons/hi2';
 
 function fmt(sec) {
     if (!sec || isNaN(sec)) return '0:00';
@@ -25,11 +26,11 @@ export default function MusicPlayer() {
             </div>
 
             <div className={styles.controls}>
-                <button onClick={playPrev} className={styles.ctrl_btn}><HiSkipBackward size={20} /></button>
+                <button onClick={playPrev} className={styles.ctrl_btn}><HiBackward size={20} /></button>
                 <button onClick={togglePlay} className={styles.play_btn}>
                     {isPlaying ? <HiPause size={22} /> : <HiPlay size={22} />}
                 </button>
-                <button onClick={playNext} className={styles.ctrl_btn}><HiSkipForward size={20} /></button>
+                <button onClick={playNext} className={styles.ctrl_btn}><HiForward size={20} /></button>
             </div>
 
             <div className={styles.progress_section}>
