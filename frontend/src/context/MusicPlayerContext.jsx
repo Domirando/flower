@@ -45,6 +45,8 @@ export function MusicPlayerProvider({ children }) {
     }, [currentIndex]);
 
     const playTrack = useCallback((index) => {
+        // Clear Spotify from the bar so own-song takes over
+        setSpotifyState(null);
         if (index === currentIndex) {
             const audio = audioRef.current;
             if (audio.paused) {
