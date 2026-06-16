@@ -110,3 +110,27 @@
     cursor: pointer;
     accent-color: #7c3aed;
 }
+
+/* Spotify uses a non-interactive progress bar */
+.progress_bar {
+    flex: 1;
+    height: 4px;
+    background: #374151;
+    border-radius: 2px;
+    overflow: hidden;
+}
+
+.progress_fill {
+    height: 100%;
+    background: #1db954;
+    border-radius: 2px;
+    transition: width 1s linear;
+}
+
+.thumb {
+    width: 36px;
+    height: 36px;
+    border-radius: 4px;
+    object-fit: cover;
+    flex-shrink: 0;
+}

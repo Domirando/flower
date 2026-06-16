@@ -89,6 +89,11 @@ export function MusicPlayerProvider({ children }) {
         });
     }, []);
 
+    // ── Spotify bridge ────────────────────────────────────────────────────────
+    // Music.jsx calls setSpotifyState({ track, isPaused, position, duration, controls })
+    // Setting null clears Spotify from the bar.
+    const [spotifyState, setSpotifyState] = useState(null);
+
     return (
         <MusicPlayerContext.Provider value={{
             tracks, setTracks,
@@ -96,6 +101,7 @@ export function MusicPlayerProvider({ children }) {
             currentTime, duration,
             playTrack, togglePlay, seek, playNext, playPrev,
             currentTrack: currentIndex !== null ? tracks[currentIndex] : null,
+            spotifyState, setSpotifyState,
         }}>
             {children}
         </MusicPlayerContext.Provider>

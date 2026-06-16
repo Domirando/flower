@@ -2,6 +2,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { api, uploadFileToR2 } from '../../api/client';
 import { useMusicPlayer } from '../../context/MusicPlayerContext';
 import styles from './Music.module.css';
+import { HiPlay, HiPause } from 'react-icons/hi';
 
 // ── Spotify Web Playback SDK loader ──────────────────────────────────────────
 let sdkReady = false;
@@ -29,7 +30,7 @@ export default function Music() {
     const [isDragging, setIsDragging] = useState(false);
     const fileInputRef = useRef(null);
 
-    const { playTrack, setTracks, currentIndex, isPlaying } = useMusicPlayer();
+    const { playTrack, setTracks, currentIndex, isPlaying, setSpotifyState } = useMusicPlayer();
 
     // ── spotify ──────────────────────────────────────────────────────────────
     const [spotifyConnected, setSpotifyConnected] = useState(
@@ -133,6 +134,25 @@ export default function Music() {
         return () => clearInterval(timer);
     }, [isPaused, nowPlaying, duration]);
 
+    // ── sync Spotify state into the persistent bottom bar ────────────────────
+    useEffect(() => {
+        if (!nowPlaying) {
+            setSpotifyState(null);
+            return;
+        }
+        setSpotifyState({
+            track: nowPlaying,
+            isPaused,
+            position,
+            duration,
+            controls: {
+                toggle: () => spotifyPlayer?.togglePlay(),
+                next: () => spotifyPlayer?.nextTrack(),
+                prev: () => spotifyPlayer?.previousTrack(),
+            },
+        });
+    }, [nowPlaying, isPaused, position, duration, spotifyPlayer, setSpotifyState]);
+
     const loadPlaylists = () => {
         setPlaylistsLoading(true);
         api.getSpotifyPlaylists()
@@ -161,6 +181,7 @@ export default function Music() {
         setPlayerReady(false);
         setIsPaused(true);
         setExpandedPlaylist(null);
+        setSpotifyState(null);
         if (spotifyPlayer) { spotifyPlayer.disconnect(); setSpotifyPlayer(null); }
     };
 
@@ -358,32 +379,9 @@ export default function Music() {
                         )}
 
                         {nowPlaying && (
-                            <div className={styles.player_bar}>
-                                <img
-                                    src={nowPlaying.album?.images?.[2]?.url || nowPlaying.album?.images?.[0]?.url}
-                                    alt=""
-                                    className={styles.np_thumb}
-                                />
-                                <div className={styles.np_info}>
-                                    <span className={styles.np_title}>{nowPlaying.name}</span>
-                                    <span className={styles.np_artist}>{nowPlaying.artists?.map(a => a.name).join(', ')}</span>
-                                </div>
-                                <div className={styles.player_controls}>
-                                    <button className={styles.ctrl_btn} onClick={prevTrack} title="Previous">⏮</button>
-                                    <button className={`${styles.ctrl_btn} ${styles.ctrl_play}`} onClick={togglePlay} title={isPaused ? 'Play' : 'Pause'}>
-                                        {isPaused ? '▶' : '⏸'}
-                                    </button>
-                                    <button className={styles.ctrl_btn} onClick={nextTrack} title="Next">⏭</button>
-                                </div>
-                                {duration > 0 && (
-                                    <div className={styles.np_progress}>
-                                        <div className={styles.np_bar}>
-                                            <div className={styles.np_bar_fill} style={{ width: `${Math.min((position / duration) * 100, 100)}%` }} />
-                                        </div>
-                                        <span className={styles.np_time}>{fmtMs(position)} / {fmtMs(duration)}</span>
-                                    </div>
-                                )}
-                            </div>
+                            <p className={styles.player_connecting}>
+                                Now playing: <strong>{nowPlaying.name}</strong> — controls in the player bar below
+                            </p>
                         )}
 
                         {playlistsLoading ? (
@@ -410,7 +408,7 @@ export default function Music() {
                                                 disabled={!playerReady}
                                                 title={playerReady ? 'Play playlist' : 'Connecting player…'}
                                             >
-                                                {playerReady ? '▶ Play' : '⌛ Connecting…'}
+                                                {playerReady ? <><HiPlay size={12} style={{display:'inline'}} /> Play</> : '⌛ Connecting…'}
                                             </button>
                                             <button
                                                 className={`${styles.tracks_btn} ${expandedPlaylist === pl.id ? styles.tracks_btn_active : ''}`}
