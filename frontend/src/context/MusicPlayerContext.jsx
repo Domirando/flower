@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, useRef, useEffect } from 'react';
+import { createContext, useContext, useState, useRef, useEffect, useCallback } from 'react';
 
 const MusicPlayerContext = createContext(null);
 
@@ -9,17 +9,21 @@ export function MusicPlayerProvider({ children }) {
     const [currentTime, setCurrentTime] = useState(0);
     const [duration, setDuration] = useState(0);
     const audioRef = useRef(new Audio());
-
-    const audio = audioRef.current;
+    const tracksRef = useRef(tracks);
 
     useEffect(() => {
+        tracksRef.current = tracks;
+    }, [tracks]);
+
+    useEffect(() => {
+        const audio = audioRef.current;
         const onTimeUpdate = () => setCurrentTime(audio.currentTime);
         const onDurationChange = () => setDuration(audio.duration || 0);
         const onEnded = () => {
             setCurrentIndex(prev => {
-                if (prev === null || tracks.length === 0) return null;
-                const next = (prev + 1) % tracks.length;
-                return next;
+                const list = tracksRef.current;
+                if (prev === null || list.length === 0) return null;
+                return (prev + 1) % list.length;
             });
         };
 
@@ -31,45 +35,59 @@ export function MusicPlayerProvider({ children }) {
             audio.removeEventListener('durationchange', onDurationChange);
             audio.removeEventListener('ended', onEnded);
         };
-    }, [tracks]);
+    }, []);
 
     useEffect(() => {
-        if (currentIndex === null || !tracks[currentIndex]) return;
-        audio.src = tracks[currentIndex].file_url;
+        const audio = audioRef.current;
+        if (currentIndex === null || !tracksRef.current[currentIndex]) return;
+        audio.src = tracksRef.current[currentIndex].file_url;
         audio.play().then(() => setIsPlaying(true)).catch(() => {});
     }, [currentIndex]);
 
-    const playTrack = (index) => {
+    const playTrack = useCallback((index) => {
         if (index === currentIndex) {
-            togglePlay();
+            const audio = audioRef.current;
+            if (audio.paused) {
+                audio.play().then(() => setIsPlaying(true)).catch(() => {});
+            } else {
+                audio.pause();
+                setIsPlaying(false);
+            }
         } else {
             setCurrentIndex(index);
         }
-    };
+    }, [currentIndex]);
 
-    const togglePlay = () => {
+    const togglePlay = useCallback(() => {
+        const audio = audioRef.current;
         if (audio.paused) {
             audio.play().then(() => setIsPlaying(true)).catch(() => {});
         } else {
             audio.pause();
             setIsPlaying(false);
         }
-    };
+    }, []);
 
-    const seek = (time) => {
-        audio.currentTime = time;
+    const seek = useCallback((time) => {
+        audioRef.current.currentTime = time;
         setCurrentTime(time);
-    };
+    }, []);
 
-    const playNext = () => {
-        if (tracks.length === 0) return;
-        setCurrentIndex(prev => prev === null ? 0 : (prev + 1) % tracks.length);
-    };
+    const playNext = useCallback(() => {
+        setCurrentIndex(prev => {
+            const list = tracksRef.current;
+            if (list.length === 0) return prev;
+            return prev === null ? 0 : (prev + 1) % list.length;
+        });
+    }, []);
 
-    const playPrev = () => {
-        if (tracks.length === 0) return;
-        setCurrentIndex(prev => prev === null ? 0 : (prev - 1 + tracks.length) % tracks.length);
-    };
+    const playPrev = useCallback(() => {
+        setCurrentIndex(prev => {
+            const list = tracksRef.current;
+            if (list.length === 0) return prev;
+            return prev === null ? 0 : (prev - 1 + list.length) % list.length;
+        });
+    }, []);
 
     return (
         <MusicPlayerContext.Provider value={{
