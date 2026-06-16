@@ -1,8 +1,8 @@
 import { useState, useCallback } from 'react';
 import { useMusicPlayer } from '../../context/MusicPlayerContext';
 import styles from './MusicPlayer.module.css';
-import { HiPlay, HiPause, HiMusicNote, HiMenuAlt2, HiX } from 'react-icons/hi';
-import { HiBackward, HiForward } from 'react-icons/hi2';
+import { HiPlay, HiPause, HiMusicNote, HiMenuAlt2, HiX, HiArrowsExpand } from 'react-icons/hi';
+import { HiBackward, HiForward, HiArrowsPointingIn } from 'react-icons/hi2';
 
 function fmt(sec) {
     if (!sec || isNaN(sec)) return '0:00';
@@ -30,6 +30,7 @@ export default function MusicPlayer() {
     } = useMusicPlayer();
 
     const [showLyrics, setShowLyrics] = useState(false);
+    const [lyricsExpanded, setLyricsExpanded] = useState(false);
     const [lyrics, setLyrics] = useState(null);
     const [lyricsLoading, setLyricsLoading] = useState(false);
     const [lyricsError, setLyricsError] = useState(null);
@@ -105,12 +106,19 @@ export default function MusicPlayer() {
         <>
             {/* ── Lyrics panel ───────────────────────────────────────────── */}
             {showLyrics && (
-                <div className={styles.lyrics_panel}>
+                <div className={`${styles.lyrics_panel} ${lyricsExpanded ? styles.lyrics_panel_expanded : ''}`}>
                     <div className={styles.lyrics_header}>
                         <span className={styles.lyrics_title}>
                             {active.title} {active.artist && `— ${active.artist}`}
                         </span>
-                        <button className={styles.lyrics_close} onClick={() => setShowLyrics(false)}>
+                        <button
+                            className={styles.lyrics_close}
+                            onClick={() => setLyricsExpanded(e => !e)}
+                            title={lyricsExpanded ? 'Collapse' : 'Expand'}
+                        >
+                            {lyricsExpanded ? <HiArrowsPointingIn size={18} /> : <HiArrowsExpand size={18} />}
+                        </button>
+                        <button className={styles.lyrics_close} onClick={() => { setShowLyrics(false); setLyricsExpanded(false); }}>
                             <HiX size={18} />
                         </button>
                     </div>
