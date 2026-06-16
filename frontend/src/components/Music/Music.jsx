@@ -26,7 +26,7 @@ export default function Music() {
     const [isDragging, setIsDragging] = useState(false);
     const fileInputRef = useRef(null);
 
-    const { playTrack, setTracks, currentIndex, isPlaying, setSpotifyState } = useMusicPlayer();
+    const { playTrack, pauseOwn, setTracks, currentIndex, isPlaying, setSpotifyState } = useMusicPlayer();
 
     // When true the sync effect is allowed to push Spotify state to the bar.
     // Set to false when the user plays an uploaded song so SDK callbacks can't
@@ -189,6 +189,7 @@ export default function Music() {
     const playSpotifyPlaylist = async (playlist) => {
         if (!playerReady || !deviceId) return;
         try {
+            pauseOwn(); // stop the HTML audio element before handing off to Spotify
             const { access_token } = await api.getSpotifyToken();
             await fetch(`https://api.spotify.com/v1/me/player/play?device_id=${deviceId}`, {
                 method: 'PUT',
