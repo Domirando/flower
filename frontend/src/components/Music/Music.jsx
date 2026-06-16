@@ -410,12 +410,6 @@ export default function Music() {
                                             >
                                                 {playerReady ? <><HiPlay size={12} style={{display:'inline'}} /> Play</> : '⌛ Connecting…'}
                                             </button>
-                                            <button
-                                                className={`${styles.tracks_btn} ${expandedPlaylist === pl.id ? styles.tracks_btn_active : ''}`}
-                                                onClick={() => togglePlaylistTracks(pl)}
-                                            >
-                                                Tracks {expandedPlaylist === pl.id ? '▲' : '▾'}
-                                            </button>
                                         </div>
                                     </div>
                                 ))}
