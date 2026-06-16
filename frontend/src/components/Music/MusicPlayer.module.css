@@ -46,6 +46,10 @@
     text-overflow: ellipsis;
 }
 
+.track_playlist {
+    color: #6b7280;
+}
+
 .controls {
     display: flex;
     align-items: center;

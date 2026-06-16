@@ -42,6 +42,7 @@ export default function Music() {
     const [isPaused, setIsPaused] = useState(true);
     const [position, setPosition] = useState(0);
     const [duration, setDuration] = useState(0);
+    const [currentPlaylistId, setCurrentPlaylistId] = useState(null);
     const playerRef = useRef(null);
 
 
@@ -132,8 +133,10 @@ export default function Music() {
             setSpotifyState(null);
             return;
         }
+        const playlistName = playlists.find(p => p.id === currentPlaylistId)?.name || null;
         setSpotifyState({
             track: nowPlaying,
+            playlistName,
             isPaused,
             position,
             duration,
@@ -144,7 +147,7 @@ export default function Music() {
                 seek: (ms) => spotifyPlayer?.seek(ms),
             },
         });
-    }, [nowPlaying, isPaused, position, duration, spotifyPlayer, setSpotifyState]);
+    }, [nowPlaying, isPaused, position, duration, spotifyPlayer, setSpotifyState, playlists, currentPlaylistId]);
 
     const loadPlaylists = () => {
         setPlaylistsLoading(true);
@@ -187,6 +190,7 @@ export default function Music() {
                 headers: { Authorization: `Bearer ${access_token}`, 'Content-Type': 'application/json' },
                 body: JSON.stringify({ context_uri: playlist.uri }),
             });
+            setCurrentPlaylistId(playlist.id);
         } catch { /* ignore */ }
     };
 
@@ -363,12 +367,17 @@ export default function Music() {
                                         </div>
                                         <div className={styles.playlist_actions}>
                                             <button
-                                                className={styles.play_playlist_btn}
+                                                className={`${styles.play_playlist_btn} ${currentPlaylistId === pl.id && !isPaused ? styles.play_playlist_btn_active : ''}`}
                                                 onClick={() => playSpotifyPlaylist(pl)}
                                                 disabled={!playerReady}
                                                 title={playerReady ? 'Play playlist' : 'Connecting player…'}
                                             >
-                                                {playerReady ? <><HiPlay size={12} style={{display:'inline'}} /> Play</> : '⌛ Connecting…'}
+                                                {!playerReady
+                                                    ? '⌛ Connecting…'
+                                                    : currentPlaylistId === pl.id && !isPaused
+                                                        ? '▶ Playing'
+                                                        : <><HiPlay size={12} style={{display:'inline'}} /> Play</>
+                                                }
                                             </button>
                                         </div>
                                     </div>

@@ -21,10 +21,11 @@ export default function MusicPlayer() {
     let active = null;
 
     if (spotifyState?.track) {
-        const { track, isPaused, position, duration: spDur, controls } = spotifyState;
+        const { track, playlistName, isPaused, position, duration: spDur, controls } = spotifyState;
         active = {
             title: track.name,
             artist: track.artists?.map(a => a.name).join(', ') || '',
+            subtitle: playlistName || null,
             image: track.album?.images?.[2]?.url || track.album?.images?.[0]?.url || null,
             playing: !isPaused,
             currentTime: position / 1000,
@@ -38,6 +39,7 @@ export default function MusicPlayer() {
         active = {
             title: currentTrack.title,
             artist: currentTrack.artist || 'Unknown artist',
+            subtitle: null,
             image: null,
             playing: isPlaying,
             currentTime,
@@ -60,7 +62,10 @@ export default function MusicPlayer() {
                 }
                 <div>
                     <p className={styles.track_title}>{active.title}</p>
-                    <p className={styles.track_artist}>{active.artist}</p>
+                    <p className={styles.track_artist}>
+                        {active.artist}
+                        {active.subtitle && <span className={styles.track_playlist}> · {active.subtitle}</span>}
+                    </p>
                 </div>
             </div>
 
