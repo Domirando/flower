@@ -2,7 +2,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { api, uploadFileToR2 } from '../../api/client';
 import { useMusicPlayer } from '../../context/MusicPlayerContext';
 import styles from './Music.module.css';
-import { HiPlay, HiPause } from 'react-icons/hi';
+import { HiPlay } from 'react-icons/hi';
 
 // ── Spotify Web Playback SDK loader ──────────────────────────────────────────
 let sdkReady = false;
@@ -17,10 +17,6 @@ function loadSpotifySdk(onReady) {
     }
 }
 
-const fmtMs = (ms) => {
-    const s = Math.floor(ms / 1000);
-    return `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}`;
-};
 
 export default function Music() {
     // ── own songs ────────────────────────────────────────────────────────────
@@ -48,10 +44,6 @@ export default function Music() {
     const [duration, setDuration] = useState(0);
     const playerRef = useRef(null);
 
-    // ── track listing ────────────────────────────────────────────────────────
-    const [expandedPlaylist, setExpandedPlaylist] = useState(null);
-    const [playlistTracks, setPlaylistTracks] = useState({});
-    const [tracksLoading, setTracksLoading] = useState(false);
 
     // ── load songs & Spotify status on mount ─────────────────────────────────
     useEffect(() => {
@@ -180,7 +172,6 @@ export default function Music() {
         setDeviceId('');
         setPlayerReady(false);
         setIsPaused(true);
-        setExpandedPlaylist(null);
         setSpotifyState(null);
         if (spotifyPlayer) { spotifyPlayer.disconnect(); setSpotifyPlayer(null); }
     };
@@ -198,38 +189,7 @@ export default function Music() {
         } catch { /* ignore */ }
     };
 
-    const playSpotifyTrack = async (trackUri) => {
-        if (!playerReady || !deviceId) return;
-        try {
-            const { access_token } = await api.getSpotifyToken();
-            await fetch(`https://api.spotify.com/v1/me/player/play?device_id=${deviceId}`, {
-                method: 'PUT',
-                headers: { Authorization: `Bearer ${access_token}`, 'Content-Type': 'application/json' },
-                body: JSON.stringify({ uris: [trackUri] }),
-            });
-        } catch { /* ignore */ }
-    };
 
-    const togglePlay = () => spotifyPlayer?.togglePlay();
-    const nextTrack = () => spotifyPlayer?.nextTrack();
-    const prevTrack = () => spotifyPlayer?.previousTrack();
-
-    // ── Playlist tracks ───────────────────────────────────────────────────────
-    const togglePlaylistTracks = async (playlist) => {
-        if (expandedPlaylist === playlist.id) { setExpandedPlaylist(null); return; }
-        setExpandedPlaylist(playlist.id);
-        if (playlistTracks[playlist.id]) return;
-        setTracksLoading(true);
-        try {
-            const { tracks } = await api.getPlaylistTracks(playlist.id);
-            setPlaylistTracks(prev => ({
-                ...prev,
-                [playlist.id]: (tracks || []).filter(i => i?.track).map(i => i.track),
-            }));
-        } catch { /* ignore */ } finally {
-            setTracksLoading(false);
-        }
-    };
 
     // ── own songs: file upload ────────────────────────────────────────────────
     const processAudioFile = useCallback(async (file) => {
@@ -292,8 +252,7 @@ export default function Music() {
         }
     };
 
-    const expandedTracks = expandedPlaylist ? (playlistTracks[expandedPlaylist] || []) : [];
-    const expandedPlaylistName = playlists.find(p => p.id === expandedPlaylist)?.name;
+
 
     return (
         <div className={styles.page}>
@@ -416,40 +375,6 @@ export default function Music() {
                             </div>
                         )}
 
-                        {expandedPlaylist && (
-                            <div className={styles.track_panel}>
-                                <div className={styles.track_panel_header}>
-                                    <span className={styles.track_panel_title}>{expandedPlaylistName}</span>
-                                    <button className={styles.close_btn} onClick={() => setExpandedPlaylist(null)}>✕</button>
-                                </div>
-                                {tracksLoading ? (
-                                    <p className={styles.empty}>Loading tracks…</p>
-                                ) : expandedTracks.length === 0 ? (
-                                    <p className={styles.empty}>No tracks found.</p>
-                                ) : (
-                                    <ul className={styles.track_list}>
-                                        {expandedTracks.map((track, i) => {
-                                            const isActive = nowPlaying?.id === track.id;
-                                            return (
-                                                <li key={track.id || i} className={`${styles.track_item} ${isActive ? styles.track_active : ''}`}>
-                                                    <button
-                                                        className={styles.play_btn}
-                                                        onClick={() => playSpotifyTrack(track.uri)}
-                                                        disabled={!playerReady}
-                                                    >
-                                                        {isActive && !isPaused ? '⏸' : '▶'}
-                                                    </button>
-                                                    <div className={styles.song_info}>
-                                                        <span className={styles.song_title}>{track.name}</span>
-                                                        <span className={styles.song_artist}>{track.artists?.map(a => a.name).join(', ')}</span>
-                                                    </div>
-                                                    <span className={styles.track_duration}>{fmtMs(track.duration_ms)}</span>
-                                                </li>
-                                            );
-                                        })}
-                                    </ul>
-                                )}
-                            </div>
                         )}
                     </>
                 ) : (
