@@ -10,9 +10,11 @@ import NewPost from "./components/NewPost/NewPost.jsx";
 import Settings from "./components/Settings/Settings";
 import Auth from "./components/Auth/Auth";
 import About from "./components/About/About";
+import MusicPlayer from "./components/Music/MusicPlayer";
 import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from "react-router-dom";
 import { api, clearToken, getToken } from "./api/client";
 import { setUser, clearUser, subscriber } from "./redux/state";
+import { MusicPlayerProvider } from "./context/MusicPlayerContext";
 import "./App.css";
 
 function AppContent({ state, user, loading, navbarExpanded, setNavbarExpanded }) {
@@ -72,6 +74,7 @@ function AppContent({ state, user, loading, navbarExpanded, setNavbarExpanded })
                     </div>
                 </div>
             </div>
+            <MusicPlayer />
         </div>
     );
 }
@@ -118,7 +121,6 @@ function App({ state }) {
 
         syncUser();
 
-        // Sync logout across tabs
         const onStorage = (e) => {
             if (e.key === 'flower_token' && !e.newValue) {
                 setLocalUser(null);
@@ -130,15 +132,17 @@ function App({ state }) {
     }, []);
 
     return (
-        <Router>
-            <AppContent
-                state={state}
-                user={user}
-                loading={loading}
-                navbarExpanded={navbarExpanded}
-                setNavbarExpanded={setNavbarExpanded}
-            />
-        </Router>
+        <MusicPlayerProvider>
+            <Router>
+                <AppContent
+                    state={state}
+                    user={user}
+                    loading={loading}
+                    navbarExpanded={navbarExpanded}
+                    setNavbarExpanded={setNavbarExpanded}
+                />
+            </Router>
+        </MusicPlayerProvider>
     );
 }
 
