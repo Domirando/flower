@@ -28,6 +28,11 @@ export default function Music() {
 
     const { playTrack, setTracks, currentIndex, isPlaying, setSpotifyState } = useMusicPlayer();
 
+    // When true the sync effect is allowed to push Spotify state to the bar.
+    // Set to false when the user plays an uploaded song so SDK callbacks can't
+    // clobber the player bar even after player_state_changed fires from pause().
+    const spotifyActiveRef = useRef(false);
+
     // ── spotify ──────────────────────────────────────────────────────────────
     const [spotifyConnected, setSpotifyConnected] = useState(
         () => localStorage.getItem('flower_spotify_connected') === 'true'
@@ -129,7 +134,7 @@ export default function Music() {
 
     // ── sync Spotify state into the persistent bottom bar ────────────────────
     useEffect(() => {
-        if (!nowPlaying) {
+        if (!nowPlaying || !spotifyActiveRef.current) {
             setSpotifyState(null);
             return;
         }
@@ -190,6 +195,7 @@ export default function Music() {
                 headers: { Authorization: `Bearer ${access_token}`, 'Content-Type': 'application/json' },
                 body: JSON.stringify({ context_uri: playlist.uri }),
             });
+            spotifyActiveRef.current = true;
             setCurrentPlaylistId(playlist.id);
             // SDK sometimes receives the state as paused on the first transfer — force resume
             setTimeout(() => { playerRef.current?.resume().catch(() => {}); }, 600);
@@ -198,10 +204,12 @@ export default function Music() {
 
     // Wrapper so clicking an uploaded song stops Spotify first
     const handlePlayTrack = (index) => {
+        // Gate the sync effect BEFORE pausing — the SDK fires player_state_changed
+        // on pause which would otherwise push nowPlaying back into the bar.
+        spotifyActiveRef.current = false;
         if (spotifyPlayer && !isPaused) {
             spotifyPlayer.pause();
         }
-        setNowPlaying(null);
         setCurrentPlaylistId(null);
         setSpotifyState(null);
         playTrack(index);
