@@ -191,7 +191,20 @@ export default function Music() {
                 body: JSON.stringify({ context_uri: playlist.uri }),
             });
             setCurrentPlaylistId(playlist.id);
+            // SDK sometimes receives the state as paused on the first transfer — force resume
+            setTimeout(() => { playerRef.current?.resume().catch(() => {}); }, 600);
         } catch { /* ignore */ }
+    };
+
+    // Wrapper so clicking an uploaded song stops Spotify first
+    const handlePlayTrack = (index) => {
+        if (spotifyPlayer && !isPaused) {
+            spotifyPlayer.pause();
+        }
+        setNowPlaying(null);
+        setCurrentPlaylistId(null);
+        setSpotifyState(null);
+        playTrack(index);
     };
 
 
@@ -306,7 +319,7 @@ export default function Music() {
                             const active = currentIndex === index;
                             return (
                                 <li key={song.id} className={`${styles.song_item} ${active ? styles.song_active : ''}`}>
-                                    <button className={styles.play_btn} onClick={() => playTrack(index)} title="Play / Pause">
+                                    <button className={styles.play_btn} onClick={() => handlePlayTrack(index)} title="Play / Pause">
                                         {active && isPlaying ? '⏸' : '▶'}
                                     </button>
                                     <div className={styles.song_info}>
