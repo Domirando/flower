@@ -2,7 +2,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { api, uploadFileToR2 } from '../../api/client';
 import { useMusicPlayer } from '../../context/MusicPlayerContext';
 import styles from './Music.module.css';
-import { HiPlay } from 'react-icons/hi';
+import { HiPlay, HiVolumeUp } from 'react-icons/hi';
 
 // ── Spotify Web Playback SDK loader ──────────────────────────────────────────
 let sdkReady = false;
@@ -375,7 +375,7 @@ export default function Music() {
                                                 {!playerReady
                                                     ? '⌛ Connecting…'
                                                     : currentPlaylistId === pl.id && !isPaused
-                                                        ? '▶ Playing'
+                                                        ? <><HiVolumeUp size={12} style={{display:'inline'}} /> Playing</>
                                                         : <><HiPlay size={12} style={{display:'inline'}} /> Play</>
                                                 }
                                             </button>
