@@ -141,6 +141,7 @@ export default function Music() {
                 toggle: () => spotifyPlayer?.togglePlay(),
                 next: () => spotifyPlayer?.nextTrack(),
                 prev: () => spotifyPlayer?.previousTrack(),
+                seek: (ms) => spotifyPlayer?.seek(ms),
             },
         });
     }, [nowPlaying, isPaused, position, duration, spotifyPlayer, setSpotifyState]);

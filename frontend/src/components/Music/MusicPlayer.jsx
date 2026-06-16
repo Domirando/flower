@@ -10,10 +10,6 @@ function fmt(sec) {
     return `${m}:${s}`;
 }
 
-function fmtMs(ms) {
-    return fmt(ms / 1000);
-}
-
 export default function MusicPlayer() {
     const {
         currentTrack, isPlaying, currentTime, duration,
@@ -21,77 +17,73 @@ export default function MusicPlayer() {
         spotifyState,
     } = useMusicPlayer();
 
-    // Spotify takes priority when a track is active there
+    // Normalise whichever source is active into one shape
+    let active = null;
+
     if (spotifyState?.track) {
-        const { track, isPaused, position, duration: spDuration, controls } = spotifyState;
-        const artists = track.artists?.map(a => a.name).join(', ') || '';
-        const thumb = track.album?.images?.[2]?.url || track.album?.images?.[0]?.url;
-        const pct = spDuration > 0 ? Math.min((position / spDuration) * 100, 100) : 0;
-
-        return (
-            <div className={styles.player}>
-                <div className={styles.track_info}>
-                    {thumb
-                        ? <img src={thumb} alt="" className={styles.thumb} />
-                        : <HiMusicNote size={20} className={styles.note_icon} />
-                    }
-                    <div>
-                        <p className={styles.track_title}>{track.name}</p>
-                        <p className={styles.track_artist}>{artists}</p>
-                    </div>
-                </div>
-
-                <div className={styles.controls}>
-                    <button onClick={controls.prev} className={styles.ctrl_btn}><HiBackward size={20} /></button>
-                    <button onClick={controls.toggle} className={styles.play_btn}>
-                        {isPaused ? <HiPlay size={22} /> : <HiPause size={22} />}
-                    </button>
-                    <button onClick={controls.next} className={styles.ctrl_btn}><HiForward size={20} /></button>
-                </div>
-
-                <div className={styles.progress_section}>
-                    <span className={styles.time}>{fmtMs(position)}</span>
-                    <div className={styles.progress_bar}>
-                        <div className={styles.progress_fill} style={{ width: `${pct}%` }} />
-                    </div>
-                    <span className={styles.time}>{fmtMs(spDuration)}</span>
-                </div>
-            </div>
-        );
+        const { track, isPaused, position, duration: spDur, controls } = spotifyState;
+        active = {
+            title: track.name,
+            artist: track.artists?.map(a => a.name).join(', ') || '',
+            image: track.album?.images?.[2]?.url || track.album?.images?.[0]?.url || null,
+            playing: !isPaused,
+            currentTime: position / 1000,
+            duration: spDur / 1000,
+            onToggle: controls.toggle,
+            onPrev: controls.prev,
+            onNext: controls.next,
+            onSeek: (sec) => controls.seek(sec * 1000),
+        };
+    } else if (currentTrack) {
+        active = {
+            title: currentTrack.title,
+            artist: currentTrack.artist || 'Unknown artist',
+            image: null,
+            playing: isPlaying,
+            currentTime,
+            duration,
+            onToggle: togglePlay,
+            onPrev: playPrev,
+            onNext: playNext,
+            onSeek: seek,
+        };
     }
 
-    if (!currentTrack) return null;
+    if (!active) return null;
 
     return (
         <div className={styles.player}>
             <div className={styles.track_info}>
-                <HiMusicNote size={20} className={styles.note_icon} />
+                {active.image
+                    ? <img src={active.image} alt="" className={styles.thumb} />
+                    : <HiMusicNote size={20} className={styles.note_icon} />
+                }
                 <div>
-                    <p className={styles.track_title}>{currentTrack.title}</p>
-                    <p className={styles.track_artist}>{currentTrack.artist || 'Unknown artist'}</p>
+                    <p className={styles.track_title}>{active.title}</p>
+                    <p className={styles.track_artist}>{active.artist}</p>
                 </div>
             </div>
 
             <div className={styles.controls}>
-                <button onClick={playPrev} className={styles.ctrl_btn}><HiBackward size={20} /></button>
-                <button onClick={togglePlay} className={styles.play_btn}>
-                    {isPlaying ? <HiPause size={22} /> : <HiPlay size={22} />}
+                <button onClick={active.onPrev} className={styles.ctrl_btn}><HiBackward size={20} /></button>
+                <button onClick={active.onToggle} className={styles.play_btn}>
+                    {active.playing ? <HiPause size={22} /> : <HiPlay size={22} />}
                 </button>
-                <button onClick={playNext} className={styles.ctrl_btn}><HiForward size={20} /></button>
+                <button onClick={active.onNext} className={styles.ctrl_btn}><HiForward size={20} /></button>
             </div>
 
             <div className={styles.progress_section}>
-                <span className={styles.time}>{fmt(currentTime)}</span>
+                <span className={styles.time}>{fmt(active.currentTime)}</span>
                 <input
                     type="range"
                     className={styles.progress}
                     min={0}
-                    max={duration || 1}
+                    max={active.duration || 1}
                     step={0.1}
-                    value={currentTime}
-                    onChange={e => seek(Number(e.target.value))}
+                    value={active.currentTime}
+                    onChange={e => active.onSeek(Number(e.target.value))}
                 />
-                <span className={styles.time}>{fmt(duration)}</span>
+                <span className={styles.time}>{fmt(active.duration)}</span>
             </div>
         </div>
     );
